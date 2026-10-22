@@ -143,6 +143,7 @@ public class PropertyRegistry {
     public static final String ELEMENT_TYPE_COLUMN = "typeColumn";
     public static final String ELEMENT_KEY_COLUMN = "keyColumn";
     public static final String ELEMENT_VALUE_COLUMN = "valueColumn";
+    public static final String ELEMENT_DICT_CACHE_ORDER_COLUMNS = "dictCacheOrderColumns";
     public static final String ELEMENT_VALIDATE_IGNORE_COLUMNS = "validateIgnoreColumns";
 
     public static final String ELEMENT_SOURCE_COLUMN = "sourceColumn";

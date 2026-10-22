@@ -1441,6 +1441,19 @@ mvn -q -pl mybatis-generator-core "-Denforcer.skip=true" `
 
 此缓存字典查询与 `generateOptions` 的表单选项 GET 路由是两套用途不同的接口：前者通过 Service 的缓存查询按键取翻译值（Controller 查询路由为 `/dict`），后者查询记录并投影 `FormSelectOption`（如 `/option/name`）。不要因启用了 CachePo 就假定 `/option/name` 已被缓存；也不要因下拉接口可用，就假定列表 ViewVo 的 `categoryText` 已能完成 ID 到名称的后端转换。实际缓存还依赖生成的缓存注解配置与宿主 Spring Cache/缓存实现及失效链路，须检查运行时配置，不能仅以生成了 CachePo 宣称缓存已生效。
 
+#### 字典预取排序契约（opt-in）
+
+只有需要跨批字典预取并且能证明排序等价时才配置 `dictCacheOrderColumns`，例如：
+
+```xml
+<generateCachePo generate="true" valueColumn="name_" includeColumns="name_,nick_name,username_"
+                 dictCacheOrderColumns="sort_,created_,id_"/>
+```
+
+该属性使用物理列名，缺省为空并保持原有生成行为；启用时必须同时设置 `generate="true"`，列名不得重复，最后一列必须与 `keyColumn` 一致（缺省 `id_`）。生成器会将排序列补入 CachePo；不属于 key/type/value 的排序元数据字段以 `@JsonIgnore` 隐藏，且仅作为排序元数据加入的 `sort_` 不会触发 CachePo 的业务 `compareTo` 方法。它还会生成带 `@DictPrefetchProvider` 元数据的 `selectByKeysDictForPrefetch` Service 方法，该方法直接调用 Mapper，不读写原 `selectByKeysDict` 的 Spring Cache。原缓存方法和其调用契约保持不变。
+
+字典 SQL 按配置列升序，并对 nullable 列显式生成 `CASE WHEN column IS NULL THEN 0 ELSE 1 END ASC`，即 NULLS FIRST，再由最终 key 列稳定打破同值顺序。框架跨批合并前必须证明 Java 比较规则与数据库排序一致；不能证明时应跳过预取并回退原查询。当前 web2 对字符串 key 的跨批比较只接受规范小写、无连字符的 32 位 UUID。消费方必须核对生成的 CachePo 字段/JSON、Service 接口与实现签名、Mapper SQL，并通过受控单表再生成审查实际输出白名单；不得把 opt-in 扩大到未评审的其它表。
+
 ### 13.5.1 分类/业务字典作为引用选项与展示转换
 
 此场景包含两条相互配合、但不能互相替代的链路：表单通过选项 API 将显示名称选为引用 ID；列表/详情通过后端字典转换将引用 ID 显示为名称。建议按以下顺序完成配置，再逐步核对生成物和宿主行为。示例以引用方字段 `category_id`、分类主键 `id_`、显示列 `name_` 为例；应替换为实际表名、列名、模块路由和 Service Bean 名。

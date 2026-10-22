@@ -322,6 +322,10 @@ public class TableConfiguration extends PropertyHolder {
 
         String fqTableName = composeFullyQualifiedTableName(catalog, schema, tableName, '.');
 
+        if (voCacheGeneratorConfiguration != null) {
+            voCacheGeneratorConfiguration.validate(errors, fqTableName);
+        }
+
         VoGeneratorConfiguration voConfiguration = getVoGeneratorConfiguration();
         VoExcelImportWorkflowConfiguration importWorkflow =
                 voConfiguration == null ? null : voConfiguration.getVoExcelImportWorkflowConfiguration();

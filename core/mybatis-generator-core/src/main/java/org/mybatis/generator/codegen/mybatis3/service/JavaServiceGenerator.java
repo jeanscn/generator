@@ -169,9 +169,12 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
          *  getSelectByKeysDictMethod
          * */
         if (introspectedTable.getRules().isGenerateCachePo()) {
-            bizInf.addMethod(serviceMethods.getSelectByKeysDictMethod(bizInf,
-                    introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration(),
-                    true, true));
+            var cacheConfiguration = introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration();
+            bizInf.addMethod(serviceMethods.getSelectByKeysDictMethod(bizInf, cacheConfiguration, true, true));
+            if (!cacheConfiguration.getDictCacheOrderColumns().isEmpty()) {
+                bizInf.addMethod(serviceMethods.getSelectByKeysDictForPrefetchMethod(
+                        bizInf, cacheConfiguration, true));
+            }
         }
 
         //deleteByTableXXXX

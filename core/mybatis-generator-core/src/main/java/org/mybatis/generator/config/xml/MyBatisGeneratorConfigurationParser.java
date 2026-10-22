@@ -3635,6 +3635,10 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(nameColumn)) {
             voCacheGeneratorConfiguration.setValueColumn(nameColumn);
         }
+        String dictCacheOrderColumns = attributes.getProperty(PropertyRegistry.ELEMENT_DICT_CACHE_ORDER_COLUMNS);
+        if (stringHasValue(dictCacheOrderColumns)) {
+            voCacheGeneratorConfiguration.setDictCacheOrderColumns(splitToList(dictCacheOrderColumns));
+        }
         tc.setVoCacheGeneratorConfiguration(voCacheGeneratorConfiguration);
 
     }

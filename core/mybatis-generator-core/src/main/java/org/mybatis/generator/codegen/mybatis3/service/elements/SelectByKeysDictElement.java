@@ -52,32 +52,44 @@ public class SelectByKeysDictElement extends AbstractServiceElementGenerator {
         cacheAnnotationDesc.setParameters(parameters);
         cacheAnnotationDesc.setUnless("#result==null || #result instanceof T(java.lang.Exception) || #result.isEmpty()");
         selectByKeysDictMethod.addAnnotation(cacheAnnotationDesc.toCacheableAnnotation(parentElement));
-        //方法体
-        selectByKeysDictMethod.addBodyLine("SelDictByKeysParam selDictByKeysParam = new SelDictByKeysParam();");
-        String keyColumn = voCacheGeneratorConfiguration.getKeyColumn();
-        IntrospectedColumn column = introspectedTable.getColumn(keyColumn).orElse(null);
-        if (column != null && column.isStringColumn()) {
-            selectByKeysDictMethod.addBodyLine("selDictByKeysParam.addKeyString(keys);");
-        } else  if(column != null && column.isBigDecimalColumn()){
-            selectByKeysDictMethod.addBodyLine("selDictByKeysParam.addKeyString(keys.toPlainString());");
-        } else {
-            selectByKeysDictMethod.addBodyLine("selDictByKeysParam.addKeyString(String.valueOf(keys));");
-        }
-        selectByKeysDictMethod.addBodyLine("if (types!=null && types.isPresent()) {");
-        selectByKeysDictMethod.addBodyLine("types.ifPresent(selDictByKeysParam::addTypeString);");
-        selectByKeysDictMethod.addBodyLine("}");
-        selectByKeysDictMethod.addBodyLine("List<{0}> result = mapper.{1}(selDictByKeysParam);"
-                , entityType.getShortName()
-                , introspectedTable.getSelectByKeysDictStatementId());
-        selectByKeysDictMethod.addBodyLine("if (!result.isEmpty()) {");
-        selectByKeysDictMethod.addBodyLine("return {0}.to{1}CachePos(result);"
-                ,typeCacheMappingType.getShortNameFirstLowCase()+"Impl", entityType.getShortName());
-        selectByKeysDictMethod.addBodyLine("}else{");
-        selectByKeysDictMethod.addBodyLine("return new ArrayList<>();");
-        selectByKeysDictMethod.addBodyLine("}");
+        addSelectByKeysDictBody(selectByKeysDictMethod, voCacheGeneratorConfiguration, typeCacheMappingType, false);
         parentElement.addMethod(selectByKeysDictMethod);
+
+        if (!voCacheGeneratorConfiguration.getDictCacheOrderColumns().isEmpty()) {
+            Method prefetchMethod = serviceMethods.getSelectByKeysDictForPrefetchMethod(
+                    parentElement, voCacheGeneratorConfiguration, false);
+            prefetchMethod.addAnnotation("@Override");
+            addSelectByKeysDictBody(prefetchMethod, voCacheGeneratorConfiguration, typeCacheMappingType, true);
+            parentElement.addMethod(prefetchMethod);
+        }
         Mb3GenUtil.injectionMappingsInstance(parentElement,typeCacheMappingType);
         parentElement.addImportedType(typeCacheMappingType);
         parentElement.addImportedType("java.util.ArrayList");
+    }
+
+    private void addSelectByKeysDictBody(Method method, VoCacheGeneratorConfiguration config,
+                                         FullyQualifiedJavaType typeCacheMappingType, boolean stringKeys) {
+        method.addBodyLine("SelDictByKeysParam selDictByKeysParam = new SelDictByKeysParam();");
+        String keyColumn = config.getKeyColumn();
+        IntrospectedColumn column = introspectedTable.getColumn(keyColumn).orElse(null);
+        if (column != null && column.isStringColumn()) {
+            method.addBodyLine("selDictByKeysParam.addKeyString(keys);");
+        } else  if(column != null && column.isBigDecimalColumn() && !stringKeys){
+            method.addBodyLine("selDictByKeysParam.addKeyString(keys.toPlainString());");
+        } else {
+            method.addBodyLine("selDictByKeysParam.addKeyString(String.valueOf(keys));");
+        }
+        method.addBodyLine("if (types!=null && types.isPresent()) {");
+        method.addBodyLine("types.ifPresent(selDictByKeysParam::addTypeString);");
+        method.addBodyLine("}");
+        method.addBodyLine("List<{0}> result = mapper.{1}(selDictByKeysParam);"
+                , entityType.getShortName()
+                , introspectedTable.getSelectByKeysDictStatementId());
+        method.addBodyLine("if (!result.isEmpty()) {");
+        method.addBodyLine("return {0}.to{1}CachePos(result);"
+                ,typeCacheMappingType.getShortNameFirstLowCase()+"Impl", entityType.getShortName());
+        method.addBodyLine("}else{");
+        method.addBodyLine("return new ArrayList<>();");
+        method.addBodyLine("}");
     }
 }

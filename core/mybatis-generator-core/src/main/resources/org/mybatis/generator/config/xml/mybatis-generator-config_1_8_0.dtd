@@ -1843,7 +1843,8 @@
             3、includeColumns 可选 Cache模型包含的字段名,多值使用","。 始终包含ID_。
             4、typeColumn 可选 作为字典，字典类型的字段名
             5、keyColumn 可选 作为字典，字典编码的字段名，如果不指定则默认为"ID_"
-               property配置：无
+            6、dictCacheOrderColumns 可选 字典预取的稳定排序列，按数据库列名以","分隔；最后一列必须与keyColumn相同。启用后排序元数据仅供预取使用，不会序列化到HTTP或Redis JSON。
+              property配置：无
         -->
         <!ELEMENT generateCachePo EMPTY>
         <!ATTLIST generateCachePo
@@ -1851,7 +1852,8 @@
                 generate (true|false) #IMPLIED
                 includeColumns CDATA #IMPLIED
                 typeColumn  CDATA #IMPLIED
-                keyColumn  CDATA #IMPLIED>
+                keyColumn  CDATA #IMPLIED
+                dictCacheOrderColumns CDATA #IMPLIED>
 
         <!--
              用于配置Vo对象转换值的属性值得配置描述

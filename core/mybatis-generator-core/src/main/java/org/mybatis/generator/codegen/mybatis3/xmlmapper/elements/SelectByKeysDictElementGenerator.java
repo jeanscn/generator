@@ -4,6 +4,9 @@ import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.config.VoCacheGeneratorConfiguration;
+
+import java.util.stream.Collectors;
+
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
@@ -49,12 +52,32 @@ public class SelectByKeysDictElementGenerator extends AbstractXmlElementGenerato
             choose1.addElement(getWhenMultiKeyInElement(introspectedColumn,"types"));
         });
         //增加默认排序
-        TextElement defaultOrderBy = buildOrderByDefault();
+        TextElement defaultOrderBy = buildDictOrderBy(config);
+        if (defaultOrderBy == null) {
+            defaultOrderBy = buildOrderByDefault();
+        }
         if (defaultOrderBy != null) {
             answer.addElement(defaultOrderBy);
         }
         if (context.getPlugins().sqlMapSelectByKeysDictElementGenerated(answer, introspectedTable)) {
             parentElement.addElement(answer);
         }
+    }
+
+    private TextElement buildDictOrderBy(VoCacheGeneratorConfiguration config) {
+        if (config.getDictCacheOrderColumns().isEmpty()) {
+            return null;
+        }
+        String orderBy = config.getDictCacheOrderColumns().stream()
+                .map(columnName -> {
+                    String actualColumnName = introspectedTable.getColumn(columnName)
+                            .orElseThrow(() -> new IllegalArgumentException(
+                                    "dictCacheOrderColumns references missing column: " + columnName))
+                            .getActualColumnName();
+                    return "CASE WHEN " + actualColumnName + " IS NULL THEN 0 ELSE 1 END ASC, "
+                            + actualColumnName + " ASC";
+                })
+                .collect(Collectors.joining(", "));
+        return new TextElement("ORDER BY " + orderBy);
     }
 }

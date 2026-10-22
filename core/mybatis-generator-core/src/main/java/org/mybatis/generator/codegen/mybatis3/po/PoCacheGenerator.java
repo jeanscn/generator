@@ -48,7 +48,7 @@ public class PoCacheGenerator extends AbstractVoGenerator {
                 .distinct()
                 .map(c -> introspectedTable.getColumn(c).orElse(null))
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
 
         List<IntrospectedColumn> includeColumns = introspectedTable.getBaseColumns().stream()
                 .filter(c -> config.getIncludeColumns().contains(c.getActualColumnName()))
@@ -56,18 +56,26 @@ public class PoCacheGenerator extends AbstractVoGenerator {
         if (includeColumns.isEmpty()) {
             includeColumns = introspectedTable.getBaseColumns();
         }
-        List<IntrospectedColumn> allColumns = Stream.of(pkColumns.stream(), oColumns.stream(), includeColumns.stream())
+        List<IntrospectedColumn> orderColumns = config.getDictCacheOrderColumns().stream()
+                .map(columnName -> introspectedTable.getColumn(columnName)
+                        .orElseThrow(() -> new IllegalArgumentException("dictCacheOrderColumns references missing column: " + columnName)))
+                .toList();
+        List<IntrospectedColumn> allColumns = Stream.of(pkColumns.stream(), oColumns.stream(), includeColumns.stream(), orderColumns.stream())
                 .flatMap(Function.identity())
                 .distinct()
-                .collect(Collectors.toList());
+                .toList();
         for (IntrospectedColumn column : allColumns) {
             Field field = getJavaBeansField(column, context, introspectedTable);
+            if (isHiddenDictOrderColumn(config, column)) {
+                field.addAnnotation("@JsonIgnore");
+                cachePoClass.addImportedType("com.fasterxml.jackson.annotation.JsonIgnore");
+            }
             cachePoClass.addField(field);
             cachePoClass.addImportedType(field.getType());
         }
 
         addDictValueTextField(config, cachePoClass);
-        addCompareMethod(cachePoClass);
+        addCompareMethod(cachePoClass, includeColumns);
         mappingsInterface.addImportedType(new FullyQualifiedJavaType(cachePoType));
         mappingsInterface.addImportedType(new FullyQualifiedJavaType("org.mapstruct.Mapping"));
         Method method = addMappingMethod(entityType, cachePoClass.getType(), false);
@@ -97,6 +105,14 @@ public class PoCacheGenerator extends AbstractVoGenerator {
         return cachePoClass;
     }
 
+    private boolean isHiddenDictOrderColumn(VoCacheGeneratorConfiguration config, IntrospectedColumn column) {
+        String actualColumnName = column.getActualColumnName();
+        return config.getDictCacheOrderColumns().contains(actualColumnName)
+                && !actualColumnName.equals(config.getKeyColumn())
+                && !actualColumnName.equals(config.getTypeColumn())
+                && !actualColumnName.equals(config.getValueColumn());
+    }
+
     private void addDictValueTextField(VoCacheGeneratorConfiguration config, TopLevelClass cachePoClass) {
         //追加dictValueText属性
         IntrospectedColumn valueColumn = introspectedTable.getColumn(config.getValueColumn()).orElse(null);
@@ -114,9 +130,10 @@ public class PoCacheGenerator extends AbstractVoGenerator {
         }
     }
 
-    private void addCompareMethod(TopLevelClass cachePoClass) {
+    static void addCompareMethod(TopLevelClass cachePoClass, List<IntrospectedColumn> includeColumns) {
         //追加compare方法
-        if (cachePoClass.getFields().stream().anyMatch(f -> f.getName().equalsIgnoreCase(DefaultColumnNameEnum.SORT.fieldName()))) {
+        if (includeColumns.stream().anyMatch(column ->
+                column.getJavaProperty().equalsIgnoreCase(DefaultColumnNameEnum.SORT.fieldName()))) {
             Method compareMethod = new Method("compareTo");
             compareMethod.setVisibility(JavaVisibility.PUBLIC);
             compareMethod.setReturnType(FullyQualifiedJavaType.getIntInstance());
