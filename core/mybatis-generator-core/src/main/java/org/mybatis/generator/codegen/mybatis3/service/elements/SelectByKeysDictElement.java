@@ -7,6 +7,7 @@ import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.config.VoCacheGeneratorConfiguration;
+import org.mybatis.generator.codegen.mybatis3.DictCacheOrderResolver;
 import org.mybatis.generator.custom.ConstantsUtil;
 import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
@@ -52,33 +53,39 @@ public class SelectByKeysDictElement extends AbstractServiceElementGenerator {
         cacheAnnotationDesc.setParameters(parameters);
         cacheAnnotationDesc.setUnless("#result==null || #result instanceof T(java.lang.Exception) || #result.isEmpty()");
         selectByKeysDictMethod.addAnnotation(cacheAnnotationDesc.toCacheableAnnotation(parentElement));
-        addSelectByKeysDictBody(selectByKeysDictMethod, voCacheGeneratorConfiguration, typeCacheMappingType, false);
+        IntrospectedColumn keyColumn = DictCacheOrderResolver.requireColumn(introspectedTable,
+                voCacheGeneratorConfiguration.getKeyColumn(), "keyColumn");
+        String keys = keyColumn.isStringColumn() ? "keys"
+                : isBigDecimalType(keyColumn) ? "keys.toPlainString()" : "String.valueOf(keys)";
+        IntrospectedColumn typeColumn = introspectedTable.getColumn(
+                voCacheGeneratorConfiguration.getTypeColumn()).orElse(null);
+        String types = typeColumn == null || typeColumn.isStringColumn() ? "types"
+                : isBigDecimalType(typeColumn)
+                ? "types == null ? null : types.map(value -> value.toPlainString())"
+                : "types == null ? null : types.map(value -> String.valueOf(value))";
+        selectByKeysDictMethod.addBodyLine("return queryByKeysDict(" + types + ", " + keys + ");");
         parentElement.addMethod(selectByKeysDictMethod);
 
-        if (!voCacheGeneratorConfiguration.getDictCacheOrderColumns().isEmpty()) {
-            Method prefetchMethod = serviceMethods.getSelectByKeysDictForPrefetchMethod(
-                    parentElement, voCacheGeneratorConfiguration, false);
-            prefetchMethod.addAnnotation("@Override");
-            addSelectByKeysDictBody(prefetchMethod, voCacheGeneratorConfiguration, typeCacheMappingType, true);
-            parentElement.addMethod(prefetchMethod);
-        }
+        Method prefetchMethod = serviceMethods.getSelectByKeysDictForPrefetchMethod(
+                parentElement, voCacheGeneratorConfiguration, false);
+        prefetchMethod.addAnnotation("@Override");
+        prefetchMethod.addBodyLine("return queryByKeysDict(types, keys);");
+        parentElement.addMethod(prefetchMethod);
+        Method queryMethod = serviceMethods.getQueryByKeysDictMethod(parentElement, voCacheGeneratorConfiguration);
+        addSelectByKeysDictBody(queryMethod, typeCacheMappingType);
+        parentElement.addMethod(queryMethod);
         Mb3GenUtil.injectionMappingsInstance(parentElement,typeCacheMappingType);
         parentElement.addImportedType(typeCacheMappingType);
         parentElement.addImportedType("java.util.ArrayList");
     }
 
-    private void addSelectByKeysDictBody(Method method, VoCacheGeneratorConfiguration config,
-                                         FullyQualifiedJavaType typeCacheMappingType, boolean stringKeys) {
+    private boolean isBigDecimalType(IntrospectedColumn column) {
+        return "java.math.BigDecimal".equals(column.getFullyQualifiedJavaType().getFullyQualifiedName());
+    }
+
+    private void addSelectByKeysDictBody(Method method, FullyQualifiedJavaType typeCacheMappingType) {
         method.addBodyLine("SelDictByKeysParam selDictByKeysParam = new SelDictByKeysParam();");
-        String keyColumn = config.getKeyColumn();
-        IntrospectedColumn column = introspectedTable.getColumn(keyColumn).orElse(null);
-        if (column != null && column.isStringColumn()) {
-            method.addBodyLine("selDictByKeysParam.addKeyString(keys);");
-        } else  if(column != null && column.isBigDecimalColumn() && !stringKeys){
-            method.addBodyLine("selDictByKeysParam.addKeyString(keys.toPlainString());");
-        } else {
-            method.addBodyLine("selDictByKeysParam.addKeyString(String.valueOf(keys));");
-        }
+        method.addBodyLine("selDictByKeysParam.addKeyString(keys);");
         method.addBodyLine("if (types!=null && types.isPresent()) {");
         method.addBodyLine("types.ifPresent(selDictByKeysParam::addTypeString);");
         method.addBodyLine("}");

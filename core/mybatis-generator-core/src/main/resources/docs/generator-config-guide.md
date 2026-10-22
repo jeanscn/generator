@@ -1441,18 +1441,22 @@ mvn -q -pl mybatis-generator-core "-Denforcer.skip=true" `
 
 此缓存字典查询与 `generateOptions` 的表单选项 GET 路由是两套用途不同的接口：前者通过 Service 的缓存查询按键取翻译值（Controller 查询路由为 `/dict`），后者查询记录并投影 `FormSelectOption`（如 `/option/name`）。不要因启用了 CachePo 就假定 `/option/name` 已被缓存；也不要因下拉接口可用，就假定列表 ViewVo 的 `categoryText` 已能完成 ID 到名称的后端转换。实际缓存还依赖生成的缓存注解配置与宿主 Spring Cache/缓存实现及失效链路，须检查运行时配置，不能仅以生成了 CachePo 宣称缓存已生效。
 
-#### 字典预取排序契约（opt-in）
+#### 字典预取排序契约
 
-只有需要跨批字典预取并且能证明排序等价时才配置 `dictCacheOrderColumns`，例如：
+`generateCachePo generate="true"` 即同时生成常规 `selectByKeysDict` 与 `selectByKeysDictForPrefetch`，不以是否填写 `dictCacheOrderColumns` 控制预取方法生成。需要覆盖默认顺序时可显式配置，例如：
 
 ```xml
 <generateCachePo generate="true" valueColumn="name_" includeColumns="name_,nick_name,username_"
                  dictCacheOrderColumns="sort_,created_,id_"/>
 ```
 
-该属性使用物理列名，缺省为空并保持原有生成行为；启用时必须同时设置 `generate="true"`，列名不得重复，最后一列必须与 `keyColumn` 一致（缺省 `id_`）。生成器会将排序列补入 CachePo；不属于 key/type/value 的排序元数据字段以 `@JsonIgnore` 隐藏，且仅作为排序元数据加入的 `sort_` 不会触发 CachePo 的业务 `compareTo` 方法。它还会生成带 `@DictPrefetchProvider` 元数据的 `selectByKeysDictForPrefetch` Service 方法，该方法直接调用 Mapper，不读写原 `selectByKeysDict` 的 Spring Cache。原缓存方法和其调用契约保持不变。
+该属性使用物理列名，显式配置必须同时设置 `generate="true"`，列必须存在且不得重复（同一非转义物理列的大小写别名也视为重复）。缺省依次收集存在的 `sort_`、`created_`；无论默认还是显式配置，最后均按内省顺序补齐缺失的全部主键，已包含的主键不移动，联合主键不遗漏。显式顺序可以是 `sort_,id_,created_`，不再要求末列为字典键。`keyColumn`（缺省 `id_`）仍必须指向有效物理列，与排序主键不是同一职责。
 
-字典 SQL 按配置列升序，并对 nullable 列显式生成 `CASE WHEN column IS NULL THEN 0 ELSE 1 END ASC`，即 NULLS FIRST，再由最终 key 列稳定打破同值顺序。框架跨批合并前必须证明 Java 比较规则与数据库排序一致；不能证明时应跳过预取并回退原查询。当前 web2 对字符串 key 的跨批比较只接受规范小写、无连字符的 32 位 UUID。消费方必须核对生成的 CachePo 字段/JSON、Service 接口与实现签名、Mapper SQL，并通过受控单表再生成审查实际输出白名单；不得把 opt-in 扩大到未评审的其它表。
+SQL、CachePo 和 `ServiceMethods` 注解共用有效排序解析。生成器将缺失排序列补入 CachePo：显式配置的非 key/type/value 排序字段继续以 `@JsonIgnore` 隐藏；默认补入且原先不在业务 includeColumns/原主键中的字段才隐藏，不能因新增默认排序隐藏原有 JSON 业务字段。仅作为元数据补入的 `sort_` 不触发业务 `compareTo`。预取注解为 `@DictPrefetchProvider(keyProperty="字典键Java属性", orderProperties={"有效排序Java属性"}, uniqueOrderProperties={"全部主键Java属性"})`；无主键输出空唯一数组，不使所有无主键 CachePo 生成失败。
+
+两个公开入口共用 `private queryByKeysDict(Optional<String> types, String keys)` 查询及映射，只有该私有方法调用 Mapper。常规入口保留原类型签名、`@Cacheable` 及键转换语义（BigDecimal 使用 `toPlainString`，字符串 null 不改为字面量 `"null"`）；非字符串类型参数在委托前转为字符串，BigDecimal 同样避免科学计数法。预取入口绝不调用缓存公开入口，不读取或写入 Spring Cache。Service 接口及实现的公开签名由 `ServiceMethods` 统一构建。
+
+字典 SQL 对每个有效排序列生成 `CASE WHEN column IS NULL THEN 0 ELSE 1 END ASC, column ASC`（NULLS FIRST），复用既有列别名/标识符转义，不新增方言分组；不改变其他查询共用的默认排序。Web 在跨批合并前仍须证明唯一组合和比较安全；无主键且无其他可证明唯一依据时跳过预取、回退原查询。字符串跨批比较仅对字典键接受规范小写、无连字符的 32 位 UUID，不承诺所有字符串主键可比较。消费方仍需核对 CachePo 字段/JSON、Service 签名及 Mapper SQL，业务再生成、真实数据库 collation 和宿主缓存验收须另行受控执行。实施及离线验证记录见[字典预取排序任务书](task/dict-prefetch-order-contract-task.md)。
 
 ### 13.5.1 分类/业务字典作为引用选项与展示转换
 

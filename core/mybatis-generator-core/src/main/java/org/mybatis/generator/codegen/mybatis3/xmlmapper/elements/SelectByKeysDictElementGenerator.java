@@ -4,6 +4,8 @@ import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.config.VoCacheGeneratorConfiguration;
+import org.mybatis.generator.codegen.mybatis3.DictCacheOrderResolver;
+import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
 
 import java.util.stream.Collectors;
 
@@ -52,10 +54,7 @@ public class SelectByKeysDictElementGenerator extends AbstractXmlElementGenerato
             choose1.addElement(getWhenMultiKeyInElement(introspectedColumn,"types"));
         });
         //增加默认排序
-        TextElement defaultOrderBy = buildDictOrderBy(config);
-        if (defaultOrderBy == null) {
-            defaultOrderBy = buildOrderByDefault();
-        }
+        TextElement defaultOrderBy = buildDictOrderBy();
         if (defaultOrderBy != null) {
             answer.addElement(defaultOrderBy);
         }
@@ -64,20 +63,14 @@ public class SelectByKeysDictElementGenerator extends AbstractXmlElementGenerato
         }
     }
 
-    private TextElement buildDictOrderBy(VoCacheGeneratorConfiguration config) {
-        if (config.getDictCacheOrderColumns().isEmpty()) {
-            return null;
-        }
-        String orderBy = config.getDictCacheOrderColumns().stream()
-                .map(columnName -> {
-                    String actualColumnName = introspectedTable.getColumn(columnName)
-                            .orElseThrow(() -> new IllegalArgumentException(
-                                    "dictCacheOrderColumns references missing column: " + columnName))
-                            .getActualColumnName();
+    private TextElement buildDictOrderBy() {
+        String orderBy = DictCacheOrderResolver.resolve(introspectedTable).stream()
+                .map(column -> {
+                    String actualColumnName = MyBatis3FormattingUtilities.getAliasedEscapedColumnName(column);
                     return "CASE WHEN " + actualColumnName + " IS NULL THEN 0 ELSE 1 END ASC, "
                             + actualColumnName + " ASC";
                 })
                 .collect(Collectors.joining(", "));
-        return new TextElement("ORDER BY " + orderBy);
+        return orderBy.isEmpty() ? null : new TextElement("ORDER BY " + orderBy);
     }
 }

@@ -1,0 +1,21 @@
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+  "mybatis-generator-config_1_8_0.dtd">
+<generatorConfiguration>
+  <context id="dict-offline" defaultModelType="flat" appKeyword="sample" moduleKeyword="sample"
+           moduleName="字典测试" jdkVersion="17" integrateMybatisPlus="false">
+    <commentGenerator><property name="suppressDate" value="true"/></commentGenerator>
+    <jdbcConnection driverClass="must.not.connect.Driver" connectionURL="jdbc:must-not-connect:test"/>
+    <javaModelGenerator targetPackage="sample.entity" targetProject="src"/>
+    <sqlMapGenerator targetPackage="sample.mapper" targetProject="src"/>
+    <javaClientGenerator targetPackage="sample.dao" targetProject="src" type="XMLMAPPER"/>
+    <table tableName="article_" domainObjectName="Article" enableUpdateByExample="false">
+      <property name="rootClass" value="com.vgosoft.core.entity.abs.AbstractEntity"/>
+      <generateModel generate="true"/>
+      <generateService generate="true" generateUnitTest="false"/>
+      <generateController generate="false"/>
+      <generateSqlSchema generate="false"/>
+      <generateVo generate="false"/>
+      <generateCachePo generate="true" keyColumn="id_" typeColumn="type_" valueColumn="name_" includeColumns="name_"/>
+    </table>
+  </context>
+</generatorConfiguration>

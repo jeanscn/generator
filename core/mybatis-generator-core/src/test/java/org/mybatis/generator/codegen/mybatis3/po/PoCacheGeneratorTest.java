@@ -16,6 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class PoCacheGeneratorTest {
 
+    /** 排序列仅作为预取元数据补齐时，不生成业务比较方法。 */
     @Test
     void doesNotGenerateCompareMethodWhenSortIsNotIncluded() {
         IntrospectedColumn name = column("name_", "name");
@@ -26,6 +27,7 @@ class PoCacheGeneratorTest {
         assertThat(cachePo.getMethods()).isEmpty();
     }
 
+    /** 原业务包含排序字段时，继续生成既有比较方法。 */
     @Test
     void keepsCompareMethodWhenSortIsAnIncludedBusinessColumn() {
         TopLevelClass cachePo = new TopLevelClass("sample.pojo.po.ArticleCachePo");

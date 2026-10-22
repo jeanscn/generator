@@ -3,6 +3,7 @@ package org.mybatis.generator.codegen.mybatis3.service;
 import com.vgosoft.core.constant.enums.data.StatTypeEnum;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
+import org.mybatis.generator.codegen.mybatis3.DictCacheOrderResolver;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.enums.ReturnTypeEnum;
@@ -730,18 +731,17 @@ public class ServiceMethods {
                 parameters,
                 isAbstract,
                 parentElement);
-        List<String> orderProperties = config.getDictCacheOrderColumns().stream()
-                .map(columnName -> introspectedTable.getColumn(columnName)
-                        .orElseThrow(() -> new IllegalArgumentException("dictCacheOrderColumns references missing column: " + columnName))
-                        .getJavaProperty())
+        List<String> orderProperties = DictCacheOrderResolver.resolve(introspectedTable).stream()
+                .map(IntrospectedColumn::getJavaProperty)
                 .toList();
-        String keyProperty = introspectedTable.getColumn(config.getKeyColumn())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "keyColumn references missing column: " + config.getKeyColumn()))
+        String keyProperty = DictCacheOrderResolver.requireColumn(introspectedTable, config.getKeyColumn(), "keyColumn")
                 .getJavaProperty();
         String annotation = "@DictPrefetchProvider(keyProperty = \"" + keyProperty
                 + "\", orderProperties = {" + orderProperties.stream()
                 .map(property -> "\"" + property + "\"")
+                .collect(Collectors.joining(", ")) + "}, uniqueOrderProperties = {"
+                + introspectedTable.getPrimaryKeyColumns().stream()
+                .map(column -> "\"" + column.getJavaProperty() + "\"")
                 .collect(Collectors.joining(", ")) + "})";
         method.addAnnotation(annotation);
         method.addJavaDocLine("/**");
@@ -751,6 +751,18 @@ public class ServiceMethods {
         method.addJavaDocLine(" * @return 按配置排序的缓存模型列表");
         method.addJavaDocLine(" */");
         parentElement.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.annotation.DictPrefetchProvider"));
+        return method;
+    }
+
+    /** 构建两个字典公开入口共用的私有查询签名，不附加缓存或预取注解。 */
+    public Method getQueryByKeysDictMethod(CompilationUnit parentElement, VoCacheGeneratorConfiguration config) {
+        Method method = getMethodByType("queryByKeysDict", ReturnTypeEnum.LIST,
+                config.getFullyQualifiedJavaType(), "缓存模型列表",
+                List.of(new Parameter(FullyQualifiedJavaType.getOptionalFullyQualifiedJavaType(
+                                FullyQualifiedJavaType.getStringInstance()), "types").setRemark("可选字典类型"),
+                        new Parameter(FullyQualifiedJavaType.getStringInstance(), "keys").setRemark("字典键")),
+                false, parentElement);
+        method.setVisibility(JavaVisibility.PRIVATE);
         return method;
     }
 

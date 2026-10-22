@@ -2,65 +2,53 @@ package org.mybatis.generator.config.xml;
 
 import org.junit.jupiter.api.Test;
 import org.mybatis.generator.config.Configuration;
-import org.mybatis.generator.config.TableConfiguration;
+import org.mybatis.generator.config.VoCacheGeneratorConfiguration;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 验证字典预取排序配置的 DTD、Parser 与兼容默认值。
+ * 使用仓内离线配置验证当前 DTD 和字典排序配置，不依赖消费项目。
  *
- * @author vgosoft
+ * @author vgosoft-agent
  */
 class DictCacheOrderConfigurationTest {
 
-    private static final Path ORGANIZATION_CONFIG = Path.of(
-            "D:\\java\\idea_projs7\\project-vgosoft\\vgosoft-organization\\src\\main\\resources\\generatorConfig.xml");
-
-    /** 验证组织机构配置通过当前 DTD 解析并保留 opt-in 的列顺序。 */
+    /** 默认排序留给内省解析，显式主键可位于中间且不要求字典键在末尾。 */
     @Test
-    void parsesOptInOrderColumnsFromConsumerConfiguration() throws Exception {
-        Configuration configuration = parse(Files.readString(ORGANIZATION_CONFIG));
-
-        TableConfiguration orgUser = configuration.getContexts().get(0).getTableConfigurations().stream()
-                .filter(table -> "org_user".equals(table.getTableName()))
-                .findFirst()
-                .orElseThrow();
-        assertThat(orgUser.getVoCacheGeneratorConfiguration().getDictCacheOrderColumns())
-                .containsExactly("sort_", "created_", "id_");
-    }
-
-    /** 验证未配置排序元数据时保持旧默认输出，非法终止键在配置阶段被拒绝。 */
-    @Test
-    void keepsLegacyDefaultAndRejectsUnstableOrderConfiguration() throws Exception {
-        String configured = Files.readString(ORGANIZATION_CONFIG);
-        String optIn = "dictCacheOrderColumns=\"sort_,created_,id_\"";
-        assertThat(configured).contains(optIn);
-
-        Configuration legacy = parse(configured.replace(optIn, ""));
-        TableConfiguration legacyOrgUser = legacy.getContexts().get(0).getTableConfigurations().stream()
-                .filter(table -> "org_user".equals(table.getTableName()))
-                .findFirst()
-                .orElseThrow();
-        assertThat(legacyOrgUser.getVoCacheGeneratorConfiguration().getDictCacheOrderColumns()).isEmpty();
-
-        String unstable = configured.replace(optIn, "dictCacheOrderColumns=\"sort_,created_\"");
-        TableConfiguration unstableOrgUser = parse(unstable).getContexts().get(0)
-                .getTableConfigurations().stream()
-                .filter(table -> "org_user".equals(table.getTableName()))
-                .findFirst()
-                .orElseThrow();
+    void parsesDefaultAndExplicitOrderWithoutTerminalKeyRestriction() throws Exception {
+        assertThat(config("").getDictCacheOrderColumns()).isEmpty();
+        VoCacheGeneratorConfiguration explicit = config("dictCacheOrderColumns=\"sort_,id_,created_\"");
+        assertThat(explicit.getDictCacheOrderColumns()).containsExactly("sort_", "id_", "created_");
         List<String> errors = new ArrayList<>();
-        unstableOrgUser.validate(errors, 0);
-        assertThat(errors).anyMatch(error -> error.contains("final dictCacheOrderColumns entry"));
+        explicit.validate(errors, "offline");
+        assertThat(errors).noneMatch(error -> error.contains("dictCacheOrderColumns"));
     }
 
-    private static Configuration parse(String xml) throws Exception {
-        return new ConfigurationParser(new ArrayList<>())
-                .parseConfiguration(new java.io.StringReader(xml));
+    /** 重复原始列名和关闭生成却声明排序配置仍须明确报错。 */
+    @Test
+    void rejectsDuplicateColumnsAndDisabledExplicitOrder() throws Exception {
+        List<String> errors = new ArrayList<>();
+        config("dictCacheOrderColumns=\"id_,id_\"").validate(errors, "offline");
+        assertThat(errors).anyMatch(error -> error.contains("duplicate columns"));
+        VoCacheGeneratorConfiguration disabled = config("dictCacheOrderColumns=\"sort_\"");
+        disabled.setGenerate(false);
+        errors.clear();
+        disabled.validate(errors, "offline");
+        assertThat(errors).anyMatch(error -> error.contains("requires generate=\"true\""));
+    }
+
+    private VoCacheGeneratorConfiguration config(String attributes) throws Exception {
+        String xml;
+        try (var stream = getClass().getResourceAsStream("/dict-prefetch-generator.xml")) {
+            xml = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+        }
+        Configuration configuration = new ConfigurationParser(new ArrayList<>()).parseConfiguration(
+                new StringReader(xml.replace("includeColumns=\"name_\"", "includeColumns=\"name_\" " + attributes)));
+        return configuration.getContexts().get(0).getTableConfigurations().get(0).getVoCacheGeneratorConfiguration();
     }
 }

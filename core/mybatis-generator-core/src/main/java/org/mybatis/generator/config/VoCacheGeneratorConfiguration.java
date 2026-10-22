@@ -47,9 +47,6 @@ public class VoCacheGeneratorConfiguration extends AbstractGeneratorConfiguratio
             if (dictCacheOrderColumns.stream().distinct().count() != dictCacheOrderColumns.size()) {
                 errors.add("The dictCacheOrderColumns attribute must not contain duplicate columns in context " + contextId);
             }
-            if (keyColumn == null || !keyColumn.equals(dictCacheOrderColumns.get(dictCacheOrderColumns.size() - 1))) {
-                errors.add("The final dictCacheOrderColumns entry must match keyColumn in context " + contextId);
-            }
         }
         super.validate(errors, contextId, "VoCacheGeneratorConfiguration");
     }

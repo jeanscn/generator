@@ -16,3 +16,5 @@
    用途：`vgosoft-doc-spec` 维护的设计决策、字段矩阵和项目协作要求。
 7. [面向生成的字段建模与默认值实例](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-core-db\src\main\resources\docs\database-authoritative-spec.md#45-面向生成与业务使用的字段设计实践)
    用途：`vgosoft-core-db` 维护的建模建议及 `apply_date` 分层默认值事实；生成器指南只回链该正文。
+8. [字典预取排序与共用查询任务书](..\mybatis-generator-core\src\main\resources\docs\task\dict-prefetch-order-contract-task.md)
+   用途：本次跨仓批准方案、G01/W01/V01 进度和验收证据；通用配置语义见配置指南 §13.5。

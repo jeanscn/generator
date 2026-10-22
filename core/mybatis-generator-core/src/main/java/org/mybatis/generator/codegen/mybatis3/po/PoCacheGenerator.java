@@ -8,6 +8,7 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.vo.AbstractVoGenerator;
+import org.mybatis.generator.codegen.mybatis3.DictCacheOrderResolver;
 import org.mybatis.generator.config.VoCacheGeneratorConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
 
@@ -56,17 +57,14 @@ public class PoCacheGenerator extends AbstractVoGenerator {
         if (includeColumns.isEmpty()) {
             includeColumns = introspectedTable.getBaseColumns();
         }
-        List<IntrospectedColumn> orderColumns = config.getDictCacheOrderColumns().stream()
-                .map(columnName -> introspectedTable.getColumn(columnName)
-                        .orElseThrow(() -> new IllegalArgumentException("dictCacheOrderColumns references missing column: " + columnName)))
-                .toList();
+        List<IntrospectedColumn> orderColumns = DictCacheOrderResolver.resolve(introspectedTable);
         List<IntrospectedColumn> allColumns = Stream.of(pkColumns.stream(), oColumns.stream(), includeColumns.stream(), orderColumns.stream())
                 .flatMap(Function.identity())
                 .distinct()
                 .toList();
         for (IntrospectedColumn column : allColumns) {
             Field field = getJavaBeansField(column, context, introspectedTable);
-            if (isHiddenDictOrderColumn(config, column)) {
+            if (isHiddenDictOrderColumn(config, column, orderColumns, pkColumns, oColumns, includeColumns)) {
                 field.addAnnotation("@JsonIgnore");
                 cachePoClass.addImportedType("com.fasterxml.jackson.annotation.JsonIgnore");
             }
@@ -105,12 +103,18 @@ public class PoCacheGenerator extends AbstractVoGenerator {
         return cachePoClass;
     }
 
-    private boolean isHiddenDictOrderColumn(VoCacheGeneratorConfiguration config, IntrospectedColumn column) {
-        String actualColumnName = column.getActualColumnName();
-        return config.getDictCacheOrderColumns().contains(actualColumnName)
-                && !actualColumnName.equals(config.getKeyColumn())
-                && !actualColumnName.equals(config.getTypeColumn())
-                && !actualColumnName.equals(config.getValueColumn());
+    private boolean isHiddenDictOrderColumn(VoCacheGeneratorConfiguration config, IntrospectedColumn column,
+                                             List<IntrospectedColumn> orderColumns,
+                                             List<IntrospectedColumn> pkColumns,
+                                             List<IntrospectedColumn> dictionaryColumns,
+                                             List<IntrospectedColumn> includeColumns) {
+        if (!orderColumns.contains(column) || dictionaryColumns.contains(column)) {
+            return false;
+        }
+        boolean explicitlyOrdered = config.getDictCacheOrderColumns().stream()
+                .map(introspectedTable::getColumn)
+                .anyMatch(resolved -> resolved.filter(column::equals).isPresent());
+        return explicitlyOrdered || (!pkColumns.contains(column) && !includeColumns.contains(column));
     }
 
     private void addDictValueTextField(VoCacheGeneratorConfiguration config, TopLevelClass cachePoClass) {

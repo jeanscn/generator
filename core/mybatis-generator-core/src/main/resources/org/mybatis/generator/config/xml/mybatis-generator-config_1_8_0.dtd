@@ -1843,7 +1843,12 @@
             3、includeColumns 可选 Cache模型包含的字段名,多值使用","。 始终包含ID_。
             4、typeColumn 可选 作为字典，字典类型的字段名
             5、keyColumn 可选 作为字典，字典编码的字段名，如果不指定则默认为"ID_"
-            6、dictCacheOrderColumns 可选 字典预取的稳定排序列，按数据库列名以","分隔；最后一列必须与keyColumn相同。启用后排序元数据仅供预取使用，不会序列化到HTTP或Redis JSON。
+            6、dictCacheOrderColumns 可选，按物理列名以","分隔，列必须存在且不得重复。
+               缺省依次采用存在的sort_、created_；显式配置保留顺序；两者均追加缺失的全部主键，不移动已包含主键。
+               字典SQL统一按CASE空值优先及ASC排序，不要求keyColumn位于末尾。keyColumn仍须为有效物理列。
+               generate=true即生成常规缓存入口与无缓存预取入口，二者共用私有查询；无主键也生成，预取安全性由Web校验。
+               CachePo补齐排序字段；显式排序的非key/type/value字段保持JSON隐藏，默认排序只隐藏新增元数据，不隐藏原业务字段或原主键。
+               预取注解声明keyProperty、有效orderProperties和全部主键uniqueOrderProperties（无主键为空数组）。
               property配置：无
         -->
         <!ELEMENT generateCachePo EMPTY>
