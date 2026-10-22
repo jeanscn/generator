@@ -13,6 +13,8 @@ CachePo 开启即生成常规缓存方法和无缓存预取方法，接口及实
 
 注解自动声明字典 `keyProperty`、有效 `orderProperties`、全部主键 `uniqueOrderProperties`；无主键仍可生成并输出空数组，Web 再验证唯一依据及比较安全。CachePo 默认排序仅隐藏新增元数据，保留原业务字段/原主键 JSON 可见性；显式非 key/type/value 排序字段延续隐藏行为。配置、兼容影响及消费验证边界见[配置指南 §13.5](generator-config-guide.md#135-generatecachepo)，本次批准范围及结果见[任务书](task/dict-prefetch-order-contract-task.md)。离线渲染/编译不等同于消费者再生成、真实数据库或宿主验收。
 
+**能力收益：** CachePo 启用后无需另配排序开关即可同时获得常规缓存查询和无缓存预取入口；共享私有查询实现减少两条入口的 SQL/映射行为分叉。默认或显式排序自动补齐主键，并将 SQL、CachePo 与注解元数据统一起来，为 Web 对多批查询结果作确定性合并提供稳定排序及唯一性依据；字典键不必是排序末项。此生成能力为请求级批量预取提供可消费契约，但不单独保证 Web 一定启用预取、任意列均可安全比较或取得固定性能提升，仍须通过消费者的类型/唯一性校验与宿主验收。
+
 ## 受管 CAS 生成能力（1.8.0，源码已实现，尚未发布）
 
 table 属性 `enableCasWriteContract` 省略默认关闭，仅字面 `true`/`false` 合法，空白和大小写变体拒绝。它不控制宿主是否使用 MyBatis-Plus，也不改变 `integrateMybatisPlus` 的现有生成行为。仅承诺可变 MyBatis3/XMLMAPPER、已核验的继承 Integer version 模型、单字符串 id_ 主键及 mysql/h2；缺输出、缺列、错误类型、关系级联、生成键及未知方言明确失败。
