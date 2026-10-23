@@ -117,6 +117,47 @@ class ExcelImportWorkflowGenerationTest {
                         || source.contains("import/confirm"));
     }
 
+    /** 固定枚举配置应生成真实导入值下拉，tips 优先于字段注释，动态数据源不得生成下拉。 */
+    @Test
+    void generatesTemplateInstructionsAndOnlyFixedEnumOptions() throws Exception {
+        Map<String, String> generated = generate(parse(withTemplateDescriptors(workflowXml(false))));
+        assertThat(generated.values()).anyMatch(source -> source.contains("externalReference"));
+        String controller = generated.values().stream()
+                .filter(source -> source.contains("SensitiveWordExcelImportVo")
+                        && source.contains("import/preview") && source.contains("import/confirm"))
+                .findFirst().orElseThrow();
+
+        assertThat(controller)
+                .contains("VgoFesodSheet.writeTemplate")
+                .contains("new VgoFesodSheet.TemplateColumn(\"state\", \"请选择启用状态\", List.of(\"1\", \"0\"))")
+                .contains("new VgoFesodSheet.TemplateColumn(\"categoryId\", \"分类选项由服务端提供\", List.of())")
+                .contains("new VgoFesodSheet.TemplateColumn(\"notes\", \"备注\", List.of())")
+                .doesNotContain("TemplateColumn(\"externalReference\"", "TemplateColumn(\"manualState\"");
+        int stateIndex = controller.indexOf("TemplateColumn(\"state\"");
+        int wordIndex = controller.indexOf("TemplateColumn(\"word\"");
+        int categoryIndex = controller.indexOf("TemplateColumn(\"categoryId\"");
+        int notesIndex = controller.indexOf("TemplateColumn(\"notes\"");
+        assertThat(stateIndex).isLessThan(wordIndex);
+        assertThat(wordIndex).isLessThan(categoryIndex);
+        assertThat(categoryIndex).isLessThan(notesIndex);
+        assertThat(controller).doesNotContain("TemplateColumn(\"wordHash\"");
+    }
+
+    /** 旧 excelVo 导入模板也应使用统一的表头说明与固定选项生成规则。 */
+    @Test
+    void generatesTemplateMetadataForLegacyExcelVo() throws Exception {
+        Map<String, String> generated = generate(parse(withPhysicalTemplateDescriptors(
+                enableLegacyExcelVo(consumerXmlWithoutWorkflow()))));
+        String controller = generated.values().stream()
+                .filter(source -> source.contains("SensitiveWordExcelImportVo")
+                        && source.contains("VgoFesodSheet.writeTemplate"))
+                .findFirst().orElseThrow();
+
+        assertThat(controller)
+                .contains("new VgoFesodSheet.TemplateColumn(\"state\", \"请选择启用状态\", List.of(\"1\", \"0\"))")
+                .contains("new VgoFesodSheet.TemplateColumn(\"notes\", \"备注\", List.of())");
+    }
+
     /** 未配置工作流与显式关闭工作流时，所有生成文件的路径及内容必须完全一致。 */
     @Test
     void preservesAllLegacyOutputsWhenWorkflowIsDisabled() throws Exception {
@@ -167,6 +208,61 @@ class ExcelImportWorkflowGenerationTest {
 
     private static String disabledWorkflowXml() throws Exception {
         return workflowXml(false).replace(EXCEL_IMPORT, "<excelImport generate=\"false\"/>");
+    }
+
+    private static String withTemplateDescriptors(String xml) {
+        String configuredExcelImport = EXCEL_IMPORT.replace("maxInputBytes",
+                "importExcludeColumns=\"word_hash_\" maxInputBytes");
+        String excelImportWithAdditionalFields = configuredExcelImport.substring(
+                0, configuredExcelImport.length() - 2) + """
+                    >
+                        <additionalProperty name="externalReference" type="String" remark="无物理列说明"/>
+                    </excelImport>
+                """;
+        if (!xml.contains(EXCEL_IMPORT)) {
+            throw new IllegalStateException("Excel import configuration was not found");
+        }
+        xml = xml.replace(EXCEL_IMPORT, excelImportWithAdditionalFields);
+        return withPhysicalTemplateDescriptors(xml);
+    }
+
+    private static String enableLegacyExcelVo(String xml) {
+        String tableStart = "<table ignore=\"false\" tableName=\"sensitive_word\"";
+        int start = xml.indexOf(tableStart);
+        int end = start < 0 ? -1 : xml.indexOf("</table>", start);
+        if (end < 0) {
+            throw new IllegalStateException("Sensitive word table configuration was not found");
+        }
+        String table = xml.substring(start, end);
+        String disabledExcelVo = "<excelVo generate=\"false\"/>";
+        if (!table.contains(disabledExcelVo)) {
+            throw new IllegalStateException("Sensitive word legacy Excel VO configuration was not found");
+        }
+        return xml.substring(0, start)
+                + table.replace(disabledExcelVo, "<excelVo generate=\"true\"/>")
+                + xml.substring(end);
+    }
+
+    private static String withPhysicalTemplateDescriptors(String xml) {
+        String categoryDescriptor = "<htmlElementDescriptor column=\"category_id\" tagType=\"select\" dataSource=\"Dict\"";
+        if (!xml.contains(categoryDescriptor)) {
+            throw new IllegalStateException("Sensitive word category descriptor was not found");
+        }
+        xml = xml.replace(categoryDescriptor,
+                categoryDescriptor + " tips=\"分类选项由服务端提供\"");
+        String tableStart = "<table ignore=\"false\" tableName=\"sensitive_word\"";
+        int start = xml.indexOf(tableStart);
+        int htmlStart = start < 0 ? -1 : xml.indexOf("<generateHtml", start);
+        int htmlEnd = htmlStart < 0 ? -1 : xml.indexOf("</generateHtml>", htmlStart);
+        if (htmlEnd < 0) {
+            throw new IllegalStateException("Sensitive word table configuration was not found");
+        }
+        String descriptor = """
+                    <htmlElementDescriptor column="state_" tagType="dropdownlist" dataSource="DictEnum"
+                                           enumClassFullName="com.vgosoft.core.constant.enums.core.CommonStatusEnum"
+                                           tips="请选择启用状态"/>
+                """;
+        return xml.substring(0, htmlEnd) + descriptor + xml.substring(htmlEnd);
     }
 
     private static Configuration parse(String xml) throws Exception {

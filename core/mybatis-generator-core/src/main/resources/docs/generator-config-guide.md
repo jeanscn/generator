@@ -435,6 +435,8 @@ for (Class<?> type = entityClass; type != null && type != Object.class; type = t
 
 启用后，生成器在 Controller 基础路由下提供 `GET import/template` 和 `POST import`，并生成 `<Entity>ExcelImportVo`、模板样例方法及 VO/Entity 映射。模板样例方法可在生成的可扩展 Controller 子类中重写；导入监听器工厂 `getImportReadListener` 也可在子类扩展。以上扩展点不改变默认导入流程的事务或业务语义。
 
+模板表头可复用 `generateHtml` 中对应物理列的 `htmlElementDescriptor` 配置：`tips` 写入表头批注；未设置 `tips` 时使用物理列注释作为回退说明。`dataSource="DictEnum"` 且配置了枚举类的固定选项，会按枚举声明生成单元格下拉；实现 `IBaseEnum` 的枚举使用 `code()` 作为实际导入值，其他枚举使用常量名。动态数据源（如 `Dict`、组织或用户）不生成下拉，选项不会写入模板数据行。模板仍保持原有表头结构；无说明、无固定选项的列不增加元数据。`importIgnoreFields` 指定的字段不生成说明或下拉；自定义非物理附加字段没有物理列注释回退。
+
 **默认导入边界：** 当前生成的 `POST import` 保存上传文件到本地 `upload` 路径后解析 Excel，再将行映射为 Entity 并逐条调用 `insertOrUpdate`；成功数按实际成功项计数。因此它可能更新已有数据，且代码没有为整份文件提供全有或全无事务保证，某些行成功、其他行失败时已成功行不会因该接口而自动回滚。默认配置也没有通过上述字段属性定义预览/确认、仅新增、业务级重复检查、文件/行数限制或预览过期控制；不能把通用导入端点直接当作这些业务契约的实现。需要预览后确认、严格整批原子性或特定业务校验时，应先设计可验证的共享生成器扩展契约和业务实现，不要仅开启 `excelVo`。
 
 ### 5.1.1 显式两阶段 Excel 导入工作流
@@ -458,6 +460,8 @@ for (Class<?> type = entityClass; type != null && type != Object.class; type = t
 限制值必须由使用方根据上传并发、内存预算和业务容量显式确定；示例值不是通用安全默认值。`VgoFesodSheet` 会按原始文件字节上限暂存文件，因此 `maxInputBytes` 同时是单个导入文件的内存上限。ZIP 展开字节、单条目字节和条目数限制作用于 XLSX 预检；数据行数和解析错误条数由有界读取器限制。当前 Excel 插件的有界接口仅接受 XLS/XLSX 文件签名。
 
 `importIncludeColumns` / `importExcludeColumns` 使用数据库物理列名，`importIgnoreFields` 使用 Java 属性名；筛选及全局 VO 排除规则与 `excelVo` 导入 VO 一致。`excelImport` 生成独立工作流使用的 `<Entity>ExcelImportVo`、映射方法、导入模板和两个 Controller 端点：`POST import/preview` 与 `POST import/confirm` 均为 multipart；确认请求的 `file` 部分携带待复核文件，`request` 部分携带 JSON 预览凭证。两个端点沿用导入权限及系统日志声明。业务层必须依赖提供 `VgoFesodSheet.readBounded` 和 `com.vgosoft.plugins.excel.pojo.vo` 导入 DTO 的 Excel 插件版本。
+
+两阶段导入模板沿用第 5.1 节相同的 `tips` 批注、物理列注释回退及固定枚举下拉规则，不另增模板配置项。两种模板均由字段名对齐 Excel 表头，`@ExcelIgnore`/`importIgnoreFields` 排除的字段不接收元数据；固定枚举下拉候选值须与导入 VO 接受的实际值一致。说明来源、动态数据源和非物理附加字段边界见第 5.1 节。
 
 生成的 Service 接口包含 `previewExcelImport(MultipartFile)` 与 `confirmExcelImport(VgoExcelImportConfirmVo, List<EntityExcelImportVo>, String)`。预览入口由 Service 基类按配置构造 `ImportReadLimits` 并调用有界解析，再委托 `createExcelImportPreview(rows, fileSha256)`。确认 Controller 在进入事务 Service 前按相同配置有界解析重新上传的文件，并将凭证、解析行及 SHA-256 摘要传入 Service；确认 Service 使用 `READ_COMMITTED`、`rollbackFor = Exception.class` 的事务包装，校验凭证、行数及摘要格式后委托 `doConfirmExcelImport(request, rows, fileSha256)`。两个受保护业务钩子默认明确抛出 `UnsupportedOperationException`，业务子类必须实现预览校验/凭证签发与确认提交逻辑；确认钩子应核对重新上传文件及行摘要，并在失败时抛出异常以使整批业务写入回滚。只重写受保护钩子，不要重写公开事务包装方法。事务仍依赖通过 Spring 代理从外部调用，生成器不替业务实现预览所有权、令牌过期/一次性消费、revision 校验或具体数据写入。
 
