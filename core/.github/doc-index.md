@@ -18,3 +18,13 @@
    用途：`vgosoft-core-db` 维护的建模建议及 `apply_date` 分层默认值事实；生成器指南只回链该正文。
 8. [字典预取排序与共用查询任务书](..\mybatis-generator-core\src\main\resources\docs\task\dict-prefetch-order-contract-task.md)
    用途：本次跨仓批准方案、G01/W01/V01 进度和验收证据；通用配置语义见配置指南 §13.5。
+9. [版本库提交说明（commit message）规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\commit-message-standard.md)  
+   用途：跨项目唯一权威规范，代码/文档/配置与生成产物改动收尾一律在回复末尾提供中文 commit message；改了就给，不附加验证前置条件，只提供 message 不执行提交，未验证时说明范围与原因。
+10. [文档体系总览](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\doc-system-overview.md)  
+    用途：四层文档结构与使用规则；建/改文档、索引、映射前按此确认分层与归属。
+11. [全局文档编写提示词](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\global-authoring-prompt.md)  
+    用途：编写任何 md 前必读；强制原则与分阶段最小读取流程。
+12. [跨项目文档标准](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\cross-project-doc-standard.md)  
+    用途：规范资产与能力/业务项目的文档分工；本仓库只维护 instructions、index、map 入口，不复制外部权威正文。
+13. [最终命名规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\final-naming-standard.md)  
+    用途：文档命名、路径引用与内容边界；外部权威正文保持原文件名，不做跨项目改名。
