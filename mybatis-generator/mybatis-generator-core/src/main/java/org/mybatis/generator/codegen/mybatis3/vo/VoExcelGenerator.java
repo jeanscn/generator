@@ -42,10 +42,10 @@ public class VoExcelGenerator extends AbstractVoGenerator {
 
         //获得所有可能的属性
         List<Field> allFields = new ArrayList<>();
-        for (IntrospectedColumn nonBLOBColumn : introspectedTable.getNonBlobColumns()) {
-            Field field = new Field(nonBLOBColumn.getJavaProperty(), nonBLOBColumn.getFullyQualifiedJavaType());
+        for (IntrospectedColumn noBlobColumn : introspectedTable.getNonBlobColumns()) {
+            Field field = new Field(noBlobColumn.getJavaProperty(), noBlobColumn.getFullyQualifiedJavaType());
             field.setVisibility(JavaVisibility.PRIVATE);
-            field.setRemark(nonBLOBColumn.getRemarks(true));
+            field.setRemark(noBlobColumn.getRemarks(true));
             allFields.add(field);
         }
         //增加映射

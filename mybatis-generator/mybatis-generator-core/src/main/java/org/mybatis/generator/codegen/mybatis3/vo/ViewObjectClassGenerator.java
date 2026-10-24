@@ -140,13 +140,9 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                     }
                 }
             });
-            //context.getCommentGenerator().addMappingMethodJavaDocLine(method,source,target);
             mappingsInterface.addMethod(method);
         });
 
-        /**
-         * 生成Vo类
-         * */
         if (introspectedTable.getRules().isGenerateVoModel()) {
             generated = true;
             TopLevelClass voClass = new VoModelGenerator(introspectedTable, "project", progressCallback, warnings, mappingsInterface).generate();
