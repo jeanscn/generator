@@ -34,13 +34,13 @@ mvn -q -f 'D:\java\idea_projs6\vgosoft-plugins\pom.xml' -pl vgosoft-excel "-Dtes
 生成器新增回归命令（退出码 0）：
 
 ```powershell
-mvn -q -f 'D:\java\idea_projs14\generator\core\pom.xml' -pl mybatis-generator-core "-Dtest=ExcelImportWorkflowGenerationTest#generatesTemplateInstructionsAndOnlyFixedEnumOptions" "-Denforcer.skip=true" test
+mvn -q -f 'D:\java\idea_projs14\generator\mybatis-generator\pom.xml' -pl mybatis-generator-core "-Dtest=ExcelImportWorkflowGenerationTest#generatesTemplateInstructionsAndOnlyFixedEnumOptions" "-Denforcer.skip=true" test
 ```
 
 完整生成器测试类命令：
 
 ```powershell
-mvn -q -f 'D:\java\idea_projs14\generator\core\pom.xml' -pl mybatis-generator-core "-Dtest=ExcelImportWorkflowGenerationTest" "-Denforcer.skip=true" test
+mvn -q -f 'D:\java\idea_projs14\generator\mybatis-generator\pom.xml' -pl mybatis-generator-core "-Dtest=ExcelImportWorkflowGenerationTest" "-Denforcer.skip=true" test
 ```
 
 该测试类共 8 项，其中两项新增模板元数据测试均通过，另 6 项中 5 项通过；既有 `rejectsEnabledWorkflowWithoutExplicitResourceLimits` 仍因解析器对缺省限额使用默认值、未抛出异常而失败。该断言与本次模板功能无关，未修改。

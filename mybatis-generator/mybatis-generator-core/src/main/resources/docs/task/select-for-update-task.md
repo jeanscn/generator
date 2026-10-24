@@ -34,8 +34,8 @@
 - 初次 compile 报 BLOB 类型 getter 大小写错误，已修正为实际 `getRecordWithBlobsType()`；后续 test 生命周期完成主源码与测试编译。
 - 配置预检经定向用例确认 Client 实际类型来自 Context 而不是 table；已按生成流程真实来源校验。
 - 当前正式测试 `SelectForUpdateGenerationTest` 人工构建元数据、JavaCompiler 内存编译与 MyBatis XML 解析，不连接任何数据库。
-- 最终命令（工作目录 `D:\java\idea_projs14\generator\core`）：
-  - `mvn -q -pl mybatis-generator-core "-Dtest=SelectForUpdateGenerationTest,SensitiveGenerationTest,ManagedRelationGenerationTest" "-Djava.io.tmpdir=D:\java\idea_projs14\generator\core\mybatis-generator-core\target" "-Denforcer.skip=true" test`：成功。锁查询 12/12 通过；敏感 13 项中 12 通过、1 项因未传业务配置路径跳过；受管关系 15 项中 14 通过、1 项因未传业务再生成路径跳过。合计 40 项、38 通过、2 跳过、0 失败/错误；没有传入消费者路径，没有执行业务再生成。
+- 最终命令（工作目录 `D:\java\idea_projs14\generator\mybatis-generator`）：
+  - `mvn -q -pl mybatis-generator-core "-Dtest=SelectForUpdateGenerationTest,SensitiveGenerationTest,ManagedRelationGenerationTest" "-Djava.io.tmpdir=D:\java\idea_projs14\generator\mybatis-generator\mybatis-generator-core\target" "-Denforcer.skip=true" test`：成功。锁查询 12/12 通过；敏感 13 项中 12 通过、1 项因未传业务配置路径跳过；受管关系 15 项中 14 通过、1 项因未传业务再生成路径跳过。合计 40 项、38 通过、2 跳过、0 失败/错误；没有传入消费者路径，没有执行业务再生成。
   - `mvn -q -pl mybatis-generator-core "-DskipTests" "-Denforcer.skip=true" compile`：成功。
   - `git --no-pager diff --check -- mybatis-generator-core`：成功，无空白错误。
 - 新增测试还通过真实 Spring 代理/无资源事务管理器验证 MANDATORY、既有非只读事务正常返回及 read-only 拒绝；通过无数据库 MyBatis BaseExecutor/CachingExecutor 验证重复锁查询每次到达执行器且不写二级缓存；真实 PageInterceptor 在分页上下文中拒绝执行，零数据库调用。动态 SQL bind 对直接 Mapper 路径同样有效。
@@ -94,7 +94,7 @@
 - Mapper 的两个 `AbstractJavaMapperMethodGenerator`、XML 的两个元素及 Service 的两个 `AbstractServiceElementGenerator` 均由对应父生成器初始化 context/table/progress/warnings 后执行；Service 元素同时执行既有 `initGenerator`。接口统一从 `ServiceMethods` 获得实际模型、完整主键/Example 参数、返回与原中文契约。
 - Rules 新增默认方法，Flat/Conditional/Hierarchical 及既有第三方实现无需新增抽象方法；RulesDelegate 尊重被代理的锁查询否决及当前代理对普通查询的限制。当前 table 的既有 setRules 接受 BaseRules，测试不为安装 RulesDelegate 而改变该 API，而是分别验证实际模型子类跨层接入与代理规则否决传递。
 - 新增 4 个专用 select 插件回调，默认 `true`，由 CompositePlugin 顺序短路传播；不调用普通 select/update/batch 回调。真实元素入口测试覆盖两种方法、两个方言、否决顺序和旧插件默认兼容；完整契约仅在配置指南维护。
-- 重构前真实执行 `mvn -q -pl mybatis-generator-core "-Dtest=SelectForUpdateGenerationTest#offlineOutputBaseline" "-Djava.io.tmpdir=D:\java\idea_projs14\generator\core\mybatis-generator-core\target" "-Denforcer.skip=true" test`：成功，采集单 PK、复合 PK、主键类+BLOB 三种模型的 Mapper、Service 接口、Service 实现、门禁与锁查询 XML，共 15 个 SHA-256。正式 `offlineOutputBaseline` 固定这些摘要，重构后全部相同，仅规范化 CRLF 为 LF；没有方法、SQL、注释、格式或方言输出顺序差异。
+- 重构前真实执行 `mvn -q -pl mybatis-generator-core "-Dtest=SelectForUpdateGenerationTest#offlineOutputBaseline" "-Djava.io.tmpdir=D:\java\idea_projs14\generator\mybatis-generator\mybatis-generator-core\target" "-Denforcer.skip=true" test`：成功，采集单 PK、复合 PK、主键类+BLOB 三种模型的 Mapper、Service 接口、Service 实现、门禁与锁查询 XML，共 15 个 SHA-256。正式 `offlineOutputBaseline` 固定这些摘要，重构后全部相同，仅规范化 CRLF 为 LF；没有方法、SQL、注释、格式或方言输出顺序差异。
 - 配置默认关闭、完整预检、不支持方言拒绝、MANDATORY/read-only、PageHelper/Example、XML 缓存属性及 guard 类名沿用原实现；原 12 项回归继续覆盖运行门禁、无数据库缓存执行器与 MyBatis 解析。
 
 ### 6.3 实际验证与边界
@@ -119,7 +119,7 @@
 
 - 严禁 DB/DDL、消费方生成、依赖安装/发布、部署和 commit；保留开始时全部其他工作树改动，包括原子递增及既有锁查询 elements/Rules/hook 结构。
 - 清理登记：不创建专用临时文件，摘要采集输出位于常规 `target\surefire-reports`，正式测试保留基线常量；不删除 `target` 或其他任务资产。
-- 重构前采集命令：`mvn -q -pl mybatis-generator-core "-Dtest=SelectForUpdateGenerationTest#offlineOutputBaseline,SensitiveGenerationTest#offlineOutputBaseline" "-Djava.io.tmpdir=D:\java\idea_projs14\generator\core\mybatis-generator-core\target" "-Denforcer.skip=true" test`。最终采集两项通过；首次多字段样例误设未支持的内容类型，已改为既有 PLAIN_TEXT；重复采集发现默认实体日期注释不稳定，离线测试配置显式 suppressDate，随后重构前再次成功采集完整文本摘要，不删除或屏蔽其他输出内容。
+- 重构前采集命令：`mvn -q -pl mybatis-generator-core "-Dtest=SelectForUpdateGenerationTest#offlineOutputBaseline,SensitiveGenerationTest#offlineOutputBaseline" "-Djava.io.tmpdir=D:\java\idea_projs14\generator\mybatis-generator\mybatis-generator-core\target" "-Denforcer.skip=true" test`。最终采集两项通过；首次多字段样例误设未支持的内容类型，已改为既有 PLAIN_TEXT；重复采集发现默认实体日期注释不稳定，离线测试配置显式 suppressDate，随后重构前再次成功采集完整文本摘要，不删除或屏蔽其他输出内容。
 
 ### 7.1 精确文件范围与职责
 
@@ -168,8 +168,8 @@
 - 重构前/后完整内容基线：锁查询三种模型的 Mapper、Service 接口/实现、guard 与锁 XML 共 15 个 SHA-256；敏感默认启用、未配置、全部关闭、多字段 BLOCK/WARN 四场景的完整实体、受管 Service 实现与 TS 模板输出共 12 个 SHA-256。正式测试固定摘要，重构后 27/27 一致。仅在离线 fixture 中固定生成日期并规范化 CRLF 为 LF，不截取方法或 SQL 片段，不改业务配置。
 - Sensitive 本轮新增 5 项正式测试：完整输出基线；分层结构与共享解析接口职责；真实模型/Service 插件顺序及字段 final、方法 final/错误参数/错误事务变异；真实插件否决及未配置/关闭绕过；真实 Vue3 生成入口的目标路径/VO/空字段门控及启用/未配置/关闭映射。失败文本用完整字符串验证，既有八种写方法、缓存/事件、父类、类型、双表示等回归继续执行。
 - 新增 Vue3 fixture 首次失败因未配置 VO 子对象，随后发现字段描述器需要 Java 短类型名而非全限定名；均仅修正测试元数据，未为通过测试改变生产映射规则。
-- 最终命令（工作目录 `D:\java\idea_projs14\generator\core`）：
-  - `mvn -q -pl mybatis-generator-core "-Dtest=SelectForUpdateGenerationTest,SensitiveGenerationTest,ManagedRelationGenerationTest" "-Djava.io.tmpdir=D:\java\idea_projs14\generator\core\mybatis-generator-core\target" "-Denforcer.skip=true" test`：成功，锁查询 15/15，Sensitive 18 项中 17 通过/1 跳过，ManagedRelation 15 项中 14 通过/1 跳过；合计 48 项、46 通过、2 跳过、0 失败/错误。
+- 最终命令（工作目录 `D:\java\idea_projs14\generator\mybatis-generator`）：
+  - `mvn -q -pl mybatis-generator-core "-Dtest=SelectForUpdateGenerationTest,SensitiveGenerationTest,ManagedRelationGenerationTest" "-Djava.io.tmpdir=D:\java\idea_projs14\generator\mybatis-generator\mybatis-generator-core\target" "-Denforcer.skip=true" test`：成功，锁查询 15/15，Sensitive 18 项中 17 通过/1 跳过，ManagedRelation 15 项中 14 通过/1 跳过；合计 48 项、46 通过、2 跳过、0 失败/错误。
   - `mvn -q -pl mybatis-generator-core "-DskipTests" "-Denforcer.skip=true" compile`：独立成功。
   - `git --no-pager diff --check -- .github\generator-core-dev-spec.md mybatis-generator-core`：成功。
 - 跳过项：`parsesConsumerManagementConfigurationWithoutDatabaseOrGeneration` 未传 `sensitive.consumer.config`；`regeneratesSelectedBusinessOutputsOfflineWhenExplicitlyRequested` 未传业务再生成路径。不传业务路径、不执行业务再生成是本轮授权边界，并非测试失败；显式 enforcer.skip 仅绕过 Maven 环境版本门槛，不跳过编译或测试。
@@ -194,10 +194,10 @@
 - 新增 `src\main\java\org\mybatis\generator\custom\annotations\SensitiveCheckDesc.java` 与对应 `SensitiveCheckDescTest.java`；修改 `codegen\mybatis3\model\SensitiveModelAnnotations.java`，保持字段解析、精确匹配、类型/可写校验、插件否决保护和注解去重在模型层。
 - `SensitiveCheckDesc` 只捕获 enable/strategy/contentType 并通过继承的 TreeSet 维护三个 imports；`toAnnotation()` 仅从不可变实例值拼接原注解文本，不修改 `items`，多次调用输出相同。模型装配统一加入描述类 imports，只有注解尚不存在时才添加文本。
 - 更新 `.github\generator-core-dev-spec.md`、`generator-authoritative-spec.md`、`generator-config-guide.md` 和本任务书，职责路径一致；无配置、生成业务产物、DTD、Java/XML 产物或其他生成器逻辑改动。
-- 定向命令（工作目录 `D:\java\idea_projs14\generator\core`）：
+- 定向命令（工作目录 `D:\java\idea_projs14\generator\mybatis-generator`）：
 
 ```powershell
-mvn -q -pl mybatis-generator-core "-Dtest=SelectForUpdateGenerationTest,SensitiveGenerationTest,SensitiveCheckDescTest,ManagedRelationGenerationTest" "-Djava.io.tmpdir=D:\java\idea_projs14\generator\core\mybatis-generator-core\target" "-Denforcer.skip=true" test
+mvn -q -pl mybatis-generator-core "-Dtest=SelectForUpdateGenerationTest,SensitiveGenerationTest,SensitiveCheckDescTest,ManagedRelationGenerationTest" "-Djava.io.tmpdir=D:\java\idea_projs14\generator\mybatis-generator\mybatis-generator-core\target" "-Denforcer.skip=true" test
 ```
 
   结果：`SelectForUpdateGenerationTest` 15 项、`SensitiveGenerationTest` 18 项（1 项按未提供消费者配置路径的既有前置条件跳过）、`SensitiveCheckDescTest` 3 项、`ManagedRelationGenerationTest` 15 项（1 项按未提供业务再生成路径的既有授权门槛跳过）；合计 51 项，49 项通过、2 项跳过、失败/错误均为 0。`SensitiveGenerationTest.offlineOutputBaseline` 同时通过，既有四场景实体/Service/TS 完整输出共 12 个 SHA-256 均未变化。
@@ -250,11 +250,11 @@ mvn -q -pl mybatis-generator-core "-Dtest=SelectForUpdateGenerationTest,Sensitiv
 
 ### 9.3 最终验收记录
 
-工作目录：`D:\java\idea_projs14\generator\core`。用户授权的真实 Sensitive 配置只经 Reader/ConfigurationParser 安全离线解析，断言运行时省略及工厂选择为 MyBatis3；没有输出 JDBC 配置/凭据、加载 JDBC 驱动或进行数据库内省，也没有执行业务生成。
+工作目录：`D:\java\idea_projs14\generator\mybatis-generator`。用户授权的真实 Sensitive 配置只经 Reader/ConfigurationParser 安全离线解析，断言运行时省略及工厂选择为 MyBatis3；没有输出 JDBC 配置/凭据、加载 JDBC 驱动或进行数据库内省，也没有执行业务生成。
 
 ```powershell
-mvn -q -pl mybatis-generator-core "-Dtest=SelectForUpdateGenerationTest,SensitiveGenerationTest,ManagedRelationGenerationTest,SensitiveCheckDescTest,ObjectFactoryRuntimeTest,StringUtilityTest,MyBatisGeneratorTest#testGenerateInvalidConfigWithNoConnectionSources+testGenerateInvalidConfigWithTwoConnectionSources" "-Dsensitive.consumer.config=D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\generatorConfig.xml" "-Djava.io.tmpdir=D:\java\idea_projs14\generator\core\mybatis-generator-core\target" "-Denforcer.skip=true" test
-mvn -q -pl mybatis-generator-core "-DskipTests" "-Djava.io.tmpdir=D:\java\idea_projs14\generator\core\mybatis-generator-core\target" "-Denforcer.skip=true" compile
+mvn -q -pl mybatis-generator-core "-Dtest=SelectForUpdateGenerationTest,SensitiveGenerationTest,ManagedRelationGenerationTest,SensitiveCheckDescTest,ObjectFactoryRuntimeTest,StringUtilityTest,MyBatisGeneratorTest#testGenerateInvalidConfigWithNoConnectionSources+testGenerateInvalidConfigWithTwoConnectionSources" "-Dsensitive.consumer.config=D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\generatorConfig.xml" "-Djava.io.tmpdir=D:\java\idea_projs14\generator\mybatis-generator\mybatis-generator-core\target" "-Denforcer.skip=true" test
+mvn -q -pl mybatis-generator-core "-DskipTests" "-Djava.io.tmpdir=D:\java\idea_projs14\generator\mybatis-generator\mybatis-generator-core\target" "-Denforcer.skip=true" compile
 ```
 
 - 最终全部成功：锁查询 17 项；敏感 18 项（真实配置离线解析已执行，不再跳过）；注解描述 3 项；工厂运行时 10 项；字符串工具 4 项；仅选无连接/双连接来源的非法配置 2 项；受管关系 15 项（1 项因未提供业务再生成授权路径跳过）。共 69 项，68 项通过、1 项跳过、0 失败/错误。独立 compile 成功，针对第 9.2 节文件的 `git diff --check HEAD -- ...` 成功。

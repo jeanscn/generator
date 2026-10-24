@@ -220,7 +220,7 @@ CAS 关闭时，每个受标记方法在没有已有事务声明时添加 `@Tran
 无数据库定向回归入口：
 
 ```powershell
-Set-Location 'D:\java\idea_projs14\generator\core'
+Set-Location 'D:\java\idea_projs14\generator\mybatis-generator'
 mvn -q -pl mybatis-generator-core "-Dtest=SensitiveGenerationTest,CacheConfigurationResolverTest,CacheEnableAnnotationTest,JavaBeansUtilTest" "-Denforcer.skip=true" test
 ```
 

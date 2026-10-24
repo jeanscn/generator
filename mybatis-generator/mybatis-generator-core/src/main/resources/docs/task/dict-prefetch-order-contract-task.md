@@ -42,7 +42,7 @@ mvn -o -q -pl vgosoft-core-annotation,vgosoft-web2 "-Dtest=DictPrefetchOrderCont
 
 首次使用 `-pl vgosoft-web2 -am` 的扩大 reactor 因既有 `vgosoft-system` 测试引用缺失类型而在上游 `testCompile` 失败，未修改无关测试。问题为中优先级，已登记 [vgosoft-system-ISSUE-0001](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-system\src\main\resources\docs\pending-issues.md)，定向联动不受影响；未宣称完整 reactor 通过。
 
-生成器命令（目录 `D:\java\idea_projs14\generator\core`，2026-10-23，均退出码 0）：
+生成器命令（目录 `D:\java\idea_projs14\generator\mybatis-generator`，2026-10-23，均退出码 0）：
 
 ```powershell
 mvn -q -o -pl mybatis-generator-core "-Dtest=DictPrefetchGenerationTest,DictCacheOrderConfigurationTest,PoCacheGeneratorTest" "-Denforcer.skip=true" test
