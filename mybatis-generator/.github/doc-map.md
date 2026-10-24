@@ -4,7 +4,7 @@
 
 | 能力类别 | 文档路径 | 所属项目 | 性质 | 备注 |
 |---|---|---|---|---|
-| Service 方法生成结构 | [主规范第 8.1 节](copilot-instructions.md#81-service-方法签名共用与实现装配规范) | `generator/core` | 再开发规范正文 | `ServiceMethods` 统一签名与依赖，接口生成器及实现元素复用；实现注解、方法体与业务钩子留在元素层 |
+| Service 方法生成结构 | [主规范第 8.1 节](copilot-instructions.md#81-service-方法签名共用与实现装配规范) | `generator/mybatis-generator` | 再开发规范正文 | `ServiceMethods` 统一签名与依赖，接口生成器及实现元素复用；实现注解、方法体与业务钩子留在元素层 |
 | 字典预取排序与共用查询 | [任务书](..\mybatis-generator-core\src\main\resources\docs\task\dict-prefetch-order-contract-task.md) | `mybatis-generator-core` | 跨仓过程与验收资产 | 批准范围、G01/W01/V01 进度及离线验证证据；规则正文仍归配置指南 §13.5 |
 | 生成器能力 | `mybatis-generator-core\src\main\resources\docs\generator-authoritative-spec.md` | `mybatis-generator-core` | 权威正文 | 生成器能力、输入输出、扩展点与限制；§2.1.1 定义 Entity `@TableMeta`/`@ColumnMeta` 的元数据契约及边界 |
 | 生成器配置 | `mybatis-generator-core\src\main\resources\docs\generator-config-guide.md` | `mybatis-generator-core` | 使用手册 | 配置、DTD 版本与生成行为；§5.0 提供从 Entity 类/字段注解读取物理表列映射的设计/开发指引 |
@@ -19,5 +19,5 @@
 | 全局文档编写提示词 | [全局文档编写提示词](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\global-authoring-prompt.md) | `vgosoft-doc-spec` | 全局规范 | 编写任何 md 前必读；强制原则与分阶段最小读取流程 |
 | 跨项目文档标准 | [跨项目文档标准](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\cross-project-doc-standard.md) | `vgosoft-doc-spec` | 全局规范 | 规范资产与能力/业务项目的文档分工；只维护入口，不复制外部权威正文 |
 | 最终命名规范 | [最终命名规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\final-naming-standard.md) | `vgosoft-doc-spec` | 全局规范 | 文档命名、路径引用与内容边界；外部权威正文保持原文件名，不做跨项目改名 |
-| Java 模块问题台账 | `<module>\src\main\resources\docs\pending-issues.md` | `generator/core` | 模块问题台账定位规则 | 复用模块现有文档目录；首次发现需登记的问题时创建，尚未创建的不写为现存文档链接 |
-| 项目级/归属待定问题台账 | `docs\pending-issues.md` | `generator/core` | 项目问题台账定位规则 | 仅项目级或尚未确定模块归属的问题使用；首次发现需登记的问题时创建 |
+| Java 模块问题台账 | `<module>\src\main\resources\docs\pending-issues.md` | `generator/mybatis-generator` | 模块问题台账定位规则 | 复用模块现有文档目录；首次发现需登记的问题时创建，尚未创建的不写为现存文档链接 |
+| 项目级/归属待定问题台账 | `docs\pending-issues.md` | `generator/mybatis-generator` | 项目问题台账定位规则 | 仅项目级或尚未确定模块归属的问题使用；首次发现需登记的问题时创建 |
