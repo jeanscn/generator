@@ -28,3 +28,5 @@
     用途：规范资产与能力/业务项目的文档分工；本仓库只维护 instructions、index、map 入口，不复制外部权威正文。
 13. [最终命名规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\final-naming-standard.md)  
     用途：文档命名、路径引用与内容边界；外部权威正文保持原文件名，不做跨项目改名。
+14. [跨项目工程体系与协作架构总览](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\cross-project-architecture-overview.md)  
+    用途：跨项目唯一权威，项目工程构成公式、工程分层与职责、依赖方向、跨项目工作规则与易混淆点；跨工程改动或判断能力归属前必读。

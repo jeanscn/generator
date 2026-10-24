@@ -153,6 +153,7 @@
 - 核心再开发补充说明：`.github/generator-core-dev-spec.md`
 - 下游业务项目设计阶段（本项目定位：能力说明）：`src/main/resources/docs/generator-authoritative-spec.md`
 - 下游业务项目实现阶段（本项目定位：使用手册）：`src/main/resources/docs/generator-config-guide.md`
+- 跨项目工程体系与协作架构总览（工程分层、依赖方向与跨仓协作规则）：`D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\cross-project-architecture-overview.md`
 
 ## 11. 当前环境与命令约束（必须遵守）
 

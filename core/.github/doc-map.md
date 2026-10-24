@@ -14,6 +14,7 @@
 | 生成输入建模实践 | [数据库规范 §4.5、§4.6](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-core-db\src\main\resources\docs\database-authoritative-spec.md#45-面向生成与业务使用的字段设计实践) | `vgosoft-core-db` | 外部数据库规范 | 字段设计及 apply_date 默认值分层事实 |
 | 非主线问题登记规范 | [非主线问题登记与后续处理规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\deferred-issue-management-standard.md) | `vgosoft-doc-spec` | 外部跨项目过程规范 | 非主线问题登记与后续处理唯一权威；本仓库仅维护引用入口，不复制规则正文、分级表或模板 |
 | 版本库提交说明规范 | [版本库提交说明（commit message）规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\commit-message-standard.md) | `vgosoft-doc-spec` | 外部跨项目过程规范 | 中文 commit message 交付时机、格式与类型、验证状态标注及多仓库组织唯一权威；本仓库仅维护引用入口，不复制规则正文或模板 |
+| 跨项目工程体系总览 | [跨项目工程体系与协作架构总览](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\cross-project-architecture-overview.md) | `vgosoft-doc-spec` | 跨项目工程全景 | 项目工程构成公式、工程分层与职责、依赖方向、跨项目工作规则与易混淆点唯一权威；本仓库仅维护引用入口，不复制正文 |
 | 文档体系总览 | [文档体系总览](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\doc-system-overview.md) | `vgosoft-doc-spec` | 全局规范 | 四层文档结构与使用规则；建/改文档、索引、映射前确认分层与归属 |
 | 全局文档编写提示词 | [全局文档编写提示词](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\global-authoring-prompt.md) | `vgosoft-doc-spec` | 全局规范 | 编写任何 md 前必读；强制原则与分阶段最小读取流程 |
 | 跨项目文档标准 | [跨项目文档标准](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\cross-project-doc-standard.md) | `vgosoft-doc-spec` | 全局规范 | 规范资产与能力/业务项目的文档分工；只维护入口，不复制外部权威正文 |
