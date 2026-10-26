@@ -264,7 +264,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
      * @param introspectedTable 表对象
      */
     protected Field getActionType(TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
-        Field addActionType = getField("actionType", FullyQualifiedJavaType.getStringInstance(), "查询应用场景的类型标识", introspectedTable);
+        Field addActionType = getField("actionType", FullyQualifiedJavaType.getStringInstance(), "查询应用场景的类型标识", introspectedTable, topLevelClass);
         new SchemaPropertyDesc(addActionType.getRemark(), "selector").addAnnotationToField(addActionType, topLevelClass);
         Optional<Field> actionType = topLevelClass.getFields().stream().filter(f -> "actionType".equals(f.getName())).findFirst();
         if (actionType.isEmpty()) {
@@ -282,11 +282,10 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
      * @return Field ignoreDeleteFlag 属性
      */
     protected Field getIgnoreDeleteFlag(TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
-        Field ignoreDeleteFlag = getField("ignoreDeleteFlag", FullyQualifiedJavaType.getBooleanPrimitiveInstance(), "是否忽略删除标记", introspectedTable);
+        Field ignoreDeleteFlag = getField("ignoreDeleteFlag", FullyQualifiedJavaType.getBooleanPrimitiveInstance(), "是否忽略删除标记", introspectedTable, topLevelClass);
         new SchemaPropertyDesc(ignoreDeleteFlag.getRemark(), "false").addAnnotationToField(ignoreDeleteFlag, topLevelClass);
         Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> "ignoreDeleteFlag".equals(f.getName())).findFirst();
         if (optionalField.isEmpty()) {
-            topLevelClass.addImportedType(new FullyQualifiedJavaType("com.baomidou.mybatisplus.annotation.TableField"));
             return ignoreDeleteFlag;
         } else {
             return null;
@@ -301,23 +300,25 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
      * @return ignorePermissionAnnotation属性
      */
     protected Field addIgnorePermissionAnnotation(TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
-        Field ignorePermissionAnnotation = getField("ignorePermissionAnnotation", FullyQualifiedJavaType.getBooleanPrimitiveInstance(), "是否忽略权限注解", introspectedTable);
+        Field ignorePermissionAnnotation = getField("ignorePermissionAnnotation", FullyQualifiedJavaType.getBooleanPrimitiveInstance(), "是否忽略权限注解", introspectedTable, topLevelClass);
         new SchemaPropertyDesc(ignorePermissionAnnotation.getRemark(), "false").addAnnotationToField(ignorePermissionAnnotation, topLevelClass);
         Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> "ignorePermissionAnnotation".equals(f.getName())).findFirst();
         if (optionalField.isEmpty()) {
-            topLevelClass.addImportedType(new FullyQualifiedJavaType("com.baomidou.mybatisplus.annotation.TableField"));
             return ignorePermissionAnnotation;
         } else {
             return null;
         }
     }
 
-    private static Field getField(String fieldName, FullyQualifiedJavaType booleanPrimitiveInstance, String remark, AbstractIntrospectedTable introspectedTable) {
+    private static Field getField(String fieldName, FullyQualifiedJavaType booleanPrimitiveInstance, String remark,
+                                  AbstractIntrospectedTable introspectedTable, TopLevelClass topLevelClass) {
         Field field = new Field(fieldName, booleanPrimitiveInstance);
         field.setVisibility(JavaVisibility.PRIVATE);
         field.setRemark(remark);
         if (introspectedTable.getContext().isIntegrateMybatisPlus() && !introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVo()) {
             field.addAnnotation("@TableField(exist = false)");
+            // 只有注解真实落到字段上时才登记对应 import，保证登记范围与使用一致。
+            topLevelClass.addImportedType(new FullyQualifiedJavaType("com.baomidou.mybatisplus.annotation.TableField"));
         }
         return field;
     }
@@ -332,11 +333,10 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
     protected Field getIgnoreIdList(TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
         FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
         listType.addTypeArgument(FullyQualifiedJavaType.getStringInstance());
-        Field ignoreIdList = getField("ignoreIdList", listType, "查询忽略id列表", introspectedTable);
+        Field ignoreIdList = getField("ignoreIdList", listType, "查询忽略id列表", introspectedTable, topLevelClass);
         new SchemaPropertyDesc(ignoreIdList.getRemark(), "[]").addAnnotationToField(ignoreIdList, topLevelClass);
         Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> "ignoreIdList".equals(f.getName())).findFirst();
         if (optionalField.isEmpty()) {
-            topLevelClass.addImportedType(new FullyQualifiedJavaType("com.baomidou.mybatisplus.annotation.TableField"));
             topLevelClass.addImportedType(listType);
             return ignoreIdList;
         } else {
@@ -352,12 +352,11 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
      * @return isIgnoreIds属性
      */
     protected Field getIsHideIds(TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
-        Field isHideIds = getField("isHideIds", FullyQualifiedJavaType.getBooleanPrimitiveInstance(), "是否忽略隐藏id列表", introspectedTable);
+        Field isHideIds = getField("isHideIds", FullyQualifiedJavaType.getBooleanPrimitiveInstance(), "是否忽略隐藏id列表", introspectedTable, topLevelClass);
         new SchemaPropertyDesc(isHideIds.getRemark(), "false").addAnnotationToField(isHideIds, topLevelClass);
         Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> "isHideIds".equals(f.getName())).findFirst();
         if (optionalField.isEmpty()) {
             topLevelClass.addField(isHideIds);
-            topLevelClass.addImportedType(new FullyQualifiedJavaType("com.baomidou.mybatisplus.annotation.TableField"));
             return isHideIds;
         }else {
             return null;

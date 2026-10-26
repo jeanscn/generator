@@ -116,7 +116,6 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
         testClazz.addStaticImport("org.mockito.ArgumentMatchers.any");
         testClazz.addStaticImport("org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*");
         testClazz.addImportedType("org.junit.jupiter.api.Test");
-        testClazz.addImportedType("org.junit.jupiter.api.DisplayName");
         testClazz.addImportedType("com.vgosoft.tool.core.JsonUtil");
         testClazz.addImportedType("org.springframework.http.MediaType");
 

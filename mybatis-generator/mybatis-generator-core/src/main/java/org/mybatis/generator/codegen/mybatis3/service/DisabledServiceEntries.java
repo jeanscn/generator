@@ -83,7 +83,7 @@ public final class DisabledServiceEntries {
         var policy = new DisabledServiceEntries(table);
         Map<String, Method> candidates = new LinkedHashMap<>();
         Set<String> callableInherited = new HashSet<>();
-        for (var inherited : methods.getInheritedServiceMethodMetadata(service.getSuperClass().orElseThrow(), service)) {
+        for (var inherited : methods.getInheritedServiceMethodMetadata(service.getSuperClass().orElseThrow())) {
             String signature = ServiceMethods.signature(inherited.method());
             candidates.put(signature, inherited.method());
             if (inherited.callableFromSuper()) { callableInherited.add(signature); }
@@ -155,11 +155,37 @@ public final class DisabledServiceEntries {
                     + literal(config.signature()) + ", " + literal(config.reason()) + ");");
             service.getMethods().removeIf(m -> ServiceMethods.signature(m).equals(config.signature()));
             service.addMethod(rejection);
-            service.addImportedType("com.vgosoft.core.exception.VgoServiceEntryDisabledException");
+            registerMethodImports(service, rejection);
             policy.entries.put(config.signature(), new Entry(config, snapshot(rejection),
                     internal == null ? null : snapshot(internal)));
         }
+        /*
+         * 方法体被替换为单行拒绝桩后，原方法体的依赖（如 ServiceCodeEnum、VgoException）
+         * 不再被任何内容引用。孤儿 import 由造成它的改写方在登记侧同步回收，
+         * 不留给生成器末尾的统一兜底处理。后续元素与插件若新增引用会自行登记。
+         */
+        ServiceImportReconciler.retainReferenced(service);
         table.setAttribute(ATTRIBUTE, policy);
+    }
+
+    /**
+     * 按最终落进产物的方法签名登记 import，范围不再覆盖未被生成的父类继承闭包。
+     * <p>
+     * 拒绝覆盖与内部原语方法体内的类型仍使用全限定名书写，
+     * 因此此处只需登记返回类型、参数类型和受检异常，不额外登记已被替换的方法体依赖。
+     *
+     * @param service 目标服务实现
+     * @param method 已加入目标编译单元的生成方法
+     * @author vgosoft
+     */
+    private static void registerMethodImports(TopLevelClass service, Method method) {
+        method.getReturnType().ifPresent(service::addImportedType);
+        for (var parameter : method.getParameters()) {
+            service.addImportedType(parameter.getType());
+        }
+        for (var exception : method.getExceptions()) {
+            service.addImportedType(exception);
+        }
     }
 
     /**

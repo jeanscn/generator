@@ -8,12 +8,16 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.config.xml.ConfigurationParser;
 import org.mybatis.generator.internal.DefaultShellCallback;
+import org.mybatis.generator.api.dom.java.render.TopLevelClassRenderer;
 import org.mybatis.generator.codegen.mybatis3.service.DisabledServiceEntries;
+import org.mybatis.generator.codegen.mybatis3.service.ServiceImportReconciler;
 import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -29,6 +33,16 @@ public class DisabledServiceEntryGenerationTest {
 
     private static String disabled(String signature) {
         return "<disabledMethod signature=\"" + signature + "\" reason=\"" + REASON + "\"/>";
+    }
+
+    /** 供 import 范围审计复用历史孤儿复现场景。 */
+    static Configuration auditConfiguration(String entries) throws Exception {
+        return configuration(entries);
+    }
+
+    /** 供 import 范围审计复用停用配置片段构造。 */
+    static String disabledEntry(String signature) {
+        return disabled(signature);
     }
 
     private static Configuration configuration(String entries) throws Exception {
@@ -63,6 +77,61 @@ public class DisabledServiceEntryGenerationTest {
 
     private static Method method(TopLevelClass unit, String name) {
         return unit.getMethods().stream().filter(m -> m.getName().equals(name)).findFirst().orElseThrow();
+    }
+
+    /**
+     * 拒绝覆盖替换掉方法体后，其遗留依赖、显式停用异常的冗余 import 以及整个父类继承闭包的类型
+     * 都不应再出现在抽象 Service 实现的 import 范围内。
+     */
+    @Test
+    void keepsGeneratedServiceImportsWithinReferencedTypes() throws Exception {
+        var config = configuration(disabled("deleteByExample(" + EXAMPLE + ")")
+                + disabled("deleteByPrimaryKey(java.lang.String)")
+                + disabled("insert(" + ENTITY + ")")
+                + disabled("insertSelective(" + ENTITY + ")")
+                + disabled("updateBatchByPrimaryKey(java.util.List)"));
+        var implementation = output(generate(config), "AbstractSensitiveRuleRevisionImpl.java");
+
+        assertThat(unusedImports(implementation)).isEmpty();
+        assertThat(ServiceImportReconciler.retainReferenced(implementation)).isEmpty();
+        assertThat(implementation.getImportedTypes())
+                .noneMatch(type -> type.getFullyQualifiedNameWithoutTypeParameters().equals(
+                        "com.vgosoft.core.entity.ComSelSqlParameter"))
+                .noneMatch(type -> type.getFullyQualifiedNameWithoutTypeParameters().equals(
+                        "com.vgosoft.mybatis.sqlbuilder.SelectSqlBuilder"))
+                .noneMatch(type -> type.getFullyQualifiedNameWithoutTypeParameters().equals("java.util.Map"))
+                .noneMatch(type -> type.getFullyQualifiedNameWithoutTypeParameters().equals(
+                        "com.vgosoft.core.exception.VgoServiceEntryDisabledException"));
+    }
+
+    /** 未配置停用时保持既有 import 范围，生成方法依赖的类型仍完整登记。 */
+    @Test
+    void preservesImportsForTablesWithoutDisabledEntries() throws Exception {
+        var implementation = output(generate(configuration("")), "AbstractSensitiveRuleRevisionImpl.java");
+        assertThat(implementation.getImportedTypes())
+                .anyMatch(type -> type.getFullyQualifiedNameWithoutTypeParameters().equals(ENTITY))
+                .anyMatch(type -> type.getFullyQualifiedNameWithoutTypeParameters().equals(EXAMPLE))
+                .anyMatch(type -> type.getFullyQualifiedNameWithoutTypeParameters().equals(
+                        "com.vgosoft.core.adapter.ServiceResult"));
+        assertThat(unusedImports(implementation)).doesNotContain("com.vgosoft.core.adapter.ServiceResult");
+    }
+
+    /** 独立复核：按渲染内容反查没有任何短名被遗漏引用的 import。 */
+    private static List<String> unusedImports(TopLevelClass unit) {
+        String content = new TopLevelClassRenderer().render(unit).lines()
+                .filter(line -> !line.startsWith("import "))
+                .collect(Collectors.joining("\n"));
+        return unit.getImportedTypes().stream()
+                .flatMap(type -> type.getImportList().stream())
+                .filter(name -> !Pattern.compile("(?<![A-Za-z0-9_$])" + Pattern.quote(shortName(name)) + "(?![A-Za-z0-9_])")
+                        .matcher(content).find())
+                .distinct().sorted().toList();
+    }
+
+    private static String shortName(String importedType) {
+        String name = importedType.substring(importedType.lastIndexOf('.') + 1);
+        int array = name.indexOf('[');
+        return array < 0 ? name : name.substring(0, array);
     }
 
     /** 未配置时不新增拒绝覆盖、内部原语或测试映射，保持继承行为。 */

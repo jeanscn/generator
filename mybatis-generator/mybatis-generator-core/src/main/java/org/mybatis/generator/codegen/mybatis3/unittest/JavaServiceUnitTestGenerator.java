@@ -50,7 +50,6 @@ public class JavaServiceUnitTestGenerator extends AbstractUnitTestGenerator{
         testClazz.addImportedType(mapperType);
         testClazz.addImportedType(entityType);
         testClazz.addImportedType(exampleType);
-        testClazz.addImportedType("org.junit.jupiter.api.DisplayName");
 
         //增加构造器
         Method constructor = new Method(topClassType.getShortName());

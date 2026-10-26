@@ -54,6 +54,8 @@ public abstract class AbstractUnitTestGenerator extends AbstractJavaGenerator {
         testClazz.addMethod(method);
         if (StringUtility.stringHasValue(methodDescription)) {
             method.addAnnotation("@DisplayName(\""+methodDescription+"\")");
+            // 与注解同点登记 import，未添加注解时不登记，保证登记范围与使用一致。
+            testClazz.addImportedType("org.junit.jupiter.api.DisplayName");
         }
         return method;
     }

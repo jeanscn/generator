@@ -136,6 +136,10 @@
 2. 接口与实现必须共用签名及其依赖登记。接口契约说明与实现职责说明确有差异时，可在签名工厂内按模式保留，不应由两处重复拼装参数或异常说明。
 3. 方法体、事务边界、校验、缓存及扩展钩子的职责保持在原有实现层。仅做结构重构时，不改变配置、生成条件、对外契约、插件接点或业务行为；有意改变行为须单独说明并确认。
 4. 使用生成回归验证接口与实现的方法名、返回类型、泛型、参数顺序/类型和异常声明一致，并核对依赖导入、实现注解、方法体及关闭配置时的兼容行为；不能只以生成器源码编译通过替代生成结果验证。
+5. **依赖导入范围**：import 登记必须与使用同点、同范围，分三层约束。
+   - 登记侧治本（优先）：签名工厂按最终签名登记所需 import；注解或方法体使用的类型在添加该注解/方法体的同一位置登记（参照 `AbstractJavaGenerator.getField` 的 `@TableField`、`AbstractUnitTestGenerator.createMethod` 的 `@DisplayName`），不得在类级别按"可能会用"预登记；纯元数据解析（例如 `ServiceMethods.getInheritedServiceMethodMetadata`）只解析签名，不得把父类继承闭包的类型登记为任何编译单元的 import。
+   - 改写方自清理：方法体被后续装配替换（例如 `DisabledServiceEntries` 的拒绝覆盖）后失效的依赖，由造成孤儿的改写方在替换完成后立即按当前内容回收（`DisabledServiceEntries.apply` 调用 `ServiceImportReconciler`），不留给末端统一处理。
+   - 末端兜底：装配链末端在插件回调之后按最终渲染内容再核对一次（`JavaServiceImplGenerator` 中的 `ServiceImportReconciler`），只兜住插件回调等登记侧无法预见的孤儿；回收只作用于确有替换行为的场景（如配置了 `disabledMethod`），不得借机扩大到默认产物，也不得通过更新历史快照掩盖输出差异。`ImportScopeAuditTest` 在关闭末端兜底的前提下审计全部生成类，任何登记侧孤儿都会使回归失败。
 
 参照实现：`ServiceMethods.getPreviewExcelImportMethod`、`getConfirmExcelImportMethod` 统一 Excel 导入预览/确认方法的签名和依赖；`JavaServiceGenerator` 以接口模式调用，`ExcelImportWorkflowElement` 以实现模式复用后补充注解与方法体，保留受保护业务钩子。该示例用于说明分层方式，不要求其他能力采用 Excel 工作流的事务或业务策略。
 

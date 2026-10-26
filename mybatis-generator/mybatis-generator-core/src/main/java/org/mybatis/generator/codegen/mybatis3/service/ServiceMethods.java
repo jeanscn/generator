@@ -38,11 +38,10 @@ public class ServiceMethods {
      * 解析真实父类的公开方法及泛型绑定，补齐没有本地生成体的继承入口。
      *
      * @param parentType 已绑定 Mapper、实体和 Example 的父类
-     * @param unit 接收签名依赖的编译单元
      * @return 可覆盖的完整继承方法集合
      */
-    public List<Method> getInheritedServiceMethods(FullyQualifiedJavaType parentType, CompilationUnit unit) {
-        return getInheritedServiceMethodMetadata(parentType, unit).stream()
+    public List<Method> getInheritedServiceMethods(FullyQualifiedJavaType parentType) {
+        return getInheritedServiceMethodMetadata(parentType).stream()
                 .map(InheritedServiceMethod::method).toList();
     }
 
@@ -70,13 +69,16 @@ public class ServiceMethods {
 
     /**
      * 按类优先、最近覆盖优先的 Java 解析顺序收集继承签名和声明元数据。
+     * <p>
+     * 只负责解析签名；不把继承闭包的类型登记为任何编译单元的 import。
+     * 依赖导入由真正把方法加入目标编译单元的一方在加入时按最终签名登记，
+     * 避免未被生成的父类方法污染产物 import 范围。
      *
      * @param parentType 已绑定泛型的真实父类
-     * @param unit 接收签名依赖的编译单元
      * @return 继承方法及真实来源，不包含执行方法体
      */
     public List<InheritedServiceMethod> getInheritedServiceMethodMetadata(
-            FullyQualifiedJavaType parentType, CompilationUnit unit) {
+            FullyQualifiedJavaType parentType) {
         try {
             Class<?> parent = org.mybatis.generator.internal.ObjectFactory.externalClassForName(
                     parentType.getFullyQualifiedNameWithoutTypeParameters());
@@ -85,8 +87,8 @@ public class ServiceMethods {
                 bindings.put(parent.getTypeParameters()[i], parentType.getTypeArguments().get(i));
             }
             Map<String, InheritedServiceMethod> methods = new LinkedHashMap<>();
-            collectInherited(parent, bindings, unit, methods, false);
-            collectInherited(parent, bindings, unit, methods, true);
+            collectInherited(parent, bindings, methods, false);
+            collectInherited(parent, bindings, methods, true);
             return new ArrayList<>(methods.values());
         } catch (ClassNotFoundException exception) {
             throw new IllegalArgumentException("disabledMethod 无法读取真实 Service 父类：" + parentType, exception);
@@ -95,7 +97,7 @@ public class ServiceMethods {
 
     private void collectInherited(Class<?> type,
                                   Map<java.lang.reflect.TypeVariable<?>, FullyQualifiedJavaType> bindings,
-                                  CompilationUnit unit, Map<String, InheritedServiceMethod> methods,
+                                  Map<String, InheritedServiceMethod> methods,
                                   boolean interfaces) {
         if (type == Object.class) { return; }
         for (var source : type.isInterface() == interfaces ? type.getDeclaredMethods()
@@ -113,18 +115,14 @@ public class ServiceMethods {
             }
             if (source.getReturnType() != void.class) {
                 method.setReturnType(resolveInheritedType(source.getGenericReturnType(), bindings));
-                unit.addImportedType(method.getReturnType().orElseThrow());
             }
 
             for (int i = 0; i < source.getGenericParameterTypes().length; i++) {
                 FullyQualifiedJavaType parameter = resolveInheritedType(source.getGenericParameterTypes()[i], bindings);
                 method.addParameter(new Parameter(parameter, "arg" + i));
-                unit.addImportedType(parameter);
             }
             for (var exception : source.getGenericExceptionTypes()) {
-                var resolved = resolveInheritedType(exception, bindings);
-                method.addException(resolved);
-                unit.addImportedType(resolved);
+                method.addException(resolveInheritedType(exception, bindings));
             }
             String signature = signature(method);
             var previous = methods.get(signature);
@@ -146,7 +144,7 @@ public class ServiceMethods {
                             resolveInheritedType(parameterized.getActualTypeArguments()[i], bindings));
                 }
             }
-            collectInherited(raw, next, unit, methods, interfaces);
+            collectInherited(raw, next, methods, interfaces);
         }
     }
 

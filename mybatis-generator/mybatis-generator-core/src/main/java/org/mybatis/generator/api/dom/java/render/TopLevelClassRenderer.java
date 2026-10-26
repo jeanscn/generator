@@ -11,6 +11,9 @@ import java.util.stream.Collectors;
 
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 
+/**
+ * @author jeff
+ */
 public class TopLevelClassRenderer {
 
     public String render(TopLevelClass topLevelClass) {

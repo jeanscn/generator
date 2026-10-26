@@ -200,6 +200,17 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
             if (org.mybatis.generator.codegen.mybatis3.SensitiveFieldResolver.isEnabled(introspectedTable)) {
                 initializeAndExecuteGenerator(new SensitiveWriteMethodsElement(), bizGenClazzImpl);
             }
+            /*
+             * 兜底：DisabledServiceEntries.apply 已在替换方法时同步回收孤儿 import，
+             * 此处仅在全部装配和插件回调结束后再核对一次最终内容，
+             * 兜住插件回调等登记侧无法预见的孤儿。未配置停用时不改变既有 import 范围，
+             * 避免影响其它消费者的既有产物。vgosoft.audit.skipReconciler 仅供审计诊断
+             * 测量登记侧纯净度，正常生成不得设置。
+             * */
+            if (!DisabledServiceEntries.configurations(introspectedTable).isEmpty()
+                    && !Boolean.getBoolean("vgosoft.audit.skipReconciler")) {
+                ServiceImportReconciler.retainReferenced(bizGenClazzImpl);
+            }
             answer.add(bizGenClazzImpl);
         } else {
             SensitiveWriteMethodsElement.requireServiceGenerated(introspectedTable);

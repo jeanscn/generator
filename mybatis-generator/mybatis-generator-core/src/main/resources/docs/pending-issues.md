@@ -12,6 +12,8 @@
 | generator-core-ISSUE-0001 | 中 | 其他 | CAS/逻辑删除回归依赖可变消费配置导致历史基线漂移 | 已复现 | 待处理 | 2026-10-26 | [Service 停用任务书](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\service-entry-disable-contract-task.md) |
 | generator-core-ISSUE-0002 | 中 | 数据一致性 | 根实体结构同步可能为主键生成可空列变更 | 已复现 | 待处理 | 2026-10-26 | [Service 停用任务书](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\service-entry-disable-contract-task.md) |
 | generator-core-ISSUE-0003 | 中 | 其他 | 未启用停用配置的业务消费者缺真实再生成编译测试证据 | 源码已定位 | 待处理 | 2026-10-26 | [遗留项核查](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\service-entry-disable-contract-task.md#5-后续遗留项核查2026-10-26) |
+| generator-core-ISSUE-0004 | 中 | 测试与基线 | 锁查询离线输出基线与 Excel 资源限额拒绝测试存在既有失败 | 已复现 | 待处理 | 2026-10-26 | 无（Service 停用 import 范围修改的验证旁路发现） |
+| generator-core-ISSUE-0005 | 中 | 测试与基线 | 消费方完整输出基线测试存在既有失败（前端产物重复键） | 已复现 | 待处理 | 2026-10-26 | 无（import 登记侧审计的验证旁路发现） |
 
 ## 2. 问题详情
 
@@ -48,3 +50,25 @@
 - 建议后续处理：获批后固定去敏配置、相同版本元数据、生成器/core/DTD/插件和依赖，优先选择 vgosoft-application 两表，在隔离目录用改前/改后生成器对相同输入执行 parse/customConfig/完整生成并保存全输出清单与逐文件差异；未配置停用时检查无意外差异。再将新生成输出放入隔离消费副本，按真实依赖编译主代码与测试并显式执行 Service/Controller 生成测试。对手写扩展也核对覆盖保护。差异须解释，不能强求有预期变更的输出字节完全一致；不得触发目标库结构同步、菜单/权限更新或直接覆盖工作副本。
 - 责任与关联：生成器维护方与 application 消费模块维护方；版本提交及基线来源由仓库负责人确认。
 - 更新与关闭记录：2026-10-26 首次登记，中/源码已定位/待处理；版本控制疑点已澄清，不建立“不受版本控制”缺陷。关闭要求为同输入改前/改后生成差异、消费主代码/测试编译与运行证据齐备。
+
+### generator-core-ISSUE-0004 锁查询离线输出基线与 Excel 资源限额拒绝测试存在既有失败
+
+- 发现来源：2026-10-26 修改 Service 实现类生成 import 范围后扩大回归范围时发现；与本次 import 改动无关。
+- 位置与证据：`SelectForUpdateGenerationTest.offlineOutputBaseline`（第 85 行）断言「重构前真实输出基线：模型 0，层 3」期望摘要 `e611db88837710b8c92f58ffbe4cdfbf0a07b9abc4312fd94ab1730a9fdd6665`，实际 `c7b11865021a59a04bc5e152773ef379210225632722e50e82b73a5b8213c4f7`；`ExcelImportWorkflowGenerationTest.rejectsEnabledWorkflowWithoutExplicitResourceLimits`（第 106 行）期望抛出可抛对象而实际未抛出。改前对照：临时回退本次四份源码到 HEAD 后执行同两条测试，失败项与数量完全一致（`SelectForUpdateGenerationTest` 17 项 1 失败、`ExcelImportWorkflowGenerationTest` 8 项 1 失败），证据 `mybatis-generator-core\target\surefire-reports`。未连接任何数据库。
+- 问题现象与触发条件：直接执行上述两个测试类即失败；离线内省与固定消费配置为输入。若 `SelectForUpdateGenerationTest` 同样读取消费仓当前 `generatorConfig.xml`，则与 generator-core-ISSUE-0001 同源；`ExcelImportWorkflowGenerationTest` 的资源限额拒绝路径是否为同一根因尚未核实。
+- 影响与分级依据：中。属于历史/离线回归的可重复性缺陷，不影响本次 import 交付；不得通过改写期望摘要或删除断言通过。
+- 与当前任务的关系：本次 import 改动的三组回归（`DisabledServiceEntryGenerationTest` 57 项、`SensitiveGenerationTest` 20 项含 1 项既有跳过、`CacheAwareBaseMethodsElementTest` 2 项）全部通过；本问题不通过修改断言、重录基线或放宽校验处理。
+- 建议后续处理：独立批准后固定去敏输入与基线版本，分别核实两个失败是自基线漂移还是有真实行为回归；确认后再决定是修正生成器还是更新基线，并须说明差异原因后方可调整快照。
+- 责任与关联：生成器测试维护方，负责人待指定；当前任务只登记，不修复、不更新快照、不执行提交。
+- 更新与关闭记录：2026-10-26 首次登记，中/已复现/待处理；与 generator-core-ISSUE-0001 的归属关系待核实后决定是否合并。
+
+### generator-core-ISSUE-0005 消费方完整输出基线测试存在既有失败（前端产物重复键）
+
+- 发现来源：2026-10-26 import 登记侧审计（`ImportScopeAuditTest`）扩大回归范围时发现；与 import 改动无关。
+- 位置与证据：`CasConsumerBaselineTest.capturesCompleteConsumerOutputWithoutExternalWrites`（第 87 行）断言 `digests` 不含重复键失败，实际输出中 `PrivateTableColumnSlots.vue` 作为键出现两次（`assertThat(digests).doesNotContainKey("PrivateTableColumnSlots.vue")`）。改前对照：临时回退本次全部源码到 HEAD 后执行该测试，失败项与数量完全一致（1 项失败），证据 `mybatis-generator-core\target\surefire-reports`。未连接任何数据库。
+- 问题现象与触发条件：直接执行 `CasConsumerBaselineTest` 即失败；疑似两个表配置各自生成同名前端片段文件且目标包相同，或同一文件被重复加入输出清单。Java/XML 产物的 import 内容与本失败无关。
+- 影响与分级依据：中。属于既有回归的可重复性缺陷，不影响本次 import 交付；不得通过删除断言或改写基线通过。
+- 与当前任务的关系：本次 import 改动的回归（`DisabledServiceEntryGenerationTest` 57 项、`SensitiveGenerationTest` 20 项含 1 项既有跳过、`CacheAwareBaseMethodsElementTest` 2 项、`DictPrefetchGenerationTest` 7 项、`ImportScopeAuditTest` 1 项）全部通过；本问题不通过修改断言、重录基线或放宽校验处理。
+- 建议后续处理：独立批准后定位 `PrivateTableColumnSlots.vue` 的重复生成来源（表配置或前端元素装配），确认是应去重还是输出路径应区分，说明差异原因后方可调整。
+- 责任与关联：生成器测试维护方，负责人待指定；当前任务只登记，不修复、不更新快照、不执行提交。
+- 更新与关闭记录：2026-10-26 首次登记，中/已复现/待处理。
