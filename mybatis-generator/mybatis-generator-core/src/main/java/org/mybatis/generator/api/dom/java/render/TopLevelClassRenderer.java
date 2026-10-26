@@ -26,6 +26,6 @@ public class TopLevelClassRenderer {
         lines.addAll(renderInnerClassNoIndent(topLevelClass, topLevelClass));
 
         return lines.stream()
-                .collect(Collectors.joining(System.getProperty("line.separator")));
+                .collect(Collectors.joining(System.lineSeparator()));
     }
 }
