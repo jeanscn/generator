@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 
+/**
+ * @author vgosoft-agent
+ */
 public final class CacheConfigurationResolver {
 
     private CacheConfigurationResolver() {
