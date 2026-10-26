@@ -11,6 +11,57 @@
 - 按 context.moduleKeyword 聚合唯一 `META-INF\vgosoft\write-contracts\<moduleKeyword>.xml`，协议 `managed-cas-1`，不硬编码业务名。逐表和 context 插件回调之后验证必需 Java 文件/签名、服务事务与异常传播及全部非 SELECT SQL；插件否决、重复、未知写或语义篡改失败。资源须在原工厂显式装载，没有生产扫描或审计自动装配。
 - `CasWriteGenerationTest` 对比完整原始输出基线及默认/false 全输出，检验真实 metadata 替身和插件负例。`CasConsumerBaselineTest` 保留实际八表配置及开关形状，去敏替换连接/驱动、重定向输出，`generate(..., false)` 后仅捕获 target 产物。`sc03.cas=true`、`sc03.h2=true`、`sc03.baseline.name=sc03-final-generated` 用于两步跨仓测试；业务配置不加 H2、不运行业务生成入口。精确证据见 [Sensitive SC03 任务书](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\sensitive-functional-implementation-task.md)；运行契约见 [basic 能力 §6.4](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-mybatis\src\main\resources\docs\vgosoft-mybatis-capability-overview.md#64-生成器受管-cas-契约managed-cas-1未发布)。
 
+## 显式 Service 入口停用（1.8.0）
+
+使用当前 `1_8_0` DTD，在 `generateService` 的原有 `property*` 之后、统计配置之前添加 `disabledMethod*`：
+
+```xml
+<generateService generate="true" generateUnitTest="true">
+    <property name="entityEvent" value="PRE_UPDATE"/>
+    <disabledMethod signature="deleteByPrimaryKey(java.lang.String)"
+                    reason="规则版本只能通过 advance 推进"/>
+    <disabledMethod signature="insert(com.vgosoft.sensitive.entity.SensitiveRuleRevision)"
+                    reason="规则版本只能通过 advance 推进"/>
+    <disabledMethod signature="updateBatchByPrimaryKey(java.util.List)"
+                    reason="规则版本只能通过 advance 推进"/>
+    <disabledMethod signature="incrementRevisionByPrimaryKey(java.lang.String)"
+                    reason="规则版本只能通过 advance 推进"
+                    internalMethod="incrementRevisionInternal"/>
+</generateService>
+```
+
+| 属性 | 约束与语义 |
+|---|---|
+| `signature` | 必填，方法名与**准确全限定、擦除后的参数类型**，不含参数名或任何空格；数组用 `[]`，集合用 `java.util.List` 而不是泛型。短类名、错误重载、未知、重复、歧义及不可覆盖方法显式失败，不做猜测或宽松匹配。 |
+| `reason` | 必填且非空白，原样进入异常与生成测试映射；字符串中的引号、反斜杠及换行按 Java 字符串转义。 |
+| `internalMethod` | 可选，合法 Java 标识符且不能与公开、受保护继承方法或本地生成方法同名。仅复制**当前已生成、尚未被 CAS 拒绝**的方法体为 protected；不暴露到接口，不自动创建其他旁路。没有生成体的继承 CRUD 只能拒绝，不能凭空保留内部原语。 |
+
+**输出与使用：** 停用入口生成 public、非 final 的 `@Override`，唯一执行语句为 `throw new com.vgosoft.core.exception.VgoServiceEntryDisabledException(signature, reason)`；不保留原有事务、缓存、敏感写或事件等方法注解。内部复制只保留原签名与方法体，设为 protected 并清除全部方法注解，包括 `@Override`、缓存、事务和事件拦截注解；不改变原类的 private final Mapper 字段。上例内部递增保留原 `return mapper.incrementRevisionByPrimaryKey(id);` 原语，业务扩展的 `advance` 可在明确事务和业务门禁中调用 `super.incrementRevisionInternal(id)`，事务、缓存及事件编排由业务入口显式负责。业务扩展依然按原覆盖保护规则接管，禁止手改 codegen Java/XML；非 final 是为了允许业务重写，不代表允许绕过验收。
+
+**测试与失败门禁：** 显式停用要求 Service 接口、实现及 `generateUnitTest=true`。生成 `protected Map<String,String> disabledServiceEntries()`，返回全部精确签名及原因。基类已有 CRUD/SQL-builder/相应 BLOB 用例通过共用 helper 验证，其余入口补充 `assertDisabledServiceEntry(signature, () -> serviceImplUnderTest.method(...))` 测试；对象仍为真实业务 Service，不是拒绝专用替身。补充参数支持实际实体、Example、非空字符串、整数/长整数/布尔、BigDecimal、Date、ComSelSqlParameter 及有界单元素 List/Collection/Set；不能可靠构造有效参数时明确失败，不以 null 伪造通过。方法级泛型、final/static/非 public 入口不在当前可覆盖范围。
+
+运行依赖必须提供基础 `VgoServiceEntryDisabledException` 及 `vgosoft-test` 的 `disabledServiceEntries/assertDisabledServiceEntry` 契约；helper 校验精确异常类型、operation、reason、FAIL 以及无 Mapper 交互。基类覆盖清单与生成侧补充测试清单须同步维护；仅生成映射不代表实际业务 Service 已通过测试。最后一个 context 附加文件回调之后统一校验接口继承/签名、拒绝体、protected 原语及测试契约；插件删除、否决、重新开放、增加拒绝方法注解或更改测试对象均失败。
+
+**兼容边界：** 未配置时沿用原生成条件、接口、Service、测试及 CAS 默认输出，不自动停用任何方法。配置只关闭 Service 路径，不改变 SQL 方言和 Mapper 许可；已有 CAS `ENTRY_DISABLED` 可显式增强为上述异常，但不能复制其被禁原语重新开放写操作。
+
+**实现与验证入口：** 配置解析归 `DisabledServiceMethodConfiguration`/Parser，`ServiceMethods` 共用完整签名与继承泛型解析，`DisabledServiceEntriesElement` 沿既有 elements 装配，`DisabledServiceEntries` 的有效策略供服务、测试和最终校验共用。正式回归：
+
+```powershell
+mvn -q -o -pl mybatis-generator-core "-Denforcer.skip=true" "-Dtest=DisabledServiceEntryGenerationTest" test
+```
+
+可由获准的交付方复用既有 `CasConsumerBaselineTest` 做 Sensitive revision **离线捕获**：`-Dsc03.disabled=true` 保留消费配置中的显式停用；不传该参数时移除停用子项以保留旧兼容基线。该既有 fixture 使用提交 DDL 构造 JDBC 元数据替身，剔除连接和驱动配置，重定向到 `target`，`generate(..., false)` 不走业务写盘器；可设置 `-Dsc03.baseline.name=service-entry-disabled`。它不是业务 Maven 生成入口，不需远程数据库、不安装工件，也不能替代业务扩展测试或真实宿主验收。执行捕获、供应工件与业务再生成分别需要授权。
+
+**独立离线驱动的隔离 API：** 配置只保留目标表，移除远端连接/驱动/外部 properties，并替换为已获准的本地 H2 或元数据替身；解析及 `ConfigurationParser.customConfig` 完成后，将该表的 `getJavaServiceGeneratorConfiguration().setTargetProject(outputRoot)`、`getJavaServiceImplGeneratorConfiguration().setTargetProject(outputRoot)` 与模型、Mapper、XML 等输出配置全部指向隔离目录。必须调用四参数 `generator.generate(null, null, Set.of("sensitive_rule_revision"), false)`，再从 `getGeneratedJavaFiles()` 以准确包名和文件名白名单选取 `getFormattedContent()`，手工保存到隔离目录并核对后受控落地。不能调用 `generate(null)`：该重载默认写盘，且当前 Service 测试生成器的 targetProject 独立硬编码为 `src/test/java`，没有专用配置 setter，仅调整 model/client/sqlMap 目录不能隔离所有写盘路径。不要使用生成文件对象自带的 targetProject 作为白名单捕获目的地；接口、模型和 Mapper 仍在内存中生成以满足最终契约校验，不应通过关闭这些层绕过校验。
+
+**禁止离线结构同步：** `generate(..., false)` 只禁止文件写盘，不代表禁止内省后执行数据库结构同步。独立驱动须在生成前对每个 context 调用 `context.setRootClassSchemaSynchronizationEnabled(false)`，跳过 `ValidateDatabaseTable` 的根实体注解比较与 DDL 执行，同时保留真实元数据内省、rootClass 继承和正常生成。此程序 API 默认 `true`，保留既有正式入口行为；不新增 XML/DTD 属性，不通过清空 rootClass、修改 nullable 或吞掉 SQL 异常伪造隔离。不能以 `columnOverride` 的 required/nullable 配置替代此开关。驱动还应对结构更新警告显式失败；正式回归以禁止写入的连接替身确认关闭后结构写入尝试为零，默认开启仍走原路径。
+
+**Example 类型排查：** `enableDeleteByExample=false`、`enableDeleteByPrimaryKey=false`、`enableInsert=false` 等只关闭对应 SQL 生成，不能从 Service 的真实父类移除继承入口；显式停用仍可覆盖这些方法。签名中的 Example 包必须与实际配置链一致：原始 Parser 默认随实体包生成，既有 Maven 的 `customConfig` 默认补充 `.example` 子包。不要为消除未知签名错误而放宽匹配、修改业务签名或重新打开 SQL 开关；先核对驱动是否完成同一 `customConfig` 链路。未知签名异常会列出实际同名签名及 `getExampleType()`，正式回归同时覆盖原始/完整配置链在 CRUD SQL 关闭时的继承封闭。
+
+该包名不依赖额外 `CustomConfig` 插件。独立 API 可在解析以及所需 `customConfig` **完成后**，对 `context.getJavaModelGeneratorConfiguration().addProperty(PropertyRegistry.MODEL_GENERATOR_EXAMPLE_PACKAGE, "com.vgosoft.sensitive.entity.example")` 显式设置绝对包名，再开始生成；不能先设置绝对包名后重复调用 `customConfig`，其既有规则会再次加实体包前缀。诊断混合版本时同时输出 `ConfigurationParser.class` 和 `DisabledServiceEntries.class` 的 `getProtectionDomain().getCodeSource().getLocation()`，确保两个类都优先加载当前 core 的 `target\classes`，而不是只让新类来自源码输出、其他同包类仍被旧 JAR 抢先加载。
+
+**离线主键类型对齐：** 原子递增的参数来自实际内省主键列，而不是固定写成 String。已验证的 H2 隔离场景中，`id_ varchar(36)` 可被当前元数据链解析成 `java.lang.Object`，此时实际候选为 `incrementRevisionByPrimaryKey(java.lang.Object)`；这不表示递增方法未生成。若生产契约明确为 String，应仅在会话内存配置添加 `<columnOverride column="id_" javaType="java.lang.String"/>` 对齐已知生产映射，再验证精确签名；不能改真实停用签名或放宽匹配。对应正式回归验证类型不一致时显示实际候选，成功场景验证 protected 原语保留原 Mapper 调用。
+
 > 读法约定：**DTD 定义结构**，**源码定义真实行为**。当两者不一致时，以源码行为为准。
 
 ## 1. 根结构

@@ -65,6 +65,10 @@ public class SensitiveWriteMethodsElement extends AbstractServiceElementGenerato
         FullyQualifiedJavaType entity = new FullyQualifiedJavaType(table.getBaseRecordType());
         Set<String> found = new java.util.HashSet<>();
         for (Method method : service.getMethods()) {
+            if (org.mybatis.generator.codegen.mybatis3.service.DisabledServiceEntries.isDisabled(table, method)) {
+                found.add(method.getName());
+                continue;
+            }
             if (casContract && CAS_DISABLED_WRITES.contains(method.getName())) {
                 continue;
             }

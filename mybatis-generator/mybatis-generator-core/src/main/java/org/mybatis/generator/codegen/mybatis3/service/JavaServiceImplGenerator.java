@@ -179,6 +179,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         SensitiveWriteMethodsElement.addInheritedWriteMethods(bizGenClazzImpl, introspectedTable);
         ManagedRelationGeneration.addEntityMutationAnnotations(bizGenClazzImpl, introspectedTable);
         initializeAndExecuteGenerator(new CasWriteElement(), bizGenClazzImpl);
+        initializeAndExecuteGenerator(new DisabledServiceEntriesElement(), bizGenClazzImpl);
 
         // 增加类的javaDoc注释
         commentGenerator.addModelClassComment(bizGenClazzImpl,

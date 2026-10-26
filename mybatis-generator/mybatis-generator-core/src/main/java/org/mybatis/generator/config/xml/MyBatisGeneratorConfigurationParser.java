@@ -2130,6 +2130,13 @@ public class MyBatisGeneratorConfigurationParser {
                 case "generateDateDimStatistics":
                     parseGenerateStatistics(javaServiceImplGeneratorConfiguration, childNode);
                     break;
+                case "disabledMethod":
+                    Properties disabled = parseAttributes(childNode);
+                    javaServiceGeneratorConfiguration.addDisabledMethod(
+                            new org.mybatis.generator.config.DisabledServiceMethodConfiguration(
+                                    disabled.getProperty("signature"), disabled.getProperty("reason"),
+                                    disabled.getProperty("internalMethod")));
+                    break;
                 case "generateCustomStatistics":
                     parseGenerateCustomStatistics(javaServiceImplGeneratorConfiguration, childNode);
                     break;

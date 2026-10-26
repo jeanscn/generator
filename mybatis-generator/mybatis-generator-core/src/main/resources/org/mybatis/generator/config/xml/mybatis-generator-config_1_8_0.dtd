@@ -1211,12 +1211,20 @@
                 说明：1、目前不支持在byExample、byTable、bySql相关方法中添加事件。
                      2、RECYCLED、RESTORED配置仅影响初次生成监听器的生成对应的方法配置,而是否发布消息取决于是否启用了移入回收站的操作。
         -->
-        <!ELEMENT generateService (property*, generateDateDimStatistics*, generateCustomStatistics*)>
+        <!-- disabledMethod 使用无空格的完整擦除参数签名；reason 必填且非空。
+             internalMethod 仅显式保留该方法原有原语为 protected，不生成公开旁路。 -->
+        <!ELEMENT generateService (property*, disabledMethod*, generateDateDimStatistics*, generateCustomStatistics*)>
         <!ATTLIST generateService
                 generate (true|false) #REQUIRED
                 generateUnitTest (true|false) #IMPLIED
                 noServiceAnnotation (false|true) #IMPLIED
                 targetSubPackage CDATA #IMPLIED>
+
+        <!ELEMENT disabledMethod EMPTY>
+        <!ATTLIST disabledMethod
+                signature CDATA #REQUIRED
+                reason CDATA #REQUIRED
+                internalMethod CDATA #IMPLIED>
 
         <!--
             默认时间维度的统计接口生成描述，默认生成基于时间维度的统计方法

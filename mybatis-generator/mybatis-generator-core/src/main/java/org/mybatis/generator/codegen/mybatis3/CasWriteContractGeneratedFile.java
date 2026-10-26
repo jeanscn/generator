@@ -67,6 +67,10 @@ public final class CasWriteContractGeneratedFile extends AbstractGeneratedFile {
                 .filter(f -> f.getFileName().equals("Abstract" + model + "Impl.java"))
                 .findFirst().orElseThrow().getCompilationUnit();
         for (var method : implementation.getMethods()) {
+            if (org.mybatis.generator.codegen.mybatis3.service.DisabledServiceEntries.isDisabled(table, method)
+                    || org.mybatis.generator.codegen.mybatis3.service.DisabledServiceEntries.isInternal(table, method)) {
+                continue;
+            }
             String name = method.getName();
             if (Set.of("updateByPrimaryKeyCas", "updateByPrimaryKeySelectiveCas",
                     "insert", "insertSelective", "insertBatch").contains(name)) {
@@ -107,10 +111,13 @@ public final class CasWriteContractGeneratedFile extends AbstractGeneratedFile {
             }
         }
         for (String method : List.of("updateByPrimaryKeyCas", "updateByPrimaryKeySelectiveCas")) {
+            boolean explicitlyDisabled = org.mybatis.generator.codegen.mybatis3.service.DisabledServiceEntries
+                    .configurations(table).stream().anyMatch(c -> c.signature().equals(method + "("
+                            + table.getBaseRecordType() + ",java.lang.Integer)"));
             if (!mapper.contains(method + "(@Param(\"record\") " + model + " record, @Param(\"expectedVersion\") Integer expectedVersion)")
                     || !service.contains(method + "(" + model + " record, Integer expectedVersion)")
-                    || !impl.contains("mapper." + method + "(record, expectedVersion)")
-                    || !impl.contains("Propagation.MANDATORY")) {
+                    || !explicitlyDisabled && (!impl.contains("mapper." + method + "(record, expectedVersion)")
+                        || !impl.contains("Propagation.MANDATORY"))) {
                 throw failure(table, "插件后 CAS Mapper/Service 签名或事务实现缺失：" + method);
             }
             for (var config : LogicalDeleteGenerationValidator.configurations(table)) {

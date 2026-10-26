@@ -30,3 +30,5 @@
     用途：文档命名、路径引用与内容边界；外部权威正文保持原文件名，不做跨项目改名。
 14. [跨项目工程体系与协作架构总览](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\cross-project-architecture-overview.md)  
     用途：跨项目唯一权威，项目工程构成公式、工程分层与职责、依赖方向、跨项目工作规则与易混淆点；跨工程改动或判断能力归属前必读。
+15. [mybatis-generator-core 问题台账](..\mybatis-generator-core\src\main\resources\docs\pending-issues.md)
+    用途：生成器模块项目问题台账；登记可变消费配置造成的历史测试基线漂移，不代表已批准修复。

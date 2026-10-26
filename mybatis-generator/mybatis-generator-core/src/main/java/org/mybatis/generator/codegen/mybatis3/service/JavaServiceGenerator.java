@@ -199,6 +199,7 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
                 classComments.toArray(new String[0]));
 
         List<CompilationUnit> answer = new ArrayList<>();
+        DisabledServiceEntries.captureInterface(introspectedTable, bizInf);
         boolean serviceGenerated = plugins.serviceGenerated(bizInf, introspectedTable);
         if (introspectedTable.getRules().isGenerateExcelImportWorkflow()) {
             if (!serviceGenerated) {

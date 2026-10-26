@@ -35,6 +35,137 @@ public class ServiceMethods {
     }
 
     /**
+     * 解析真实父类的公开方法及泛型绑定，补齐没有本地生成体的继承入口。
+     *
+     * @param parentType 已绑定 Mapper、实体和 Example 的父类
+     * @param unit 接收签名依赖的编译单元
+     * @return 可覆盖的完整继承方法集合
+     */
+    public List<Method> getInheritedServiceMethods(FullyQualifiedJavaType parentType, CompilationUnit unit) {
+        try {
+            Class<?> parent = org.mybatis.generator.internal.ObjectFactory.externalClassForName(
+                    parentType.getFullyQualifiedNameWithoutTypeParameters());
+            Map<java.lang.reflect.TypeVariable<?>, FullyQualifiedJavaType> bindings = new HashMap<>();
+            for (int i = 0; i < parent.getTypeParameters().length; i++) {
+                bindings.put(parent.getTypeParameters()[i], parentType.getTypeArguments().get(i));
+            }
+            Map<String, Method> methods = new LinkedHashMap<>();
+            collectInherited(parent, bindings, unit, methods);
+            return new ArrayList<>(methods.values());
+        } catch (ClassNotFoundException exception) {
+            throw new IllegalArgumentException("disabledMethod 无法读取真实 Service 父类：" + parentType, exception);
+        }
+    }
+
+    private void collectInherited(Class<?> type,
+                                  Map<java.lang.reflect.TypeVariable<?>, FullyQualifiedJavaType> bindings,
+                                  CompilationUnit unit, Map<String, Method> methods) {
+        if (type == Object.class) { return; }
+        for (var source : type.getDeclaredMethods()) {
+            if (!java.lang.reflect.Modifier.isPublic(source.getModifiers())
+                    || java.lang.reflect.Modifier.isStatic(source.getModifiers())
+                    || source.isBridge() || source.isSynthetic()) { continue; }
+            Method method = new Method(source.getName());
+            method.setVisibility(JavaVisibility.PUBLIC);
+            method.setFinal(java.lang.reflect.Modifier.isFinal(source.getModifiers()));
+            for (var variable : source.getTypeParameters()) {
+                method.addTypeParameter(new TypeParameter(variable.getName()));
+            }
+            if (source.getReturnType() != void.class) {
+                method.setReturnType(resolveInheritedType(source.getGenericReturnType(), bindings));
+                unit.addImportedType(method.getReturnType().orElseThrow());
+            }
+
+            for (int i = 0; i < source.getGenericParameterTypes().length; i++) {
+                FullyQualifiedJavaType parameter = resolveInheritedType(source.getGenericParameterTypes()[i], bindings);
+                method.addParameter(new Parameter(parameter, "arg" + i));
+                unit.addImportedType(parameter);
+            }
+            for (var exception : source.getGenericExceptionTypes()) {
+                var resolved = resolveInheritedType(exception, bindings);
+                method.addException(resolved);
+                unit.addImportedType(resolved);
+            }
+            methods.putIfAbsent(signature(method), method);
+        }
+        List<java.lang.reflect.Type> ancestors = new ArrayList<>(List.of(type.getGenericInterfaces()));
+        if (type.getGenericSuperclass() != null) { ancestors.add(type.getGenericSuperclass()); }
+        for (var ancestor : ancestors) {
+            Class<?> raw = ancestor instanceof java.lang.reflect.ParameterizedType parameterized
+                    ? (Class<?>) parameterized.getRawType() : (Class<?>) ancestor;
+            Map<java.lang.reflect.TypeVariable<?>, FullyQualifiedJavaType> next = new HashMap<>(bindings);
+            if (ancestor instanceof java.lang.reflect.ParameterizedType parameterized) {
+                for (int i = 0; i < raw.getTypeParameters().length; i++) {
+                    next.put(raw.getTypeParameters()[i],
+                            resolveInheritedType(parameterized.getActualTypeArguments()[i], bindings));
+                }
+            }
+            collectInherited(raw, next, unit, methods);
+        }
+    }
+
+    /**
+     * 收集父类可见名称，内部原语不得遮蔽既有受保护扩展钩子。
+     *
+     * @param parentType 真实父类类型
+     * @return 公开或受保护的继承方法名
+     */
+    public Set<String> getInheritedServiceMethodNames(FullyQualifiedJavaType parentType) {
+        try {
+            Class<?> type = org.mybatis.generator.internal.ObjectFactory.externalClassForName(
+                    parentType.getFullyQualifiedNameWithoutTypeParameters());
+            Set<String> names = new HashSet<>();
+            while (type != null) {
+                for (var method : type.getDeclaredMethods()) {
+                    if (!java.lang.reflect.Modifier.isPrivate(method.getModifiers())) {
+                        names.add(method.getName());
+                    }
+                }
+                type = type.getSuperclass();
+            }
+            return names;
+        } catch (ClassNotFoundException exception) {
+            throw new IllegalArgumentException("disabledMethod 无法读取真实 Service 父类：" + parentType, exception);
+        }
+    }
+
+    private FullyQualifiedJavaType resolveInheritedType(java.lang.reflect.Type type,
+                            Map<java.lang.reflect.TypeVariable<?>, FullyQualifiedJavaType> bindings) {
+        if (type instanceof Class<?> raw) { return new FullyQualifiedJavaType(raw.getTypeName()); }
+        if (type instanceof java.lang.reflect.TypeVariable<?> variable) {
+            return bindings.getOrDefault(variable, new FullyQualifiedJavaType(variable.getBounds()[0].getTypeName()));
+        }
+        if (type instanceof java.lang.reflect.ParameterizedType parameterized) {
+            var result = new FullyQualifiedJavaType(((Class<?>) parameterized.getRawType()).getName());
+            for (var argument : parameterized.getActualTypeArguments()) {
+                result.addTypeArgument(resolveInheritedType(argument, bindings));
+            }
+            return result;
+        }
+        if (type instanceof java.lang.reflect.GenericArrayType array) {
+            return new FullyQualifiedJavaType(resolveInheritedType(array.getGenericComponentType(), bindings)
+                    .getFullyQualifiedName() + "[]");
+        }
+        if (type instanceof java.lang.reflect.WildcardType wildcard) {
+            return new FullyQualifiedJavaType("? extends " + resolveInheritedType(wildcard.getUpperBounds()[0], bindings)
+                    .getFullyQualifiedName());
+        }
+        throw new IllegalArgumentException("disabledMethod 不支持的继承类型：" + type);
+    }
+
+    /**
+     * 将共享方法描述转换为无空格的完整擦除参数签名。
+     *
+     * @param method 共用方法描述
+     * @return 精确匹配配置的服务入口键
+     */
+    public static String signature(Method method) {
+        return method.getParameters().stream()
+                .map(p -> p.getType().getFullyQualifiedNameWithoutTypeParameters() + (p.isVarargs() ? "[]" : ""))
+                .collect(Collectors.joining(",", method.getName() + "(", ")"));
+    }
+
+    /**
      * 构建接口与实现共用的 Excel 导入预览签名及依赖。
      *
      * @param parentElement 目标编译单元

@@ -116,6 +116,9 @@ class CasConsumerBaselineTest {
         xml = xml.replaceAll("targetProject=\"[^\"]*\"", "targetProject=\"target/sc03-baseline\"");
         xml = xml.replaceAll("vueEndProjectPath=\"[^\"]*\"", "vueEndProjectPath=\"target/sc03-baseline/web\"");
         xml = xml.replaceAll(" enableCasWriteContract=\"(?:true|false)\"", "");
+        if (!Boolean.getBoolean("sc03.disabled")) {
+            xml = xml.replaceAll("(?s)\\s*<disabledMethod\\b[^>]*/>", "");
+        }
         if (enabled != null) {
             xml = xml.replace("tableName=\"sensitive_category\"", "tableName=\"sensitive_category\" enableCasWriteContract=\"" + enabled + "\"")
                     .replace("tableName=\"sensitive_word\"", "tableName=\"sensitive_word\" enableCasWriteContract=\"" + enabled + "\"");

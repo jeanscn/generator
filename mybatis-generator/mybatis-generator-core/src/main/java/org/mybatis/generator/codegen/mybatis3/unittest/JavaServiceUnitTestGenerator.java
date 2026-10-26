@@ -41,6 +41,7 @@ public class JavaServiceUnitTestGenerator extends AbstractUnitTestGenerator{
         FullyQualifiedJavaType topClassType = new FullyQualifiedJavaType(serviceImplType.getFullyQualifiedName()+"Test");
         TopLevelClass testClazz = new TopLevelClass(topClassType);
         testClazz.setVisibility(JavaVisibility.PUBLIC);
+        context.getCommentGenerator().addJavaFileComment(testClazz,false);
         FullyQualifiedJavaType serviceUnitTestSupperType = getServiceUnitTestSupperType(serviceImplType, mapperType, entityType, exampleType, testClazz);
         if (serviceUnitTestSupperType != null) {
             testClazz.setSuperClass(serviceUnitTestSupperType);
@@ -114,8 +115,12 @@ public class JavaServiceUnitTestGenerator extends AbstractUnitTestGenerator{
 
         //增加SelectByTableXXXXX测试方法
         for (SelectByTableGeneratorConfiguration configuration : introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration()) {
+            if (org.mybatis.generator.codegen.mybatis3.service.DisabledServiceEntries.configurations(introspectedTable)
+                    .stream().anyMatch(c -> c.signature().equals(configuration.getMethodName() + "(java.lang.String)"))) {
+                continue;
+            }
             Method method = createMethod(configuration.getMethodName(), testClazz,"通过中间表："+configuration.getTableName()+"查询数据");
-            addMethodComment(method, true, "被调用的mapper有返回值");
+            addMethodComment(method);
 
             boolean isReturnKeys = configuration.getReturnTypeParam().equalsIgnoreCase("primaryKey");
 
@@ -140,6 +145,10 @@ public class JavaServiceUnitTestGenerator extends AbstractUnitTestGenerator{
         }
 
 
+        var disabledEntries = org.mybatis.generator.codegen.mybatis3.service.DisabledServiceEntries.effective(introspectedTable);
+        if (disabledEntries != null) {
+            disabledEntries.addTests(testClazz);
+        }
         List<CompilationUnit> answer = new ArrayList<>();
         if (plugins.serviceImplGenerated(testClazz, introspectedTable)) {
             answer.add(testClazz);

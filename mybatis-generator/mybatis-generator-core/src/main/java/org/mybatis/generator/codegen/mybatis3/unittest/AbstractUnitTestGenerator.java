@@ -9,12 +9,19 @@ import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.List;
 
+/**
+ * @author cen_c
+ */
 public abstract class AbstractUnitTestGenerator extends AbstractJavaGenerator {
 
     public AbstractUnitTestGenerator(String project) {
         super(project);
     }
 
+    /**
+     * 生成测试类
+     * @return CompilationUnit集合
+     * */
     @Override
     public abstract List<CompilationUnit> getCompilationUnits();
 
@@ -28,29 +35,25 @@ public abstract class AbstractUnitTestGenerator extends AbstractJavaGenerator {
      * 内部方法
      * 添加方法注释
      * */
-    protected void addMethodComment(Method method,boolean isMock,String mockScene){
+    protected void addMethodComment(Method method){
         CommentGenerator commentGenerator = context.getCommentGenerator();
         String comm1 = VStringUtil.format("被测试方法：{0}", JavaBeansUtil.getFirstCharacterLowercase(
                 StringUtility.substringAfter(method.getName(),"test")));
-        if (isMock) {
-            String comm2 = VStringUtil.format("mock场景：{0}", mockScene);
-            commentGenerator.addMethodJavaDocLine(method, false, comm1,comm2);
-        }else{
-            commentGenerator.addMethodJavaDocLine(method, false, comm1);
-        }
+        String comm2 = VStringUtil.format("mock场景：{0}", "被调用的mapper有返回值");
+        commentGenerator.addMethodJavaDocLine(method, false, comm1,comm2);
     }
 
     /**
      * 内部方法
      * 创建测试方法
      * */
-    protected Method createMethod(String testedMethodName,TopLevelClass testClazz,String methodDescript){
+    protected Method createMethod(String testedMethodName,TopLevelClass testClazz,String methodDescription){
         Method method = new Method("test"+JavaBeansUtil.getFirstCharacterUppercase(testedMethodName));
         method.addAnnotation("@Test");
         testClazz.addImportedType("org.junit.jupiter.api.Test");
         testClazz.addMethod(method);
-        if (StringUtility.stringHasValue(methodDescript)) {
-            method.addAnnotation("@DisplayName(\""+methodDescript+"\")");
+        if (StringUtility.stringHasValue(methodDescription)) {
+            method.addAnnotation("@DisplayName(\""+methodDescription+"\")");
         }
         return method;
     }

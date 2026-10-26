@@ -25,6 +25,25 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
  *
  */
 public class Context extends PropertyHolder {
+    private boolean rootClassSchemaSynchronizationEnabled = true;
+
+    /**
+     * 指示内省后是否允许按根实体注解同步数据库结构。
+     *
+     * @return 默认开启；隔离元数据生成可通过程序接口显式关闭
+     */
+    public boolean isRootClassSchemaSynchronizationEnabled() {
+        return rootClassSchemaSynchronizationEnabled;
+    }
+
+    /**
+     * 设置根实体结构同步许可，不改变元数据内省或生成模型的继承关系。
+     *
+     * @param enabled 是否允许执行根实体结构同步
+     */
+    public void setRootClassSchemaSynchronizationEnabled(boolean enabled) {
+        rootClassSchemaSynchronizationEnabled = enabled;
+    }
 
     @Setter
     @Getter
@@ -408,7 +427,7 @@ public class Context extends PropertyHolder {
                 if (tables != null) {
                     introspectedTables.addAll(tables);
                     for (AbstractIntrospectedTable table : tables) {
-                        if (!table.getTableConfiguration().isIgnore()) {
+                        if (rootClassSchemaSynchronizationEnabled && !table.getTableConfiguration().isIgnore()) {
                             ValidateDatabaseTable validateDatabaseTables = new ValidateDatabaseTable(table, connection, warnings);
                             validateDatabaseTables.executeUpdate();
                         }
@@ -487,6 +506,9 @@ public class Context extends PropertyHolder {
         generatedHtmlFiles.addAll(pluginAggregator.contextGenerateAdditionalHtmlFiles());
         generatedKotlinFiles.addAll(pluginAggregator.contextGenerateAdditionalKotlinFiles());
         otherGeneratedFiles.addAll(pluginAggregator.contextGenerateAdditionalFiles());
+        for (var table : introspectedTables) {
+            org.mybatis.generator.codegen.mybatis3.service.DisabledServiceEntries.validateFinal(table, generatedJavaFiles);
+        }
         var casTables = introspectedTables.stream().filter(t -> t.getTableConfiguration().isCasWriteContractEnabled()).toList();
         if (!casTables.isEmpty()) {
             otherGeneratedFiles.add(new org.mybatis.generator.codegen.mybatis3.CasWriteContractGeneratedFile(

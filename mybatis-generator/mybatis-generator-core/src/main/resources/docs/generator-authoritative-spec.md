@@ -23,6 +23,16 @@ table 属性 `enableCasWriteContract` 省略默认关闭，仅字面 `true`/`fal
 
 每个 context 聚合一份 `META-INF\vgosoft\write-contracts\<moduleKeyword>.xml`，协议为 basic 的 `managed-cas-1`；必需 Model、Mapper、XML、Service、已配置 VO/MapStruct 输出在插件回调之后再核验，否决或篡改不得部分成功。资源需要在原工厂显式加载，不生成生产自动扫描或审计装配。详细配置及验证入口见[配置指南：受管 CAS](generator-config-guide.md#受管-cas-输出180)；运行契约唯一来源为 [basic MyBatis 能力 §6.4](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-mybatis\src\main\resources\docs\vgosoft-mybatis-capability-overview.md#64-生成器受管-cas-契约managed-cas-1未发布)。
 
+## 显式 Service 入口停用（1.8.0，源码契约）
+
+`generateService/disabledMethod` 按无空格的完整擦除参数签名关闭公开入口；省略时不改变原有输出。服务与测试共用一个有效策略，复用 `ServiceMethods` 方法描述及真实父类泛型绑定，覆盖没有本地生成体的继承 CRUD。生成公开、非 final 的覆盖方法，立即抛出基础 `VgoServiceEntryDisabledException(signature, reason)`；拒绝方法不保留事务、缓存、敏感写及事件等方法注解。
+
+只有显式配置 `internalMethod` 才复制该方法既有生成原语为 protected，并清除 `@Override` 及全部方法拦截注解；原 private final Mapper 字段保持不变，事务、缓存和事件边界由业务入口负责。禁止接口暴露、名称遮蔽及把 CAS 已拒绝入口重新开放。未配置时不产生内部旁路；继承方法没有可复制生成体时明确失败，不猜测其底层实现。未知、重复、不可覆盖或歧义签名均拒绝。既有 CAS 的默认 `IllegalStateException("ENTRY_DISABLED")` 不变；显式配置可增强为具备完整 operation/reason 的拒绝，不放开 Mapper 写契约。
+
+生成测试返回完整签名到原因的映射，沿实际业务 Service 实例验证；基类已覆盖的入口不重复生成测试，其余使用非空有效参数补充测试。全部 context 插件结束后核验接口、拒绝体、内部原语、映射与测试输出，缺失、否决和篡改均失败。此能力不是授权拦截器，也不禁止已接管覆盖保护的业务扩展；实际业务重写后仍须运行生成测试验收。配置、支持边界及隔离回归入口见[配置指南：显式 Service 入口停用](generator-config-guide.md#显式-service-入口停用180)。
+
+独立离线驱动可通过程序 API `Context.setRootClassSchemaSynchronizationEnabled(false)` 禁止内省后的根实体结构同步，不改变继承关系或 Service 输出；默认 true 保持既有正式入口行为，无新增 DTD 属性。`generate(..., false)` 本身仅禁止文件写盘，不能当作数据库只读保证；隔离步骤及元数据偏差排查仍见上述指南。
+
 ## 1. 文档定位
 
 - **面向对象**：方案设计者、架构师、AI 生成代理
