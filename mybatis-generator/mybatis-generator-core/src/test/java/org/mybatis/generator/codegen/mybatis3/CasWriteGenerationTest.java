@@ -32,7 +32,9 @@ import static org.assertj.core.api.Assertions.*;
 class CasWriteGenerationTest {
     private static Configuration parse(String value, boolean customize) throws Exception {
         var parser = new ConfigurationParser(new ArrayList<>());
-        var config = parser.parseConfiguration(new StringReader(CasConsumerBaselineTest.consumerXml(value)));
+        String xml = customize ? CasConsumerBaselineTest.consumerSnapshotTestXml(value)
+                : CasConsumerBaselineTest.consumerSnapshotXml(value);
+        var config = parser.parseConfiguration(new StringReader(xml));
         if (customize) { parser.customConfig(config); }
         return config;
     }
@@ -71,13 +73,13 @@ class CasWriteGenerationTest {
                 .hasMessageContaining("probe").hasMessageContaining("true 或 false");
     }
 
-    /** 实施前已保存的完整原始 Parser/Generator 输出，经日期归一化后逐文件与关闭开关保持一致。 */
+    /** 固定版本消费快照的完整原始 Parser/Generator 输出与禁用开关保持一致。 */
     @Test
-    void retainsCompletePreChangeRawBaseline() throws Exception {
+    void retainsCompleteVersionedRawBaseline() throws Exception {
         Map<String, String> current = generate(parse(null, false));
         Map<String, String> before = new TreeMap<>();
         try (var input = new java.util.zip.ZipInputStream(java.util.Objects.requireNonNull(
-                getClass().getResourceAsStream("/sc03/non-enabled-parser-baseline.zip")))) {
+                getClass().getResourceAsStream("/sc03/consumer-current-v1-parser-baseline.zip")))) {
             for (var entry = input.getNextEntry(); entry != null; entry = input.getNextEntry()) {
                 if (!entry.isDirectory()) {
                     before.put(entry.getName().replace('/', '\\'), CasConsumerBaselineTest.normalize(
@@ -85,7 +87,7 @@ class CasWriteGenerationTest {
                 }
             }
         }
-        assertThat(current).hasSize(75).containsOnlyKeys(before.keySet());
+        assertThat(current).hasSize(80).containsOnlyKeys(before.keySet());
         for (String name : before.keySet()) { assertThat(current.get(name)).as(name).isEqualTo(before.get(name)); }
         assertThat(generate(parse("false", false))).isEqualTo(current);
     }
@@ -94,9 +96,9 @@ class CasWriteGenerationTest {
     @Test
     void retainsAllDisabledOutputsAndLimitsOptInDiff() throws Exception {
         var omitted = generate(parse(null, true));
-        assertThat(omitted).hasSize(79).isEqualTo(generate(parse("false", true)));
+        assertThat(omitted).hasSize(83).isEqualTo(generate(parse("false", true)));
         var enabled = generate(parse("true", true));
-        assertThat(enabled).hasSize(80);
+        assertThat(enabled).hasSize(84);
         var changed = enabled.keySet().stream().filter(k -> !enabled.get(k).equals(omitted.get(k))).toList();
         assertThat(changed).hasSize(11).allMatch(k -> k.endsWith("sensitive.xml")
                 || k.endsWith("Mapper.xml") || k.contains("\\codegen\\dao\\GenSensitive")
@@ -167,7 +169,11 @@ class CasWriteGenerationTest {
         assertThat(Files.readString(file)).contains("extends AbstractSensitiveCategoryImpl");
         String human = "/** 人工扩展，已移除可覆盖标记。 */\nclass SensitiveCategoryImpl { int manual = 1; }";
         Files.writeString(file, human);
-        var protectedGeneration = new MyBatisGenerator(config, new DefaultShellCallback(true), new ArrayList<>());
+        var protectedConfig = parse("true", true);
+        var protectedTable = protectedConfig.getContexts().get(0).getTableConfigurations().get(0);
+        protectedConfig.getContexts().get(0).getJavaModelGeneratorConfiguration().setTargetProject(root.toString());
+        protectedTable.getJavaServiceImplGeneratorConfiguration().setTargetProject(root.toString());
+        var protectedGeneration = new MyBatisGenerator(protectedConfig, new DefaultShellCallback(true), new ArrayList<>());
         protectedGeneration.generate(null, null, null, false);
         assertThat(protectedGeneration.getGeneratedJavaFiles())
                 .noneMatch(f -> f.getFileName().equals("SensitiveCategoryImpl.java"));
@@ -187,9 +193,14 @@ class CasWriteGenerationTest {
         Files.createDirectories(file.getParent());
         Files.writeString(file, "/** 人工 VO。 */\nclass SensitiveCategoryVo {}");
         assertThat(generate(config)).containsKey("com\\vgosoft\\sensitive\\pojo\\vo\\SensitiveCategoryVo.java");
-        context.addProperty(PropertyRegistry.CONTEXT_FORCE_UPDATE_ELEMENT_LIST,
-                context.getProperty(PropertyRegistry.CONTEXT_FORCE_UPDATE_ELEMENT_LIST).replace("modelVo,", ""));
-        assertThat(generate(config)).doesNotContainKey("com\\vgosoft\\sensitive\\pojo\\vo\\SensitiveCategoryVo.java");
+        var protectedConfig = parse("true", true);
+        var protectedContext = protectedConfig.getContexts().get(0);
+        var protectedVo = protectedContext.getTableConfigurations().get(0).getVoGeneratorConfiguration();
+        protectedContext.getJavaModelGeneratorConfiguration().setTargetProject(root.toString());
+        protectedVo.setTargetProject(root.toString());
+        protectedContext.addProperty(PropertyRegistry.CONTEXT_FORCE_UPDATE_ELEMENT_LIST,
+                protectedContext.getProperty(PropertyRegistry.CONTEXT_FORCE_UPDATE_ELEMENT_LIST).replace("modelVo,", ""));
+        assertThat(generate(protectedConfig)).doesNotContainKey("com\\vgosoft\\sensitive\\pojo\\vo\\SensitiveCategoryVo.java");
         assertThat(Files.readString(file)).isEqualTo("/** 人工 VO。 */\nclass SensitiveCategoryVo {}");
     }
 

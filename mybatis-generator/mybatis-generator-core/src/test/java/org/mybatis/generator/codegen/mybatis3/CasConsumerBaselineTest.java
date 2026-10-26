@@ -9,6 +9,7 @@ import org.mybatis.generator.internal.DefaultShellCallback;
 
 import javax.sql.rowset.RowSetMetaDataImpl;
 import javax.sql.rowset.RowSetProvider;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.lang.reflect.Proxy;
 import java.nio.charset.StandardCharsets;
@@ -41,11 +42,11 @@ class CasConsumerBaselineTest {
     // 保留八表全部输出层和默认运行时，仅替换连接、驱动路径和输出根目录。
     @Test
     void capturesCompleteConsumerOutputWithoutExternalWrites() throws Exception {
-        String xml = consumerXml(System.getProperty("sc03.cas"));
+        String xml = consumerSnapshotXml(System.getProperty("sc03.cas"));
         Path root = Path.of("target", System.getProperty("sc03.baseline.name", "sc03-after-omitted"));
         Files.createDirectories(root);
         Files.writeString(root.resolve("sanitized-config.xml"), xml);
-        String ddl = Files.readString(CONSUMER.resolve("sql\\mysql\\schema_sensitive.sql"));
+        String ddl = snapshotSchema();
         var memoryTables = Pattern.compile("(?s)(CREATE TABLE `sensitive_(?:category|word)` \\(.*?)\\) ENGINE=.*?;").matcher(ddl);
         StringBuilder memorySchema = new StringBuilder();
         while (memoryTables.find()) {
@@ -59,7 +60,6 @@ class CasConsumerBaselineTest {
         assertThat(config.getContexts()).hasSize(1);
         assertThat(config.getContexts().get(0).getTableConfigurations()).hasSize(8);
         assertThat(config.getContexts().get(0).getTargetRuntime()).isNull();
-        if (!Boolean.getBoolean("sc03.raw")) { parser.customConfig(config); }
         if (Boolean.getBoolean("sc03.h2")) {
             config.getContexts().get(0).getTableConfigurations().stream().limit(2)
                     .forEach(t -> t.getAdditionalDbTypes().add(com.vgosoft.core.db.query.DatabaseType.H2));
@@ -126,6 +126,40 @@ class CasConsumerBaselineTest {
         return xml;
     }
 
+    static String consumerSnapshotXml(String enabled) throws Exception {
+        String xml = snapshotFile("generatorConfig.xml")
+                .replaceAll(" enableCasWriteContract=\"(?:true|false)\"", "");
+        if (!Boolean.getBoolean("sc03.disabled")) {
+            xml = xml.replaceAll("(?s)\\s*<disabledMethod\\b[^>]*/>", "");
+        }
+        if (enabled != null) {
+            xml = xml.replace("tableName=\"sensitive_category\"", "tableName=\"sensitive_category\" enableCasWriteContract=\"" + enabled + "\"")
+                    .replace("tableName=\"sensitive_word\"", "tableName=\"sensitive_word\" enableCasWriteContract=\"" + enabled + "\"");
+        }
+        return xml;
+    }
+
+    static String consumerSnapshotTestXml(String enabled) throws Exception {
+        String xml = consumerSnapshotXml(enabled).replaceAll(
+                "(?s)<generateHtml\\b(?=[^>]*\\bgenerate=\"true\")[^>]*>.*?</generateHtml>",
+                "<generateHtml generate=\"false\"/>");
+        return xml.replaceAll("(<excelImport\\b[^>]*?)generate=\"true\"", "$1generate=\"false\"");
+    }
+
+    static String snapshotSchema() throws Exception {
+        return snapshotFile("sql/mysql/schema_sensitive.sql");
+    }
+
+    private static String snapshotFile(String name) throws Exception {
+        try (InputStream input = CasConsumerBaselineTest.class.getResourceAsStream(
+                "/sc03/consumer-current-v1/" + name)) {
+            if (input == null) {
+                throw new IllegalStateException("缺少固定消费配置快照资源：" + name);
+            }
+            return new String(input.readAllBytes(), StandardCharsets.UTF_8);
+        }
+    }
+
     /**
      * 从已提交 DDL 构造 JDBC 元数据，所有 SQL 都仅返回替身结果，禁止执行写入。
      *
@@ -147,7 +181,7 @@ class CasConsumerBaselineTest {
         private static Connection connection() throws Exception {
             Map<String, List<Map<String, Object>>> columns = new LinkedHashMap<>();
             Map<String, String> remarks = new LinkedHashMap<>();
-            String ddl = Files.readString(CONSUMER.resolve("sql\\mysql\\schema_sensitive.sql"));
+            String ddl = snapshotSchema();
             var tables = Pattern.compile("(?s)CREATE TABLE `([^`]+)` \\((.*?)\\) ENGINE=.*?COMMENT='([^']*)';").matcher(ddl);
             while (tables.find()) {
                 String table = tables.group(1);

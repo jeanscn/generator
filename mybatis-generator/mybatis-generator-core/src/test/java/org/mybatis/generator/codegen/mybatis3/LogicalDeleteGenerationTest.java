@@ -34,14 +34,20 @@ class LogicalDeleteGenerationTest {
     private static final String METHOD = "deleteByColumnIdAndVersion";
 
     private static Configuration parse(String value, boolean managed, String columns, String parameterType) throws Exception {
-        String xml = CasConsumerBaselineTest.consumerXml(managed ? "true" : null);
+        String xml = CasConsumerBaselineTest.consumerSnapshotTestXml(managed ? "true" : null);
         String property = value == null ? "" : "<property name=\"isLogicalDelete\" value=\"" + value + "\"/>";
         String select = "<selectByColumn column=\"" + columns + "\" parameterType=\"" + parameterType
                 + "\" enableDelete=\"true\" genControllerMethod=\"true\">" + property + "</selectByColumn>";
         for (String table : List.of("sensitive_category", "sensitive_word")) {
             int start = xml.indexOf("tableName=\"" + table + "\"");
-            int insert = xml.indexOf("<generateModel", start);
-            xml = xml.substring(0, insert) + select + xml.substring(insert);
+            int tableEnd = xml.indexOf("</table>", start);
+            int selectStart = xml.indexOf("<selectByColumn", start);
+            int selectEnd = xml.indexOf("</selectByColumn>", selectStart);
+            if (start < 0 || tableEnd < 0 || selectStart < 0 || selectEnd < 0 || selectEnd > tableEnd) {
+                throw new IllegalStateException("固定消费快照缺少 " + table + " 的 selectByColumn 配置");
+            }
+            selectEnd += "</selectByColumn>".length();
+            xml = xml.substring(0, selectStart) + select + xml.substring(selectEnd);
         }
         var parser = new ConfigurationParser(new ArrayList<>());
         var result = parser.parseConfiguration(new StringReader(xml));
@@ -173,8 +179,7 @@ class LogicalDeleteGenerationTest {
             Files.createDirectories(target.getParent());
             Files.writeString(target, entry.getValue());
         }
-        String ddl = Files.readString(Path.of("D:\\java\\idea_projs7\\project-vgosoft\\vgosoft-sensitive"
-                + "\\src\\main\\resources\\sql\\mysql\\schema_sensitive.sql"));
+        String ddl = CasConsumerBaselineTest.snapshotSchema();
         var tables = java.util.regex.Pattern.compile(
                 "(?s)(CREATE TABLE `sensitive_(?:category|word)` \\(.*?)\\) ENGINE=.*?;").matcher(ddl);
         StringBuilder schema = new StringBuilder();

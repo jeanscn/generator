@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "mybatis-generator-config_1_8_0.dtd">
+<generatorConfiguration>
+<!--    <properties url="file:target/sensitive-generator-local/generator-local.properties"/>-->
+    <!--
+        敏感词模块生成配置；依据 docs\vgosoft-sensitive-design-overview.md 第 3、4、5、11、13 节。
+        使用说明见 docs\vgosoft-sensitive-generator-config-guide.md。
+        本机 Maven class realm 已核实 plugin/core 为 1.8.0-SNAPSHOT，内置 DTD 与源码文件一致；
+        DTD 内部版本注释为 1.6.0.240327001，不以文件名或注释单独推断兼容性。
+        升级生成器时须同步更新 DOCTYPE 和说明文档，并确认目标版本实际加载的 DTD。
+        本文件只定义生成输入，不表示检测运行时、确认协议或管理事务已经实现。
+        密码由本机准备步骤从宿主 application-local-mysql.yml 的 spring.datasource.password
+        安全提取到受当前用户 ACL 保护的 target 临时 properties 文件；不得在本文件中保存明文密码。
+        该临时文件必须在生成结束后删除，具体准备/清理步骤见配置向导。
+    -->
+    <!-- 驱动位置沿用现有业务模块；执行前确认本机文件存在，路径变化时按本机 Maven 仓库调整。 -->
+
+    <!--
+        模块标识决定路由及前端目录；候选父菜单由宿主提供，在线存在性和完整路径待 W11 核验。
+        不自动更新数据库中的模块/菜单数据；人工扩展前须移除对应强制覆盖类型。
+        正式配置保持 onlyTables 为空；每次运行须按批准范围临时限定并在结束后恢复，不把空值当成完整白名单。
+    -->
+    <context id="SensitiveTables"
+             appKeyword="sensitive"
+             moduleKeyword="sensitive"
+             moduleName="敏感词管理"
+             parentMenuId="1777340268517920770"
+             jdkVersion="17"
+             integrateMybatisPlus="false"
+             integrateSpringSecurity="true"
+             forceUpdateScalableElement="true"
+             vueEndProjectPath="target/sc03-consumer-current-v1/web"
+             onlyTables=""
+             updateModuleData="true"
+             updateMenuData="true">
+        <property name="forceUpdateElementList" value="vo,modelVo,createVo,excelVo,requestVo,updateVo,viewVo,maps"/>
+        <property name="rootModuleName" value="vgosoft-root"/>
+        <property name="springBootApplicationClass" value="com.vgosoft.vgosoftroot.VgosoftRootApplication"/>
+        <!-- 当前连接为 MySQL；仅声明已落地的 mysql，不推定 DM/PostgreSQL 已完成验收。 -->
+        <property name="additionalDbTypes" value="mysql"/>
+        <!-- UI 隐藏不是写入授权；摘要、操作者及租户仍须由受控服务计算或绑定。 -->
+        <property name="htmlHiddenFields"
+                  value="id,deleteFlag,version,created,modified,createdId,modifiedId,tenantId,owner,codeHash,wordHash,categoryCascadeDisabled"/>
+
+        <!--
+            driverClass、connectionURL、userId 与 vgosoft-root 的 application-local-mysql.yml 一致。
+            XML 中 &amp; 解码后为 JDBC URL 的 &；数据库为 nddc_v2，不是其他模块旧配置的 tmri_v2。
+            外部属性未提供时不得执行生成；生成器不会自动读取 Spring YAML 或环境变量。
+            useInformationSchema 用于内省表/字段中文注释。
+        -->
+        <connectionFactory type="org.mybatis.generator.codegen.mybatis3.CasConsumerBaselineTest$MetadataFactory"/>
+        <javaTypeResolver/>
+        <!-- 从 vgosoft-sensitive 模块目录执行，避免把相对输出路径落到根工程。 -->
+        <javaModelGenerator targetPackage="com.vgosoft.sensitive.entity" targetProject="target/sc03-consumer-current-v1"/>
+        <sqlMapGenerator targetPackage="mappers" targetProject="target/sc03-consumer-current-v1"/>
+        <javaClientGenerator targetPackage="com.vgosoft.sensitive.dao" targetProject="target/sc03-consumer-current-v1" type="XMLMAPPER"/>
+
+        <!--
+            分类：非树形，继承排序/乐观锁父类；state_ 由实体显式生成。
+            所有管理写入都须在扩展服务中完成摘要、唯一性、版本 CAS、分类引用校验和 revision 同事务递增。
+            在这些扩展完成前，不得把生成的通用 CRUD 直接部署为可用管理接口。
+        -->
+        <table ignore="false" tableName="sensitive_category" domainObjectName="SensitiveCategory" alias="sc"
+               isModules="true" enableDropTables="false" cleanAllGeneratedElements="false"
+               enableSelectForUpdate="true">
+            <property name="rootClass" value="com.vgosoft.core.entity.abs.AbstractPersistenceLockSortableEntity"/>
+            <!-- 通用版本化逻辑删除；墓碑、revision 与引用保护仍须由扩展服务统一接管。 -->
+            <selectByColumn column="id_,version_" enableDelete="true"
+                            parameterType="single" genControllerMethod="true">
+                <property name="isLogicalDelete" value="true"/>
+            </selectByColumn>
+            <generateModel generate="true" noMetaAnnotation="false" enableChildren="false"/>
+            <generateSqlMap generate="true"/>
+            <generateDao generate="true"/>
+            <generateService generate="true" noServiceAnnotation="false" generateUnitTest="false">
+                <disabledMethod signature="insert(com.vgosoft.sensitive.entity.SensitiveCategory)"
+                                reason="分类写入必须经过规则版本管理" internalMethod="insertInternal"/>
+                <disabledMethod signature="insertSelective(com.vgosoft.sensitive.entity.SensitiveCategory)"
+                                reason="分类写入必须经过规则版本管理"/>
+                <disabledMethod signature="insertOrUpdateSelective(com.vgosoft.sensitive.entity.SensitiveCategory)"
+                                reason="分类写入必须经过规则版本管理"/>
+                <disabledMethod signature="updateByExampleSelective(com.vgosoft.sensitive.entity.SensitiveCategory,com.vgosoft.sensitive.entity.example.SensitiveCategoryExample)"
+                                reason="分类写入必须经过规则版本管理"/>
+                <disabledMethod signature="updateByExampleSelectiveAndSelect(com.vgosoft.sensitive.entity.SensitiveCategory,com.vgosoft.sensitive.entity.example.SensitiveCategoryExample)"
+                                reason="分类写入必须经过规则版本管理"/>
+                <disabledMethod signature="updateByExample(com.vgosoft.sensitive.entity.SensitiveCategory,com.vgosoft.sensitive.entity.example.SensitiveCategoryExample)"
+                                reason="分类写入必须经过规则版本管理"/>
+                <disabledMethod signature="updateByPrimaryKey(com.vgosoft.sensitive.entity.SensitiveCategory)"
+                                reason="分类写入必须经过规则版本管理"/>
+                <disabledMethod signature="insertBySql(com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder)"
+                                reason="分类写入必须经过规则版本管理"/>
+                <disabledMethod signature="updateBySql(com.vgosoft.mybatis.sqlbuilder.UpdateSqlBuilder)"
+                                reason="分类写入必须经过规则版本管理"/>
+                <disabledMethod signature="insertBatch(java.util.List)"
+                                reason="分类写入必须经过规则版本管理" internalMethod="insertBatchInternal"/>
+                <disabledMethod signature="updateDeleteFlag(com.vgosoft.sensitive.entity.SensitiveCategory,int)"
+                                reason="分类写入必须经过规则版本管理"/>
+                <disabledMethod signature="insertOrUpdate(com.vgosoft.sensitive.entity.SensitiveCategory)"
+                                reason="分类写入必须经过规则版本管理"/>
+                <disabledMethod signature="updateByPrimaryKeyCas(com.vgosoft.sensitive.entity.SensitiveCategory,java.lang.Integer)"
+                                reason="分类写入必须经过规则版本管理" internalMethod="updateByPrimaryKeyCasInternal"/>
+                <disabledMethod signature="updateByPrimaryKeySelectiveCas(com.vgosoft.sensitive.entity.SensitiveCategory,java.lang.Integer)"
+                                reason="分类写入必须经过规则版本管理"/>
+                <disabledMethod signature="deleteByPrimaryKey(java.lang.String)"
+                                reason="无版本单条删除已停用，请使用带版本删除接口"/>
+                <disabledMethod signature="deleteByExample(com.vgosoft.sensitive.entity.example.SensitiveCategoryExample)"
+                                reason="无逐条版本的批量删除已停用，请使用带版本批量删除接口"/>
+            </generateService>
+            <generateController generate="true" noSwaggerAnnotation="false" generateUnitTest="false">
+                <property name="enableSysLogAnnotation" value="true"/>
+                <generateOptions nameColumn="name_"/>
+            </generateController>
+            <!-- 父菜单来源和权限部署待宿主核验；仅为本切片生成两表管理页面。 -->
+            <generateHtml generate="true" type="editable" viewPath="sensitive_category"
+                          overWriteHtmlFile="false" overWriteJsFile="false">
+                <layout popSize="default" size="default">
+                    <groupContainer elementKey="main-form-info" type="border" columnNum="1"
+                                    includeElements="code_,name_,notes_,sort_,state_"/>
+                </layout>
+            </generateHtml>
+            <!-- 已有人工 DDL 含必建索引、CHECK 和固定 revision 行，禁止生成 schema 覆盖它。 -->
+            <generateSqlSchema generate="false"/>
+            <generateVo generate="true">
+                <modelVo generate="true" excludeColumns="code_hash_"/>
+                <!-- 创建/更新白名单不接受客户端摘要；更新须保留父类 id/version 的并发契约。 -->
+                <createVo generate="true" includeColumns="code_,name_,notes_,sort_,state_"
+                          requiredColumns="code_,name_" genIsSelective="false"/>
+                <updateVo generate="true" includeColumns="id_,version_,code_,name_,notes_,sort_,state_"
+                          requiredColumns="id_,version_" genIsSelective="false"/>
+                <viewVo generate="true" excludeColumns="code_hash_" title="敏感词分类"
+                        toolbar="CREATE,top-sensitive-category-deleted-list"
+                        indexColumn="NONE"
+                        actionColumn="ROW_EDIT,row-sensitive-category-versioned-delete,row-sensitive-category-versioned-restore,ROW_VIEW"
+                        queryColumns="code_,name_,state_"
+                        defaultDisplayFields="code,name,state,sort,created" enablePager="true"
+                        defaultSort="sort_ asc,id_ asc">
+                    <columnRenderFun fieldNames="state" renderFun="colDefsState"/>
+                    <htmlButton id="row-sensitive-category-versioned-delete" text="true" title="版本化删除分类"
+                                label="删除" handler="defaultViewRowAction" configurable="true"/>
+                    <htmlButton id="row-sensitive-category-versioned-restore" text="true" title="版本化恢复分类"
+                                label="恢复" handler="defaultViewRowAction" showCondition="deleteFlag == 1"
+                                configurable="true"/>
+                    <htmlButton id="top-sensitive-category-deleted-list" title="打开已删除分类列表"
+                                label="已删除" handler="defaultDtCustomButtonAction" configurable="true"/>
+                    <queryColumn column="code_" remark="分类编码" queryMode="EqualTo"/>
+                    <queryColumn column="name_" remark="分类名称" queryMode="EqualTo"/>
+                    <queryColumn column="state_" remark="状态" queryMode="EqualTo"/>
+                </viewVo>
+                <excelVo generate="false"/>
+                <requestVo generate="true" includePageParam="true" excludeColumns="code_hash_"/>
+            </generateVo>
+            <generateCachePo generate="true" valueColumn="name_"/>
+            <columnOverride column="code_" maxLength="64"/>
+            <columnOverride column="name_" maxLength="128"/>
+            <columnOverride column="notes_" maxLength="1000"/>
+        </table>
+
+        <!--
+            词条：词面存储长度为 1024，接口上限仍为 256 个 UTF-16 单元。
+            category_id 为可空分类，不增加父子树或级联写入。
+            strategy_ 为 NULL 时继承全局，否则仅允许 BLOCK/CONFIRM/REPLACE/WARN。
+            词库自身不标记敏感检测字段，避免管理词条时递归检测。
+        -->
+        <table ignore="false" tableName="sensitive_word" domainObjectName="SensitiveWord" alias="sw"
+               isModules="true" enableDropTables="false" cleanAllGeneratedElements="false"
+               enableSelectForUpdate="true">
+            <property name="rootClass" value="com.vgosoft.core.entity.abs.AbstractPersistenceLockEntity"/>
+            <!-- 通用版本化逻辑删除；墓碑、revision 与引用保护仍须由扩展服务统一接管。 -->
+            <selectByColumn column="id_,version_" enableDelete="true"
+                            parameterType="single" genControllerMethod="true">
+                <property name="isLogicalDelete" value="true"/>
+            </selectByColumn>
+            <generateModel generate="true" noMetaAnnotation="false" enableChildren="false"/>
+            <generateSqlMap generate="true"/>
+            <generateDao generate="true"/>
+            <generateService generate="true" noServiceAnnotation="false" generateUnitTest="false">
+                <disabledMethod signature="insert(com.vgosoft.sensitive.entity.SensitiveWord)"
+                                reason="词条写入必须经过规则版本管理" internalMethod="insertInternal"/>
+                <disabledMethod signature="insertSelective(com.vgosoft.sensitive.entity.SensitiveWord)"
+                                reason="词条写入必须经过规则版本管理"/>
+                <disabledMethod signature="insertOrUpdateSelective(com.vgosoft.sensitive.entity.SensitiveWord)"
+                                reason="词条写入必须经过规则版本管理"/>
+                <disabledMethod signature="updateByExampleSelective(com.vgosoft.sensitive.entity.SensitiveWord,com.vgosoft.sensitive.entity.example.SensitiveWordExample)"
+                                reason="词条写入必须经过规则版本管理"/>
+                <disabledMethod signature="updateByExampleSelectiveAndSelect(com.vgosoft.sensitive.entity.SensitiveWord,com.vgosoft.sensitive.entity.example.SensitiveWordExample)"
+                                reason="词条写入必须经过规则版本管理"/>
+                <disabledMethod signature="updateByExample(com.vgosoft.sensitive.entity.SensitiveWord,com.vgosoft.sensitive.entity.example.SensitiveWordExample)"
+                                reason="词条写入必须经过规则版本管理"/>
+                <disabledMethod signature="updateByPrimaryKey(com.vgosoft.sensitive.entity.SensitiveWord)"
+                                reason="词条写入必须经过规则版本管理"/>
+                <disabledMethod signature="insertBySql(com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder)"
+                                reason="词条写入必须经过规则版本管理"/>
+                <disabledMethod signature="updateBySql(com.vgosoft.mybatis.sqlbuilder.UpdateSqlBuilder)"
+                                reason="词条写入必须经过规则版本管理"/>
+                <disabledMethod signature="insertBatch(java.util.List)"
+                                reason="词条写入必须经过规则版本管理" internalMethod="insertBatchInternal"/>
+                <disabledMethod signature="updateDeleteFlag(com.vgosoft.sensitive.entity.SensitiveWord,int)"
+                                reason="词条写入必须经过规则版本管理"/>
+                <disabledMethod signature="insertOrUpdate(com.vgosoft.sensitive.entity.SensitiveWord)"
+                                reason="词条写入必须经过规则版本管理"/>
+                <disabledMethod signature="updateByPrimaryKeyCas(com.vgosoft.sensitive.entity.SensitiveWord,java.lang.Integer)"
+                                reason="词条写入必须经过规则版本管理" internalMethod="updateByPrimaryKeyCasInternal"/>
+                <disabledMethod signature="updateByPrimaryKeySelectiveCas(com.vgosoft.sensitive.entity.SensitiveWord,java.lang.Integer)"
+                                reason="词条写入必须经过规则版本管理"/>
+                <disabledMethod signature="deleteByPrimaryKey(java.lang.String)"
+                                reason="无版本单条删除已停用，请使用带版本删除接口"/>
+                <disabledMethod signature="deleteByExample(com.vgosoft.sensitive.entity.example.SensitiveWordExample)"
+                                reason="无逐条版本的批量删除已停用，请使用带版本批量删除接口"/>
+            </generateService>
+            <generateController generate="true" noSwaggerAnnotation="false" generateUnitTest="false">
+                <property name="enableSysLogAnnotation" value="true"/>
+            </generateController>
+            <generateHtml generate="true" type="editable" viewPath="sensitive_word"
+                          overWriteHtmlFile="false" overWriteJsFile="false">
+                <layout popSize="default" size="default">
+                    <groupContainer elementKey="main-form-info" type="border" columnNum="1"
+                                    includeElements="word_,category_id,strategy_,state_,notes_"/>
+                </layout>
+                <!-- 对齐当前生成 Controller 的分类选项路由；运行权限与响应仍须在 W11 联调验收。 -->
+                <htmlElementDescriptor column="category_id" tagType="select" dataSource="Dict"
+                                       beanName="sensitiveCategoryImpl" remoteApiParse="true"
+                                       dataUrl="/sensitive/sensitive-category-impl/option/name"/>
+                <htmlElementDescriptor column="strategy_" tagType="dropdownlist" dataSource="DictEnum"
+                                       enumClassFullName="com.vgosoft.core.constant.enums.app.SensitiveWordStrategyEnum"
+                                       tips="留空表示继承全局策略；选择阻断、确认后放行、替换后保存或告警放行策略。"/>
+            </generateHtml>
+            <generateSqlSchema generate="false"/>
+            <generateVo generate="true">
+                <!-- 级联来源是批准的目标模型；仅预置排除配置，不表示数据库已增加该列。 -->
+                <modelVo generate="true" excludeColumns="word_hash_,category_cascade_disabled_"/>
+                <createVo generate="true" includeColumns="word_,category_id,strategy_,state_,notes_"
+                          requiredColumns="word_" genIsSelective="false"/>
+                <updateVo generate="true" includeColumns="id_,version_,word_,category_id,strategy_,state_,notes_"
+                          requiredColumns="id_,version_" genIsSelective="false"/>
+                <viewVo generate="true" excludeColumns="word_hash_,category_cascade_disabled_"
+                        title="敏感词"
+                        toolbar="CREATE,WF_IMPORT,top-sensitive-word-deleted-list"
+                        indexColumn="NONE"
+                        actionColumn="ROW_EDIT,row-sensitive-word-versioned-delete,row-sensitive-word-versioned-restore,ROW_VIEW"
+                        queryColumns="word_,category_id,strategy_,state_"
+                        defaultDisplayFields="word,categoryText,strategy,state,created" enablePager="true"
+                        defaultSort="created_ desc,id_ asc">
+                    <columnRenderFun fieldNames="state" renderFun="colDefsState"/>
+                    <htmlButton id="row-sensitive-word-versioned-delete" text="true" title="版本化删除词条"
+                                label="删除" handler="defaultViewRowAction" configurable="true"/>
+                    <htmlButton id="row-sensitive-word-versioned-restore" text="true" title="版本化恢复词条"
+                                label="恢复" handler="defaultViewRowAction" showCondition="deleteFlag == 1"
+                                configurable="true"/>
+                    <htmlButton id="top-sensitive-word-deleted-list" title="打开已删除词条列表"
+                                label="已删除" handler="defaultDtCustomButtonAction" configurable="true"/>
+                    <queryColumn column="word_" remark="敏感词" queryMode="EqualTo"/>
+                    <queryColumn column="category_id" remark="分类" tagType="select" queryMode="EqualTo"
+                                 dataUrl="/sensitive/sensitive-category-impl/option/name"/>
+                    <queryColumn column="strategy_" remark="处理策略" queryMode="EqualTo"/>
+                    <queryColumn column="state_" remark="状态" queryMode="EqualTo"/>
+                </viewVo>
+                <!-- 旧逐行导入保持关闭；两阶段工作流只映射经批准的词条业务字段。 -->
+                <excelVo generate="false"/>
+                <excelImport generate="true"
+                             importIncludeColumns="word_,category_id,strategy_,state_,notes_"
+                             maxInputBytes="31457280"
+                             maxExpandedBytes="62914560"
+                             maxEntryBytes="31457280"
+                             maxZipEntries="256"
+                             maxRows="100"
+                             maxErrorMessages="100"/>
+                <requestVo generate="true" includePageParam="true" excludeColumns="word_hash_,category_cascade_disabled_"/>
+            </generateVo>
+            <!-- 物理容量仍为 1024；限制生成的接口校验元数据为 256，schema 生成继续关闭。 -->
+            <columnOverride column="word_" maxLength="256"/>
+            <columnOverride column="notes_" maxLength="1000"/>
+        </table>
+
+        <!--
+            以下六张内部表仅生成 Entity/Example/Mapper XML/DAO，不生成 Service、Controller、VO 或页面。
+            保留底层数据访问供专用服务使用，但不代表通用更新方法具备版本/CAS/幂等语义。
+            内部表无 delete_flag/version_，不得继承管理表的持久化/逻辑删除父类。
+        -->
+        <!-- 规则版本：固定单行，禁止通用新增/删除；专用事务服务检查 revision 更新行数为 1。 -->
+        <table ignore="false" tableName="sensitive_rule_revision" domainObjectName="SensitiveRuleRevision" alias="srv"
+               isModules="false" enableInsert="false" enableInsertBatch="false" enableInsertOrUpdate="false"
+               enableDeleteByPrimaryKey="false" enableDeleteByExample="false"
+               enableDropTables="false" cleanAllGeneratedElements="false" enableAtomicIncrement="true">
+            <property name="atomicIncrementColumns" value="revision_"/>
+            <property name="rootClass" value="com.vgosoft.core.entity.abs.AbstractEntity"/>
+            <generateModel generate="true" noMetaAnnotation="false" enableChildren="false"/>
+            <generateSqlMap generate="true"/>
+            <generateDao generate="true"/>
+            <generateService generate="true" generateUnitTest="true">
+                <disabledMethod signature="deleteByExample(com.vgosoft.sensitive.entity.example.SensitiveRuleRevisionExample)"
+                                reason="规则版本只能通过 advance 推进"/>
+                <disabledMethod signature="deleteByPrimaryKey(java.lang.String)"
+                                reason="规则版本只能通过 advance 推进"/>
+                <disabledMethod signature="insert(com.vgosoft.sensitive.entity.SensitiveRuleRevision)"
+                                reason="规则版本只能通过 advance 推进"/>
+                <disabledMethod signature="insertSelective(com.vgosoft.sensitive.entity.SensitiveRuleRevision)"
+                                reason="规则版本只能通过 advance 推进"/>
+                <disabledMethod signature="insertOrUpdateSelective(com.vgosoft.sensitive.entity.SensitiveRuleRevision)"
+                                reason="规则版本只能通过 advance 推进"/>
+                <disabledMethod signature="updateByExampleSelective(com.vgosoft.sensitive.entity.SensitiveRuleRevision,com.vgosoft.sensitive.entity.example.SensitiveRuleRevisionExample)"
+                                reason="规则版本只能通过 advance 推进"/>
+                <disabledMethod signature="updateByExampleSelectiveAndSelect(com.vgosoft.sensitive.entity.SensitiveRuleRevision,com.vgosoft.sensitive.entity.example.SensitiveRuleRevisionExample)"
+                                reason="规则版本只能通过 advance 推进"/>
+                <disabledMethod signature="updateByExample(com.vgosoft.sensitive.entity.SensitiveRuleRevision,com.vgosoft.sensitive.entity.example.SensitiveRuleRevisionExample)"
+                                reason="规则版本只能通过 advance 推进"/>
+                <disabledMethod signature="updateByPrimaryKey(com.vgosoft.sensitive.entity.SensitiveRuleRevision)"
+                                reason="规则版本只能通过 advance 推进"/>
+                <disabledMethod signature="updateByPrimaryKeySelective(com.vgosoft.sensitive.entity.SensitiveRuleRevision)"
+                                reason="规则版本只能通过 advance 推进"/>
+                <disabledMethod signature="insertBySql(com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder)"
+                                reason="规则版本只能通过 advance 推进"/>
+                <disabledMethod signature="updateBySql(com.vgosoft.mybatis.sqlbuilder.UpdateSqlBuilder)"
+                                reason="规则版本只能通过 advance 推进"/>
+                <disabledMethod signature="updateBatchByPrimaryKey(java.util.List)"
+                                reason="规则版本只能通过 advance 推进"/>
+                <disabledMethod signature="incrementRevisionByPrimaryKey(java.lang.String)"
+                                reason="规则版本只能通过 advance 推进" internalMethod="incrementRevisionInternal"/>
+            </generateService>
+            <generateController generate="false"/>
+            <generateHtml generate="false"/>
+            <generateSqlSchema generate="false"/>
+            <generateVo generate="false"/>
+        </table>
+        <!-- 确认凭证：时间、身份及摘要显式赋值；状态消费与业务写入共用事务，不存 token 明文。 -->
+        <table ignore="false" tableName="sensitive_confirmation" domainObjectName="SensitiveConfirmation" alias="sconf"
+               isModules="false" enableDropTables="false" cleanAllGeneratedElements="false">
+            <property name="rootClass" value="com.vgosoft.core.entity.abs.AbstractEntity"/>
+            <generateModel generate="true" noMetaAnnotation="false" enableChildren="false"/>
+            <generateSqlMap generate="true"/>
+            <generateDao generate="true"/>
+            <generateService generate="false"/>
+            <generateController generate="false"/>
+            <generateHtml generate="false"/>
+            <generateSqlSchema generate="false"/>
+            <generateVo generate="false"/>
+        </table>
+        <!-- 导入预览：仅存摘要，提交重新上传/校验；READY 到 COMMITTED 使用状态条件更新。 -->
+        <table ignore="false" tableName="sensitive_import_preview" domainObjectName="SensitiveImportPreview" alias="sip"
+               isModules="false" enableDropTables="false" cleanAllGeneratedElements="false">
+            <property name="rootClass" value="com.vgosoft.core.entity.abs.AbstractEntity"/>
+            <generateModel generate="true" noMetaAnnotation="false" enableChildren="false"/>
+            <generateSqlMap generate="true"/>
+            <generateDao generate="true"/>
+            <generateService generate="false"/>
+            <generateController generate="false"/>
+            <generateHtml generate="false"/>
+            <generateSqlSchema generate="false"/>
+            <generateVo generate="false"/>
+        </table>
+        <!-- 审计主表：受控追加和只读查询；清理由批准任务执行，不提供通用更新接口。 -->
+        <table ignore="false" tableName="sensitive_hit_log" domainObjectName="SensitiveHitLog" alias="shl"
+               isModules="false" enableUpdateByPrimaryKey="false" enableUpdateByExample="false"
+               enableUpdateBatch="false" enableInsertOrUpdate="false"
+               enableDropTables="false" cleanAllGeneratedElements="false">
+            <property name="rootClass" value="com.vgosoft.core.entity.abs.AbstractEntity"/>
+            <generateModel generate="true" noMetaAnnotation="false" enableChildren="false"/>
+            <generateSqlMap generate="true"/>
+            <generateDao generate="true"/>
+            <generateService generate="false"/>
+            <generateController generate="false"/>
+            <generateHtml generate="false"/>
+            <generateSqlSchema generate="false"/>
+            <generateVo generate="false"/>
+        </table>
+        <!-- 审计明细：按 request_id_/detail_seq_ 幂等追加，UTF-16 区间为左闭右开。 -->
+        <table ignore="false" tableName="sensitive_hit_log_detail" domainObjectName="SensitiveHitLogDetail" alias="shld"
+               isModules="false" enableUpdateByPrimaryKey="false" enableUpdateByExample="false"
+               enableUpdateBatch="false" enableInsertOrUpdate="false"
+               enableDropTables="false" cleanAllGeneratedElements="false">
+            <property name="rootClass" value="com.vgosoft.core.entity.abs.AbstractEntity"/>
+            <generateModel generate="true" noMetaAnnotation="false" enableChildren="false"/>
+            <generateSqlMap generate="true"/>
+            <generateDao generate="true"/>
+            <generateService generate="false"/>
+            <generateController generate="false"/>
+            <generateHtml generate="false"/>
+            <generateSqlSchema generate="false"/>
+            <generateVo generate="false"/>
+        </table>
+        <!-- 审计 outbox：业务事务入队、专用 dispatcher 幂等投递；payload 保留 JSON 文本 String。 -->
+        <table ignore="false" tableName="sensitive_audit_outbox" domainObjectName="SensitiveAuditOutbox" alias="sao"
+               isModules="false" enableDropTables="false" cleanAllGeneratedElements="false">
+            <property name="rootClass" value="com.vgosoft.core.entity.abs.AbstractEntity"/>
+            <generateModel generate="true" noMetaAnnotation="false" enableChildren="false"/>
+            <generateSqlMap generate="true"/>
+            <generateDao generate="true"/>
+            <generateService generate="false"/>
+            <generateController generate="false"/>
+            <generateHtml generate="false"/>
+            <generateSqlSchema generate="false"/>
+            <generateVo generate="false"/>
+            <!-- MEDIUMTEXT 内省到 LONGVARCHAR，显式保持文本映射，不启用原生 JSON/结构化类型。 -->
+            <columnOverride column="payload_" javaType="java.lang.String" jdbcType="LONGVARCHAR"/>
+        </table>
+    </context>
+</generatorConfiguration>

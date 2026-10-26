@@ -145,6 +145,11 @@ public class ValidateDatabaseTable {
             ColumnMeta columnMeta = declaredField.getAnnotation(ColumnMeta.class);
             boolean isPk = introspectedTable.getPrimaryKeyColumns().stream()
                     .anyMatch(t -> columnMeta.value().equalsIgnoreCase(t.getActualColumnName()));
+            if ((isPk || columnMeta.pkid()) && columnMeta.nullable()) {
+                warnings.add(VStringUtil.format(
+                        "根实体字段{0}.{1}标注为可空主键；结构同步按 NOT NULL 处理",
+                        rootClassName, columnMeta.value()));
+            }
             java.util.Optional<IntrospectedColumn> columnOpt = introspectedTable.getColumn(columnMeta.value());
             if (columnOpt.isPresent()) {
                 // 比较是否需要更新，使用 orElseThrow 以符合 prefer Optional.orElseThrow 的实践
@@ -157,7 +162,8 @@ public class ValidateDatabaseTable {
                     //字段长度
                     int columnLength = jdbcTypeInformation.getColumnLength();
                     if (isModifyColumn(introspectedColumn, columnMeta, columnLength, remark, isPk)) {
-                        IntrospectedColumn newColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField, introspectedTable, introspectedColumn);
+                        IntrospectedColumn newColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField,
+                                introspectedTable, introspectedColumn, isPk);
                         newColumn.setIntrospectedTable(introspectedTable);
                         updateColumns.add(newColumn);
                     }
@@ -165,16 +171,18 @@ public class ValidateDatabaseTable {
                     if (!introspectedColumn.getActualColumnName().equalsIgnoreCase(columnMeta.value())
                             || !introspectedColumn.getRemarks(false).equals(remark)
                             || isPk != columnMeta.pkid()
-                            || (introspectedColumn.isNullable() != columnMeta.nullable())
+                            || (introspectedColumn.isNullable() != isNullable(columnMeta, isPk))
                     ) {
-                        IntrospectedColumn newColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField, introspectedTable, introspectedColumn);
+                        IntrospectedColumn newColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField,
+                                introspectedTable, introspectedColumn, isPk);
                         newColumn.setIntrospectedTable(introspectedTable);
                         updateColumns.add(newColumn);
                     }
                 }
             } else {
                 //需要创建的列
-                IntrospectedColumn introspectedColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField, introspectedTable, null);
+                IntrospectedColumn introspectedColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField,
+                        introspectedTable, null, isPk);
                 introspectedColumn.setIntrospectedTable(introspectedTable);
                 addColumns.add(introspectedColumn);
             }
@@ -182,7 +190,9 @@ public class ValidateDatabaseTable {
 
     }
 
-    private IntrospectedColumn columnBuilder(ColumnMeta columnMeta, JavaTypeResolver javaTypeResolver, Field declaredField, AbstractIntrospectedTable table, IntrospectedColumn originalColumn) {
+    private IntrospectedColumn columnBuilder(ColumnMeta columnMeta, JavaTypeResolver javaTypeResolver, Field declaredField,
+                                             AbstractIntrospectedTable table, IntrospectedColumn originalColumn,
+                                             boolean isPk) {
         IntrospectedColumn introspectedColumn = new IntrospectedColumn();
         introspectedColumn.setActualColumnName(columnMeta.value());
         introspectedColumn.setJdbcType(columnMeta.type().getVendorTypeNumber());
@@ -197,7 +207,7 @@ public class ValidateDatabaseTable {
         String remark = stringHasValue(columnMeta.remarks()) ? columnMeta.remarks() : columnMeta.description();
         introspectedColumn.setRemarks(remark);
         introspectedColumn.setDefaultValue(columnMeta.defaultValue());
-        introspectedColumn.setNullable(columnMeta.nullable());
+        introspectedColumn.setNullable(isNullable(columnMeta, isPk));
         introspectedColumn.setJdbcTypeName(columnMeta.type().getName());
         introspectedColumn.setPrimaryKey(columnMeta.pkid());
         introspectedColumn.setPosition(columnMeta.position());
@@ -315,8 +325,12 @@ public class ValidateDatabaseTable {
                 || (columnMeta.scale() > 0 && (columnMeta.scale() != introspectedColumn.getScale()))
                 || !introspectedColumn.getRemarks(false).equals(remark)
                 || isPk != columnMeta.pkid()
-                || (introspectedColumn.isNullable() != columnMeta.nullable())
+                || (introspectedColumn.isNullable() != isNullable(columnMeta, isPk))
                 || (!columnMeta.pkid() && VStringUtil.stringHasValue(columnMeta.defaultValue()) && (!columnMeta.defaultValue().equalsIgnoreCase(introspectedColumn.getDefaultValue()) && !columnMeta.defaultValue().replace("'", "").equalsIgnoreCase(introspectedColumn.getDefaultValue())));
 
+    }
+
+    private boolean isNullable(ColumnMeta columnMeta, boolean isPk) {
+        return columnMeta.nullable() && !isPk && !columnMeta.pkid();
     }
 }

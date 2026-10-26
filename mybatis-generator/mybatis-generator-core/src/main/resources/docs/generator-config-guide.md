@@ -1101,6 +1101,8 @@ Vue3 文件由 `Vue3OtherFilesPlugin` 与 `Vue3FormFilesPlugin` 生成；对应�
 
 以上 Vue3 产物的完整清单与权威设计边界见[生成器权威说明第 2.2 节](generator-authoritative-spec.md#22-vue3-前端可生成能力)。在多 `generateHtml` 配置场景下，检查是否存在有效 `generate="true"` 且 `type="editable"` / `type="viewOnly"` 的配置；不要只看 XML 中是否出现了 `generateHtml` 节点。
 
+类型模板通过 `Vue3TypeImports` 为继承声明引用的同 Context 其他表实体生成 `import type`，导入路径指向其 `{domainLower}/types/T{Domain}.ts`；当前文件已有声明和 Framework 全局基础类型不会重复导入。`Vue3TypeImportsTest` 覆盖自引用、嵌套泛型、去重与真实模板输出。测试源码入口 `offline.Vue3TypeImportRegenerator` 仅用于已批准的 OrgDepartment、OrgGroup、OrgRole、OrgTeam 导入区局部再生成：读取真实消费配置，校验已有实体继承签名及覆盖标记，复用生产解析器和导入模板，逐字保留其他产物内容，不连接数据库；它不等同于完整业务再生成，也不更新字段/VO 元数据。
+
 #### 7.7.1 Vue3 与 `generateHtml` 的职责边界
 
 1. `generateHtml` 是表级页面配置节点。它配置的 `type`（`editable`、`viewOnly`、`print`）及 `generate` 值参与 HTML 页面规则判断，也参与 Vue3 editable/viewOnly 产物规则判断；`generate="false"` 或 model-only 不能触发相应页面。

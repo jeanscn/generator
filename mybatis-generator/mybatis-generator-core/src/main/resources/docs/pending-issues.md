@@ -3,15 +3,15 @@
 > 所属项目：`generator/mybatis-generator`
 > 模块/范围：`mybatis-generator-core`
 > 规范：[非主线问题登记与后续处理规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\deferred-issue-management-standard.md)
-> 更新时间：2026-10-26
+> 更新时间：2026-10-27
 
 ## 1. 问题总览
 
 | ID | 优先级 | 类别 | 标题 | 证据状态 | 处理状态 | 发现日期 | 关联任务/主记录 |
 |---|---|---|---|---|---|---|---|
-| generator-core-ISSUE-0001 | 中 | 其他 | CAS/逻辑删除回归依赖可变消费配置导致历史基线漂移 | 已复现 | 待处理 | 2026-10-26 | [Service 停用任务书](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\service-entry-disable-contract-task.md) |
-| generator-core-ISSUE-0002 | 中 | 数据一致性 | 根实体结构同步可能为主键生成可空列变更 | 已复现 | 待处理 | 2026-10-26 | [Service 停用任务书](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\service-entry-disable-contract-task.md) |
-| generator-core-ISSUE-0003 | 中 | 其他 | 未启用停用配置的业务消费者缺真实再生成编译测试证据 | 源码已定位 | 待处理 | 2026-10-26 | [遗留项核查](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\service-entry-disable-contract-task.md#5-后续遗留项核查2026-10-26) |
+| generator-core-ISSUE-0001 | 中 | 其他 | CAS/逻辑删除回归依赖可变消费配置导致历史基线漂移 | 已复现并固定当前输入 | 已处理（当前快照版本化） | 2026-10-26 | [Service 停用任务书](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\service-entry-disable-contract-task.md) |
+| generator-core-ISSUE-0002 | 中 | 数据一致性 | 根实体结构同步可能为主键生成可空列变更 | 已修复并回归 | 已处理（主键强制 NOT NULL） | 2026-10-26 | [Service 停用任务书](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\service-entry-disable-contract-task.md) |
+| generator-core-ISSUE-0003 | 中 | 其他 | 未启用停用配置的业务消费者缺真实再生成编译测试证据 | core 1.7→1.8 同输入生成对照、消费编译及 Service 测试已验证；Controller 测试受隔离上下文依赖阻塞 | 部分完成，仍待处理 | 2026-10-26 | [遗留项核查](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\service-entry-disable-contract-task.md#5-后续遗留项核查2026-10-26) |
 | generator-core-ISSUE-0004 | 中 | 测试与基线 | 锁查询离线输出基线与 Excel 资源限额拒绝测试存在既有失败 | 已复现 | 待处理 | 2026-10-26 | 无（Service 停用 import 范围修改的验证旁路发现） |
 | generator-core-ISSUE-0005 | 中 | 测试与基线 | 消费方完整输出基线测试存在既有失败（前端产物重复键） | 已复现 | 待处理 | 2026-10-26 | 无（import 登记侧审计的验证旁路发现） |
 
@@ -20,36 +20,40 @@
 ### generator-core-ISSUE-0001 CAS/逻辑删除回归依赖可变消费配置导致历史基线漂移
 
 - 发现来源：显式 Service 停用配置实施后的关联兼容回归，2026-10-26。
-- 位置与证据：`src\test\java\org\mybatis\generator\codegen\mybatis3\CasConsumerBaselineTest.java` 的 `consumerXml` 从消费仓当前 `generatorConfig.xml` 读取配置。`CasWriteGenerationTest` 在当前输入下执行 43 项，5 失败、1 异常；历史完整原始基线断言期望 75 文件而实际 80，另有固定配置二次生成时逻辑删除条件列不存在。`LogicalDeleteGenerationTest` 执行 25 项，2 失败、3 异常，包含重复 `deleteByColumnIdAndVersion` 和条件列 `[id_, version_]` 不存在。
-- 问题现象与触发条件：消费配置增加 revision Service/测试及逻辑删除配置后，历史快照、输出文件数与测试重复添加的配置不再匹配；复用已被内省处理的配置二次生成也会触发条件列校验。报告位于 `target\surefire-reports`；未连接远程数据库。
-- 影响与分级依据：影响历史兼容测试的可重复性及失败定位，不能由上述失败直接认定当前生成器发生默认行为回归；存在独立配置测试规避，故为中优先级。
-- 与当前任务的关系：当前显式停用独立回归 41 项通过，敏感生成回归 20 项无失败（1 项既有跳过）、缓存服务回归 2 项通过。此问题不通过重录历史 ZIP、修改业务配置或放宽断言掩盖；原完整基线验证仍标记未通过。
-- 建议后续处理：独立批准后固定各测试的完整去敏输入、DDL/元数据和基线版本；涉及二次生成的场景重新解析配置，并分别验证历史兼容和当前消费者配置。不得仅更新计数或覆盖历史快照。
-- 责任与关联：生成器测试维护方，负责人待指定；当前任务只登记并向父任务报告，未修复该历史测试问题。
-- 更新与关闭记录：2026-10-26 首次登记，状态待处理。
+- 位置与证据：原 `consumerXml` 从消费仓当前 `generatorConfig.xml` 读取配置，导致输入漂移。当前配置生成 80 个原始文件，而旧历史 ZIP 仅含 75 个；配置差异还使 `LogicalDeleteGenerationTest` 重复添加 `selectByColumn` 并触发重复删除方法。历史原始 XML/DDL 已无法取得，因此按批准方案新建当前输入快照 `src\test\resources\sc03\consumer-current-v1\` 及其 80 文件基线 `consumer-current-v1-parser-baseline.zip`；旧 `non-enabled-parser-baseline.zip` 未修改。
+- 问题现象与触发条件：配置输入随外部消费仓变化，导致当前输出与旧历史快照不可直接比较；同一已内省配置被再次生成时，逻辑删除条件列也可能丢失。本次 CAS/逻辑删除回归改用固定快照和固定 DDL；逻辑删除测试替换既有 `selectByColumn`，避免重复注入；重复生成场景重新解析配置。未连接远程数据库。
+- 影响与分级依据：原问题影响测试可重复性及失败归因。新快照明确标识为当前消费配置版本，不声称复原旧历史输入；旧 ZIP 继续保留作历史证据，避免以不明来源覆盖历史。
+- 与当前任务的关系：`CasWriteGenerationTest`、`LogicalDeleteGenerationTest` 与快照捕获测试共 69 项通过。当前快照原始输出逐文件匹配新版本 ZIP；CAS 关闭/开启输出差异断言保持有效。CAS 专项测试配置关闭无关 HTML/ExcelImport 入口，以隔离 CAS 行为；历史旧 ZIP 与当前快照之间的差异未被重录或掩盖。
+- 后续约束：今后修改消费配置时，新建带版本号的去敏 XML、DDL/元数据和输出基线，不覆盖旧版本；任何新基线须审阅并说明逐文件差异。旧 ZIP 对应的原始输入不可得，故不再用它断言当前消费者输出与历史配置等价。
+- 责任与关联：生成器测试维护方。当前输入固定问题已处理；旧历史输入无法复原的限制已记录。
+- 更新与关闭记录：2026-10-26 首次登记；2026-10-27 新增当前快照 v1、保留旧 ZIP、修复配置重复注入及重复内省使用，聚焦回归通过。
 
 ### generator-core-ISSUE-0002 根实体结构同步可能为主键生成可空列变更
 
 - 发现来源：2026-10-26 使用六列 H2/MySQL 模式执行 revision Service 隔离生成。
-- 位置与证据：`config.Context.introspectTables` 原有根实体同步路径、`custom.db.ValidateDatabaseTable.isModifyColumn/columnBuilder` 按 `ColumnMeta.nullable()` 比较并构造变更，未对主键的不可空约束作独立保护。H2 实际尝试 `ALTER TABLE sensitive_rule_revision MODIFY COLUMN id_ VARCHAR(36)`，因主键不可改为 nullable 报错并转为 warning；日志在 `target\revision-driver-confirmed.log`。未连接真实业务数据库。
-- 问题现象与触发条件：根实体注解期望、JDBC 元数据或根字段其他描述不一致时触发结构同步；构造出的目标列允许空值，与现存主键约束不一致。注解与元数据偏差的最终归属仍须独立确认。
-- 影响与分级依据：默认同步入口可能产生不合法 DDL 并仅记录警告；当前已在 H2 复现失败，其他数据库未验证。有明确离线规避方式，故为中优先级。
+- 位置与证据：`custom.db.ValidateDatabaseTable.isModifyColumn/columnBuilder` 原按 `ColumnMeta.nullable()` 比较并构造变更，未对主键不可空约束作独立保护。新增 `isNullable` 将实际主键或根实体声明主键的列按不可空处理，并在注解标为可空时写入 warning。新增 `RootClassSchemaSynchronizationTest` 覆盖仅有主键 nullable 差异不发起 DDL，以及其他元数据变化仍生成 `NOT NULL` 的 DDL。
+- 问题现象与触发条件：根实体 nullable 标注与 JDBC 元数据不一致时，原逻辑可生成主键可空变更。现在该差异不会单独触发列修改；如果长度等其他元数据需要变更，目标列仍保持 `NOT NULL`。隔离测试通过拒绝执行的 Statement 记录 SQL；未连接或写入真实数据库。
+- 影响与分级依据：主键 DDL 不再因根实体 nullable 标注被降为可空；对不一致标注显式记录 warning，避免静默忽略。测试覆盖 MySQL DDL 渲染和通用主键规则；未对其他真实数据库执行验证。
 - 与当前任务的关系：为满足获准离线生成的零结构写入要求，新增默认兼容的程序 API `Context.setRootClassSchemaSynchronizationEnabled(false)`，驱动已启用，实际 H2 重新运行零警告。该开关不修复默认同步路径的主键 DDL 语义，不将警告当作成功验收。
-- 建议后续处理：独立评审根实体 ColumnMeta 与实际数据库类型、主键及 nullable 约束的优先级；验证同步 DDL 的主键保护和失败传播，不未经批准修改基础实体注解或业务数据库。
-- 责任与关联：生成器同步能力维护方，注解归属方待联合确认；当前只修复离线驱动隔离接点。
-- 更新与关闭记录：2026-10-26 首次登记，默认同步语义问题仍待处理；隔离驱动退出码0，证据 `target\revision-driver-no-schema-sync.log`。
+- 建议后续处理：主键约束优先于根实体 nullable 标注；本修复不更改基础实体注解或关闭默认结构同步。若未来扩展列同步语义，继续使用拒绝执行写入的隔离测试验证 SQL。
+- 责任与关联：生成器同步能力维护方；根实体注解归属方无需为本修复修改业务模型。
+- 更新与关闭记录：2026-10-26 首次登记；2026-10-27 按主键语义保护 nullable、增加隔离 SQL 回归，`RootClassSchemaSynchronizationTest` 2 项及 `DisabledServiceEntryGenerationTest` 57 项通过，问题关闭。
 
 ### generator-core-ISSUE-0003 未启用停用配置的业务消费者缺真实再生成编译测试证据
 
-- 发现来源：2026-10-26 用户提出 P3；本轮仅核实、登记与提出方案，不执行消费者再生成或修改生产/CI。
-- 位置与证据：主体 [停用任务书](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\service-entry-disable-contract-task.md) 的 G01 包含默认兼容/敏感生成/缓存定向回归，S01 只落地 revision 两项文件并执行 Sensitive 测试，没有 vgosoft-application 再生成后编译测试记录。`D:\java\idea_projs7\project-vgosoft\vgosoft-application\src\main\resources\generatorConfig.xml:74-75,120-123` 两表启用生成 Service/Controller 单元测试。当前证据证明该交付缺口，未证明实际生成输出已回归。
+- 发现来源：2026-10-26 用户提出 P3；2026-10-27 在获准范围内继续验证 `vgosoft-application`，不修改其生产源文件、生成配置或 CI。
+- 位置与证据：`D:\java\idea_projs7\project-vgosoft\vgosoft-application\src\main\resources\generatorConfig.xml:74-75,120-123` 两表启用 Service/Controller 单元测试且没有 `disabledMethod`。application 的有效依赖为 `mybatis-generator-core:1.8.0-SNAPSHOT`，有效 Maven 插件为 `mybatis-generator-maven-plugin:1.8.0-SNAPSHOT`；插件 POM 对 core 使用 `${project.version}`。`pom.xml` 声明 core 为 optional，因此单看 application 运行时依赖不能替代插件版本核验。
 - 版本控制核实：从 `D:\java\idea_projs14\generator\mybatis-generator` 执行 `git rev-parse --show-toplevel` 返回父目录 `D:\java\idea_projs14\generator`，因此“子目录无 .git 即不在版本控制”的判断不成立。现有 `git ls-files` 包含新停用配置/实现/测试以及既有生成器文件；`git status` 显示部分新增文件在暂存区、部分修改未暂存，不能把 Git 索引中的 A/AM 当成已提交快照。本轮不提交、撤销或改动暂存区。
 - 改动归属：此前任务已明确 `AbstractUnitTestGenerator.java` 是既有 dirty，未纳入其实施；本轮 `ExampleGenerator.java` 在暂存和未暂存区域均无差异。不能把它们仅因文件名列入本次停用变更；其他工作副本变更仍需提交前逐项归属审阅。
-- 影响与分级依据：中。新能力及 revision 已有局部证据，但其他实际消费者的默认兼容完整链证据不足；不把缺验收等同已发生故障。
+- 同输入再生成：在 application 的 `target\issue-0003-validation` 临时副本中，使用原配置解析/customConfig、两张固定本地 DDL、同一离线元数据适配器，分别以 core `1.7.0-SNAPSHOT` 和 `1.8.0-SNAPSHOT` 生成；不连接数据库，关闭菜单/模块更新，输出只写临时目录。两版各 66 个完整输出项，无新增/删除、12 项内容变化。变化涉及 Controller OpenAPI 描述/模板清理、分类表 Excel 从 Alibaba EasyExcel 迁移到 Fesod、分类 Service 增加字典预取接口与缓存键支持、生成测试头部/导入、Request VO 删除未用导入、权限 SQL 排序号 15→16、Mapper XML 增加显式 NULL 排序及稳定次序。application 配置未声明停用入口，这些差异不属于停用拒绝输出；该版本间对照不能替代同一 1.8 代码在停用功能改动前后的精确源码对照。
+- 与现有消费源码对比的解释：早期列出的 10 个源文件差异不是有效的回归结论。离线元数据解析器把未写宽度的 INT/TIMESTAMP 记为 `COLUMN_SIZE=0`，导致 `@Digits` 与 ColumnMeta 尺寸变化；固定 DDL 的 TEXT 与现有实体 MEDIUMTEXT/LONGTEXT 注释不一致；`parent_id` 的字符串默认值保留了引号；Request VO 的 `TableField` 是生成后可清理的未用导入。故这些现有源码差异不能用来替代上面的同输入版本比较。
+- 消费编译与测试：隔离 application 副本的主代码及全部测试源 `test-compile` 成功；当前 1.8 输出对应的两个生成 Service Mockito 测试各 26 项通过（合计 52）。生成的两组 Controller 测试已在隔离配置下执行，但均在测试方法前因完整上下文缺少运行期依赖而报错：application 副本缺少 `RoleServiceAdapter<?, SysPermission, SysMenu>`；再把测试放入临时 root 模块副本后，缺少 `IWorkflowProcessorResolver<IUser, ?>`。两组共 22 个测试方法未实际执行，不能记为运行通过。测试上下文强制 H2、未加载远程 profile 配置，Redis 仅指向 `127.0.0.1:1`；不再通过不断添加业务 stub 伪造完整应用上下文。
+- 安全边界：当前 core 通过 API 关闭根实体结构同步，拦截记录只有 `SELECT DATABASE()`；旧 core 不具备该 API，触发的两条 `ALTER TABLE` 均被离线工厂拒绝并记录。所有验证均未连接真实业务数据库，菜单/模块更新关闭，application 原工作源文件未修改。临时生成归档和测试依赖仅在 `target\issue-0003-validation`，结束时精确清理。
+- 影响与分级依据：中。新能力和 generator-core 本地测试已有证据，application 的同输入再生成、主/测试编译及 Service 测试已补齐；Controller 测试因消费方完整上下文依赖不齐仍缺运行通过证据。不把环境阻塞解释成生成器功能失败或已验收。
 - 与当前任务的关系：本轮不重开 revision 问题；跨消费者交付证据作为独立后续项，不通过重录历史基线掩盖 generator-core-ISSUE-0001。
-- 建议后续处理：获批后固定去敏配置、相同版本元数据、生成器/core/DTD/插件和依赖，优先选择 vgosoft-application 两表，在隔离目录用改前/改后生成器对相同输入执行 parse/customConfig/完整生成并保存全输出清单与逐文件差异；未配置停用时检查无意外差异。再将新生成输出放入隔离消费副本，按真实依赖编译主代码与测试并显式执行 Service/Controller 生成测试。对手写扩展也核对覆盖保护。差异须解释，不能强求有预期变更的输出字节完全一致；不得触发目标库结构同步、菜单/权限更新或直接覆盖工作副本。
-- 责任与关联：生成器维护方与 application 消费模块维护方；版本提交及基线来源由仓库负责人确认。
-- 更新与关闭记录：2026-10-26 首次登记，中/源码已定位/待处理；版本控制疑点已澄清，不建立“不受版本控制”缺陷。关闭要求为同输入改前/改后生成差异、消费主代码/测试编译与运行证据齐备。
+- 建议后续处理：由 application/root 模块维护方提供可复用的隔离 Controller 测试配置或完整测试依赖（H2、RoleServiceAdapter、IWorkflowProcessorResolver 等运行期 Bean 均明确本地化），再执行两组生成 Controller 测试；不得加载真实远程配置。要严格归因停用特性本身，还需从停用功能改动前的 1.8 源码构建 core，并与当前 1.8 对同一配置/DDL 再生成比较。不得触发目标库结构同步、菜单/权限更新或直接覆盖工作副本。
+- 责任与关联：生成器维护方与 application/root 消费模块维护方；版本提交及基线来源由仓库负责人确认。
+- 更新与关闭记录：2026-10-26 首次登记，中/源码已定位/待处理；2026-10-27 补齐 application 有效版本、core 1.7→1.8 同输入输出比较、主/测试编译和 52 项 Service 测试。Controller 测试 22 项因缺失 root 上下文 bean 未通过，ISSUE 保持部分完成、未关闭。
 
 ### generator-core-ISSUE-0004 锁查询离线输出基线与 Excel 资源限额拒绝测试存在既有失败
 

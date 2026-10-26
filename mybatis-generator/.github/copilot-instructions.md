@@ -16,7 +16,7 @@
 
 每次会话持续执行[实践指导发现与许可门禁 §1.5](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\ai-assisted-development-standard.md#15-实践指导的持续发现确认与沉淀)；生成配置和页面设计按[配置指南第 20 章](..\mybatis-generator-core\src\main\resources\docs\generator-config-guide.md#20-约定驱动配置与实践建议)定位实践建议。本入口不复制全局规则正文。
 
-新增或修改 Java 源码时，必须遵守 [跨项目需求驱动设计规范第 6.1 节](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\project-design-standard.md#61-java-类与方法注释规范)：新建类的 Javadoc 添加 `@author vgosoft`，人工编写的 Java 注释及 Javadoc 说明使用中文。
+新增或修改 Java 源码时，必须遵守 [跨项目需求驱动设计规范第 6.1 节](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\project-design-standard.md#61-java-类与方法注释规范)：新建类的 Javadoc 添加 `@author vgosoft-agent`，人工编写的 Java 注释及 Javadoc 说明使用中文。
 创建或修改枚举类型时，须按同节规范为每个枚举项添加中文语义注释，并随语义变化同步更新。
 
 每次代码、文档或配置改动收尾时，必须按[版本库提交说明（commit message）规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\commit-message-standard.md)在回复末尾针对本次实际改动提供可直接提交到版本仓库的中文 commit message：改了就给，不附加验证前置条件；只提供 message 文本，不执行提交动作；未验证时说明范围与原因，已验证时可提供必要的说明；改动涉及多个仓库时按仓库分别给出。

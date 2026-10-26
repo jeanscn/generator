@@ -137,6 +137,8 @@ public class Vue3OtherFilesPlugin extends PluginAdapter {
                     }
                 }
                 freeMakerContext.put("tsTypeDescriptors", introspectedTable.getTypeScriptTypeDescriptors());
+                freeMakerContext.put("typeImports", Vue3TypeImports.resolve(
+                        introspectedTable.getContext(), introspectedTable.getTypeScriptTypeDescriptors()));
                 freeMakerContext.put("sensitiveFields",
                         frontendFields(introspectedTable));
 
