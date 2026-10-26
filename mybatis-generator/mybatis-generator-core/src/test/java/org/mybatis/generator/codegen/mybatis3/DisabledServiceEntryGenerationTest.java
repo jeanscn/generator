@@ -8,6 +8,8 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.config.xml.ConfigurationParser;
 import org.mybatis.generator.internal.DefaultShellCallback;
+import org.mybatis.generator.codegen.mybatis3.service.DisabledServiceEntries;
+import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -20,7 +22,7 @@ import static org.assertj.core.api.Assertions.*;
  *
  * @author vgosoft-agent
  */
-class DisabledServiceEntryGenerationTest {
+public class DisabledServiceEntryGenerationTest {
     private static final String ENTITY = "com.vgosoft.sensitive.entity.SensitiveRuleRevision";
     private static final String EXAMPLE = "com.vgosoft.sensitive.entity.example.SensitiveRuleRevisionExample";
     private static final String REASON = "规则版本只能通过 advance 推进";
@@ -301,6 +303,383 @@ class DisabledServiceEntryGenerationTest {
         assertThat(method(unit, "incrementRevisionByPrimaryKey").getAnnotations()).containsExactly("@Override");
     }
 
+    /** 真实继承 insert 输出无注解的 protected super 委托，编译后公开入口零交互而原语执行父类 Mapper 写入。 */
+    @Test
+    void compilesAndExecutesInheritedInsertPrimitiveAgainstRealParent() throws Exception {
+        var generator = generate(configuration("<disabledMethod signature=\"insert(" + ENTITY
+                + ")\" reason=\"" + REASON + "\" internalMethod=\"insertInternal\"/>"));
+        var implementation = output(generator, "AbstractSensitiveRuleRevisionImpl.java");
+        var internal = method(implementation, "insertInternal");
+        assertThat(internal.getBodyLines()).containsExactly("return super.insert(arg0);");
+        assertThat(internal.getVisibility()).isEqualTo(JavaVisibility.PROTECTED);
+        assertThat(internal.getAnnotations()).isEmpty();
+        assertThat(method(implementation, "insert").getAnnotations()).containsExactly("@Override");
+        assertThat(generator.getGeneratedJavaFiles().stream()
+                .filter(f -> f.getCompilationUnit() instanceof Interface)
+                .map(GeneratedJavaFile::getFormattedContent)).noneMatch(s -> s.contains("insertInternal"));
+
+        var parent = implementation.getSuperClass().orElseThrow();
+        var mapperType = parent.getTypeArguments().get(0);
+        var exampleType = parent.getTypeArguments().get(2);
+        TopLevelClass executable = new TopLevelClass("disabledfixture.ExecutableService");
+        executable.setVisibility(JavaVisibility.PUBLIC);
+        executable.setSuperClass(parent);
+        executable.addImportedType(parent);
+        executable.addImportedType(mapperType);
+        executable.addImportedType(exampleType);
+        executable.addImportedType(ENTITY);
+        executable.addImportedType("com.vgosoft.core.adapter.ServiceResult");
+        executable.addImportedType("com.vgosoft.core.exception.VgoServiceEntryDisabledException");
+        Method constructor = new Method("ExecutableService");
+        constructor.setConstructor(true);
+        constructor.setVisibility(JavaVisibility.PUBLIC);
+        constructor.addParameter(new Parameter(mapperType, "mapper"));
+        constructor.addBodyLine("super(mapper);");
+        executable.addMethod(constructor);
+        executable.addMethod(new Method(method(implementation, "insert")));
+        executable.addMethod(new Method(internal));
+        var sources = new java.util.HashMap<String, String>();
+        sources.put(executable.getType().getFullyQualifiedName(),
+                new org.mybatis.generator.api.dom.DefaultJavaFormatter().getFormattedContent(executable));
+        sources.put(ENTITY, "package com.vgosoft.sensitive.entity; public class SensitiveRuleRevision {}");
+        sources.put(exampleType.getFullyQualifiedName(), "package " + exampleType.getPackageName()
+                + "; public class " + exampleType.getShortName() + " {}");
+        sources.put(mapperType.getFullyQualifiedName(), "package " + mapperType.getPackageName()
+                + "; public interface " + mapperType.getShortName()
+                + " extends com.vgosoft.mybatis.inf.MBGMapperInterface<" + ENTITY + ","
+                + exampleType.getFullyQualifiedName() + "> {}");
+        ClassLoader loader = compileInMemory(sources);
+        var writes = new java.util.concurrent.atomic.AtomicInteger();
+        Class<?> mapper = loader.loadClass(mapperType.getFullyQualifiedName());
+        Object proxy = java.lang.reflect.Proxy.newProxyInstance(loader, new Class<?>[]{mapper},
+                (target, called, args) -> {
+                    assertThat(called.getName()).isEqualTo("insert");
+                    writes.incrementAndGet();
+                    return 1;
+                });
+        Class<?> serviceType = loader.loadClass(executable.getType().getFullyQualifiedName());
+        Object service = serviceType.getConstructor(mapper).newInstance(proxy);
+        Class<?> entity = loader.loadClass(ENTITY);
+        Object record = entity.getConstructor().newInstance();
+        assertThatThrownBy(() -> serviceType.getMethod("insert", entity).invoke(service, record))
+                .hasCauseInstanceOf(com.vgosoft.core.exception.VgoServiceEntryDisabledException.class);
+        assertThat(writes).hasValue(0);
+        var primitive = serviceType.getDeclaredMethod("insertInternal", entity);
+        primitive.setAccessible(true);
+        var result = (com.vgosoft.core.adapter.ServiceResult<?>) primitive.invoke(service, record);
+        assertThat(result.getResult()).isSameAs(record);
+        assertThat(result.getAffectedRows()).isEqualTo(1);
+        assertThat(writes).hasValue(1);
+    }
+
+    /** 不生成单元测试的业务接管表仍生成拒绝与原语，不强制创建或验证不存在的测试文件。 */
+    @Test
+    void retainsExplicitUnitTestOptOutWithInheritedPrimitive() throws Exception {
+        var config = configuration("<disabledMethod signature=\"insert(" + ENTITY
+                + ")\" reason=\"" + REASON + "\" internalMethod=\"insertInternal\"/>");
+        var table = config.getContexts().get(0).getTableConfigurations().stream()
+                .filter(t -> t.getDomainObjectName().equals("SensitiveRuleRevision")).findFirst().orElseThrow();
+        table.getJavaServiceImplGeneratorConfiguration().setGenerateUnitTest(false);
+        var generator = generate(config);
+        assertThat(method(output(generator, "AbstractSensitiveRuleRevisionImpl.java"), "insertInternal")
+                .getBodyLines()).containsExactly("return super.insert(arg0);");
+        assertThat(generator.getGeneratedJavaFiles()).noneMatch(f -> f.getFileName()
+                .equals("SensitiveRuleRevisionImplTest.java"));
+    }
+
+    /** 两表各十六项停用及三个原语通过 CAS 最终校验，Mapper、XML 和受管契约保持逐字一致。 */
+    @Test
+    void preservesManagedMapperStatementsAndResourcesForSixteenEntryMigration() throws Exception {
+        var before = generate(managedMigrationConfiguration(false));
+        var after = generate(managedMigrationConfiguration(true));
+        assertThat(managedPersistenceOutputs(after)).isEqualTo(managedPersistenceOutputs(before));
+        for (String model : List.of("SensitiveCategory", "SensitiveWord")) {
+            var implementation = output(after, "Abstract" + model + "Impl.java");
+            var localInsert = output(before, "Abstract" + model + "Impl.java").getMethods().stream()
+                    .filter(m -> m.getName().equals("insert")).findFirst();
+            assertThat(method(implementation, "insertInternal").getBodyLines()).isEqualTo(
+                    localInsert.map(Method::getBodyLines).orElse(List.of("return super.insert(arg0);")));
+            assertThat(method(implementation, "updateByPrimaryKeyCasInternal").getBodyLines()).containsExactly(
+                    "int affected = mapper.updateByPrimaryKeyCas(record, expectedVersion);",
+                    "return ServiceResult.success(record, affected);");
+            assertThat(String.join("\n", method(implementation, "insertBatchInternal").getBodyLines()))
+                    .contains("mapper.insertBatch(");
+            for (String name : List.of("insertInternal", "updateByPrimaryKeyCasInternal", "insertBatchInternal")) {
+                assertThat(method(implementation, name).getVisibility()).isEqualTo(JavaVisibility.PROTECTED);
+                assertThat(method(implementation, name).getAnnotations()).isEmpty();
+            }
+        }
+    }
+
+    private static Configuration managedMigrationConfiguration(boolean disabled) throws Exception {
+        var parser = new ConfigurationParser(new ArrayList<>());
+        var config = parser.parseConfiguration(new StringReader(CasConsumerBaselineTest.consumerXml("true")));
+        parser.customConfig(config);
+        var context = config.getContexts().get(0);
+        context.setRootClassSchemaSynchronizationEnabled(false);
+        context.getTableConfigurations().removeIf(t -> !List.of("sensitive_category", "sensitive_word")
+                .contains(t.getTableName()));
+        for (var table : context.getTableConfigurations()) {
+            table.getJavaServiceImplGeneratorConfiguration().setGenerateUnitTest(false);
+            if (!disabled) { continue; }
+            String entity = "com.vgosoft.sensitive.entity." + table.getDomainObjectName();
+            String example = "com.vgosoft.sensitive.entity.example." + table.getDomainObjectName() + "Example";
+            var signatures = List.of("insert(" + entity + ")", "insertSelective(" + entity + ")",
+                    "insertOrUpdateSelective(" + entity + ")", "updateByExampleSelective(" + entity + "," + example + ")",
+                    "updateByExampleSelectiveAndSelect(" + entity + "," + example + ")",
+                    "updateByExample(" + entity + "," + example + ")", "updateByPrimaryKey(" + entity + ")",
+                    "insertBySql(com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder)",
+                    "updateBySql(com.vgosoft.mybatis.sqlbuilder.UpdateSqlBuilder)", "insertBatch(java.util.List)",
+                    "updateDeleteFlag(" + entity + ",int)", "insertOrUpdate(" + entity + ")",
+                    "updateByPrimaryKeyCas(" + entity + ",java.lang.Integer)",
+                    "updateByPrimaryKeySelectiveCas(" + entity + ",java.lang.Integer)",
+                    "deleteByPrimaryKey(java.lang.String)", "deleteByExample(" + example + ")");
+            for (String signature : signatures) {
+                String name = signature.substring(0, signature.indexOf('('));
+                String internal = List.of("insert", "insertBatch", "updateByPrimaryKeyCas").contains(name)
+                        ? name + "Internal" : null;
+                table.getJavaServiceGeneratorConfiguration().addDisabledMethod(
+                        new DisabledServiceMethodConfiguration(signature, REASON, internal));
+            }
+        }
+        return config;
+    }
+
+    private static java.util.Map<String, String> managedPersistenceOutputs(MyBatisGenerator generator) throws Exception {
+        var outputs = new java.util.TreeMap<String, String>();
+        generator.getGeneratedJavaFiles().stream().filter(f -> f.getFileName().endsWith("Mapper.java"))
+                .forEach(f -> outputs.put(f.getFileName(), f.getFormattedContent()));
+        generator.getGeneratedXmlFiles().forEach(f -> outputs.put(f.getFileName(), f.getFormattedContent()));
+        var additional = MyBatisGenerator.class.getDeclaredField("otherGeneratedFiles");
+        additional.setAccessible(true);
+        for (var file : (List<?>) additional.get(generator)) {
+            if (file instanceof CasWriteContractGeneratedFile contract) {
+                outputs.put(contract.getFileName(), contract.getFormattedContent());
+            }
+        }
+        assertThat(outputs).containsKey("sensitive.xml");
+        return outputs;
+    }
+
+    /** 即使关闭测试生成，最终插件也不能改写继承委托、给原语加拦截注解或暴露到接口。 */
+    @ParameterizedTest
+    @ValueSource(strings = {"alter-inherited", "annotate-inherited", "expose-inherited"})
+    void validatesInheritedPrimitiveAfterPluginsWithoutGeneratedTests(String mode) throws Exception {
+        var config = configuration("<disabledMethod signature=\"insert(" + ENTITY
+                + ")\" reason=\"" + REASON + "\" internalMethod=\"insertInternal\"/>");
+        var table = config.getContexts().get(0).getTableConfigurations().stream()
+                .filter(t -> t.getDomainObjectName().equals("SensitiveRuleRevision")).findFirst().orElseThrow();
+        table.getJavaServiceImplGeneratorConfiguration().setGenerateUnitTest(false);
+        var plugin = new PluginConfiguration();
+        plugin.setConfigurationType(HostilePlugin.class.getName());
+        plugin.addProperty("mode", mode);
+        config.getContexts().get(0).addPluginConfiguration(plugin);
+        assertThatThrownBy(() -> generate(config)).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("disabledMethod");
+    }
+
+    /** 类实现优先于接口抽象声明，void 原语省略 return，最近的抽象覆盖和不支持入口仍拒绝。 */
+    @ParameterizedTest
+    @ValueSource(strings = {"concrete", "abstract", "interface", "default", "final", "static", "generic"})
+    void resolvesRealJavaInheritanceBeforeAllowingSuperDelegation(String mode) throws Exception {
+        var config = configuration("");
+        var generator = generate(config);
+        var context = config.getContexts().get(0);
+        var table = context.getIntrospectedTables().stream()
+                .filter(t -> t.getTableConfiguration().getDomainObjectName().equals("SensitiveRuleRevision"))
+                .findFirst().orElseThrow();
+        Class<?> parent = switch (mode) {
+            case "concrete" -> ConcreteParent.class;
+            case "abstract" -> AbstractParent.class;
+            case "interface" -> InterfaceParent.class;
+            case "default" -> DefaultParent.class;
+            default -> UnsupportedParent.class;
+        };
+        String name = switch (mode) {
+            case "final" -> "finalWrite";
+            case "static" -> "staticWrite";
+            case "generic" -> "genericWrite";
+            default -> "write";
+        };
+        String signature = name + "(java.lang.String)";
+        table.getTableConfiguration().getJavaServiceGeneratorConfiguration().addDisabledMethod(
+                new DisabledServiceMethodConfiguration(signature, REASON, "writeInternal"));
+        var unit = new TopLevelClass("disabledfixture.InheritedService");
+        unit.setVisibility(JavaVisibility.PUBLIC);
+        unit.setSuperClass(new FullyQualifiedJavaType(parent.getName()));
+        if (mode.equals("concrete")) {
+            DisabledServiceEntries.apply(table, unit, new ServiceMethods(context, table));
+            assertThat(method(unit, "writeInternal").getBodyLines()).containsExactly("super.write(arg0);");
+            assertThat(method(unit, "writeInternal").isAbstract()).isFalse();
+            unit.setSuperClass(new FullyQualifiedJavaType(parent.getCanonicalName()));
+            unit.addImportedType(parent.getCanonicalName());
+            var rendered = new org.mybatis.generator.api.dom.DefaultJavaFormatter().getFormattedContent(unit);
+            ClassLoader loader = compileInMemory(java.util.Map.of(unit.getType().getFullyQualifiedName(), rendered));
+            Class<?> generated = loader.loadClass(unit.getType().getFullyQualifiedName());
+            var primitive = generated.getDeclaredMethod("writeInternal", String.class);
+            primitive.setAccessible(true);
+            Object service = generated.getDeclaredConstructor().newInstance();
+            primitive.invoke(service, "value");
+            assertThat(((ConcreteParent) service).written).isEqualTo("value");
+        } else {
+            assertThatThrownBy(() -> DisabledServiceEntries.apply(table, unit, new ServiceMethods(context, table)))
+                    .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("disabledMethod");
+        }
+    }
+
+    /** super 委托不绕过父实现内部的虚调用，其他入口停用时仍拒绝且不执行最终写入。 */
+    @Test
+    void preservesParentDynamicDispatchToOtherDisabledEntries() throws Exception {
+        var config = configuration("");
+        generate(config);
+        var context = config.getContexts().get(0);
+        var table = context.getIntrospectedTables().stream()
+                .filter(t -> t.getTableConfiguration().getDomainObjectName().equals("SensitiveRuleRevision"))
+                .findFirst().orElseThrow();
+        var serviceConfig = table.getTableConfiguration().getJavaServiceGeneratorConfiguration();
+        serviceConfig.addDisabledMethod(new DisabledServiceMethodConfiguration(
+                "write(java.lang.String)", REASON, "writeInternal"));
+        serviceConfig.addDisabledMethod(new DisabledServiceMethodConfiguration(
+                "otherWrite(java.lang.String)", REASON, null));
+        var unit = new TopLevelClass("disabledfixture.CascadingService");
+        unit.setVisibility(JavaVisibility.PUBLIC);
+        unit.setSuperClass(new FullyQualifiedJavaType(CascadingParent.class.getName()));
+        DisabledServiceEntries.apply(table, unit, new ServiceMethods(context, table));
+        unit.setSuperClass(new FullyQualifiedJavaType(CascadingParent.class.getCanonicalName()));
+        unit.addImportedType(CascadingParent.class.getCanonicalName());
+        Class<?> generated = compileInMemory(java.util.Map.of(unit.getType().getFullyQualifiedName(),
+                new org.mybatis.generator.api.dom.DefaultJavaFormatter().getFormattedContent(unit)))
+                .loadClass(unit.getType().getFullyQualifiedName());
+        Object service = generated.getConstructor().newInstance();
+        var internal = generated.getDeclaredMethod("writeInternal", String.class);
+        internal.setAccessible(true);
+        assertThatThrownBy(() -> internal.invoke(service, "value"))
+                .hasCauseInstanceOf(com.vgosoft.core.exception.VgoServiceEntryDisabledException.class);
+        assertThat(((CascadingParent) service).written).isNull();
+    }
+
+    /**
+     * 为类优先解析提供与父类同签名的抽象接口。
+     *
+     * @author vgosoft-agent
+     */
+    public interface WriteContract {
+        void write(String value);
+    }
+
+    /**
+     * 提供可观察的具体父类实现。
+     *
+     * @author vgosoft-agent
+     */
+    public static class ConcreteAncestor {
+        public String written;
+        public void write(String value) { written = value; }
+    }
+
+    /**
+     * 直接接口的抽象声明不得遮蔽祖先类的具体实现。
+     *
+     * @author vgosoft-agent
+     */
+    public static class ConcreteParent extends ConcreteAncestor implements WriteContract { }
+
+    /**
+     * 保留父实现内部对其他公开入口的动态分派。
+     *
+     * @author vgosoft-agent
+     */
+    public static class CascadingParent extends ConcreteAncestor {
+        @Override
+        public void write(String value) { otherWrite(value); }
+        public void otherWrite(String value) { written = value; }
+    }
+
+    /**
+     * 最近的抽象覆盖必须遮蔽祖先具体实现。
+     *
+     * @author vgosoft-agent
+     */
+    public abstract static class AbstractParent extends ConcreteAncestor {
+        @Override
+        public abstract void write(String value);
+    }
+
+    /**
+     * 仅继承接口契约，不提供可调用类实现。
+     *
+     * @author vgosoft-agent
+     */
+    public abstract static class InterfaceParent implements WriteContract { }
+
+    /**
+     * 默认接口实现仍不属于已支持的具体父类声明。
+     *
+     * @author vgosoft-agent
+     */
+    public interface DefaultContract {
+        default void write(String value) { }
+    }
+
+    /**
+     * 承接默认接口但不声明具体类实现。
+     *
+     * @author vgosoft-agent
+     */
+    public static class DefaultParent implements DefaultContract { }
+
+    /**
+     * 提供明确不支持覆盖或生成原语的入口。
+     *
+     * @author vgosoft-agent
+     */
+    public static class UnsupportedParent {
+        public final void finalWrite(String value) { }
+        public static void staticWrite(String value) { }
+        public <T> void genericWrite(String value) { }
+    }
+
+    private static ClassLoader compileInMemory(java.util.Map<String, String> sources) throws Exception {
+        var compiler = javax.tools.ToolProvider.getSystemJavaCompiler();
+        assertThat(compiler).as("生成回归必须使用完整 JDK").isNotNull();
+        var diagnostics = new javax.tools.DiagnosticCollector<javax.tools.JavaFileObject>();
+        var bytes = new java.util.HashMap<String, java.io.ByteArrayOutputStream>();
+        try (var manager = new javax.tools.ForwardingJavaFileManager<javax.tools.StandardJavaFileManager>(
+                compiler.getStandardFileManager(diagnostics, null, java.nio.charset.StandardCharsets.UTF_8)) {
+            @Override
+            public javax.tools.JavaFileObject getJavaFileForOutput(Location location, String name,
+                    javax.tools.JavaFileObject.Kind kind, javax.tools.FileObject sibling) {
+                var output = new java.io.ByteArrayOutputStream();
+                bytes.put(name, output);
+                return new javax.tools.SimpleJavaFileObject(
+                        java.net.URI.create("memory:///" + name.replace('.', '/') + kind.extension), kind) {
+                    @Override
+                    public java.io.OutputStream openOutputStream() { return output; }
+                };
+            }
+        }) {
+            var files = new ArrayList<javax.tools.JavaFileObject>();
+            sources.forEach((name, source) -> files.add(new javax.tools.SimpleJavaFileObject(
+                    java.net.URI.create("string:///" + name.replace('.', '/') + ".java"),
+                    javax.tools.JavaFileObject.Kind.SOURCE) {
+                @Override
+                public CharSequence getCharContent(boolean ignoreEncodingErrors) { return source; }
+            }));
+            assertThat(compiler.getTask(null, manager, diagnostics,
+                    List.of("-proc:none", "-classpath", System.getProperty("java.class.path")), null, files).call())
+                    .withFailMessage("生成代码编译失败：%s", diagnostics.getDiagnostics()).isTrue();
+        }
+        return new ClassLoader(DisabledServiceEntryGenerationTest.class.getClassLoader()) {
+            @Override
+            protected Class<?> findClass(String name) throws ClassNotFoundException {
+                var output = bytes.get(name);
+                if (output == null) { return super.findClass(name); }
+                byte[] content = output.toByteArray();
+                return defineClass(name, content, 0, content.length);
+            }
+        };
+    }
+
     /** 未显式配置停用时 CAS 仍输出原 ENTRY_DISABLED，不引入新异常或内部旁路。 */
     @Test
     void preservesLegacyCasDefaultRejection() throws Exception {
@@ -339,16 +718,16 @@ class DisabledServiceEntryGenerationTest {
                 .isInstanceOfAny(IllegalArgumentException.class, org.mybatis.generator.exception.XMLParserException.class);
     }
 
-    /** 重复配置、非法内部名、继承方法无原语及与现有方法重名均立即失败。 */
+    /** 重复配置、非法内部名、未知原语及与现有方法重名均立即失败。 */
     @ParameterizedTest
-    @ValueSource(strings = {"duplicate", "illegal", "inherited", "collision"})
+    @ValueSource(strings = {"duplicate", "illegal", "missing", "collision"})
     void rejectsDuplicateAndUnsafeInternalMethods(String mode) {
         String entry = switch (mode) {
             case "duplicate" -> disabled("insert(" + ENTITY + ")") + disabled("insert(" + ENTITY + ")");
             case "illegal" -> "<disabledMethod signature=\"incrementRevisionByPrimaryKey(java.lang.String)\""
                     + " reason=\"原因\" internalMethod=\"public\"/>";
-            case "inherited" -> "<disabledMethod signature=\"insert(" + ENTITY
-                    + ")\" reason=\"原因\" internalMethod=\"insertInternal\"/>";
+            case "missing" -> "<disabledMethod signature=\"missing(" + ENTITY
+                    + ")\" reason=\"原因\" internalMethod=\"missingInternal\"/>";
             case "collision" -> "<disabledMethod signature=\"incrementRevisionByPrimaryKey(java.lang.String)\""
                     + " reason=\"原因\" internalMethod=\"selectByPrimaryKey\"/>";
             default -> throw new IllegalArgumentException(mode);
@@ -446,6 +825,13 @@ class DisabledServiceEntryGenerationTest {
                 if (mode.equals("override-internal")) {
                     method(unit, "incrementRevisionInternal").addAnnotation("@Override");
                 }
+                if (mode.equals("alter-inherited")) {
+                    method(unit, "insertInternal").getBodyLines().clear();
+                    method(unit, "insertInternal").addBodyLine("return null;");
+                }
+                if (mode.equals("annotate-inherited")) {
+                    method(unit, "insertInternal").addAnnotation("@Transactional");
+                }
             } else if (unit.getType().getShortName().equals("SensitiveRuleRevisionImplTest")) {
                 if (mode.equals("veto-test")) { return false; }
                 if (mode.equals("test-contract")) { method(unit, "disabledServiceEntries").getBodyLines().clear(); }
@@ -460,6 +846,11 @@ class DisabledServiceEntryGenerationTest {
             if (mode.equals("late-remove")) { implementation.getMethods().clear(); }
             if (mode.equals("interface-internal")) {
                 Method exposed = new Method(method(implementation, "incrementRevisionInternal"));
+                exposed.setVisibility(JavaVisibility.PUBLIC);
+                service.addMethod(exposed);
+            }
+            if (mode.equals("expose-inherited")) {
+                Method exposed = new Method(method(implementation, "insertInternal"));
                 exposed.setVisibility(JavaVisibility.PUBLIC);
                 service.addMethod(exposed);
             }

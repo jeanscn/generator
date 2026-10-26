@@ -82,8 +82,11 @@ public final class DisabledServiceEntries {
         if (configurations(table).isEmpty()) { return; }
         var policy = new DisabledServiceEntries(table);
         Map<String, Method> candidates = new LinkedHashMap<>();
-        for (var inherited : methods.getInheritedServiceMethods(service.getSuperClass().orElseThrow(), service)) {
-            candidates.put(ServiceMethods.signature(inherited), inherited);
+        Set<String> callableInherited = new HashSet<>();
+        for (var inherited : methods.getInheritedServiceMethodMetadata(service.getSuperClass().orElseThrow(), service)) {
+            String signature = ServiceMethods.signature(inherited.method());
+            candidates.put(signature, inherited.method());
+            if (inherited.callableFromSuper()) { callableInherited.add(signature); }
         }
         Set<String> local = new HashSet<>();
         for (var method : service.getMethods()) {
@@ -115,14 +118,24 @@ public final class DisabledServiceEntries {
                 if (!reservedNames.add(config.internalMethod())) {
                     throw failure(table, "internalMethod 名称冲突：" + config.internalMethod());
                 }
-                if (original.getBodyLines().isEmpty()
+                boolean inherited = !local.contains(config.signature());
+                if ((inherited && !callableInherited.contains(config.signature()))
+                        || (!inherited && original.getBodyLines().isEmpty())
                         || original.getBodyLines().contains("throw new IllegalStateException(\"ENTRY_DISABLED\");")) {
-                    throw failure(table, "internalMethod 必须对应已有且未被 CAS 禁用的生成原语：" + config.signature());
+                    throw failure(table, "internalMethod 必须对应未被 CAS 禁用的本地生成原语"
+                            + "或可通过 super 调用的具体父类实现：" + config.signature());
                 }
                 internal = new Method(original);
                 internal.setName(config.internalMethod());
                 internal.setVisibility(JavaVisibility.PROTECTED);
                 internal.setFinal(false);
+                internal.setAbstract(false);
+                if (inherited) {
+                    String arguments = original.getParameters().stream()
+                            .map(Parameter::getName).collect(Collectors.joining(", "));
+                    internal.addBodyLine((original.getReturnType().isPresent() ? "return " : "")
+                            + "super." + original.getName() + "(" + arguments + ");");
+                }
                 // 内部原语不暴露代理注解，事务和缓存边界由业务入口负责。
                 internal.getAnnotations().clear();
                 internal.getJavaDocLines().clear();
@@ -138,7 +151,7 @@ public final class DisabledServiceEntries {
             rejection.getJavaDocLines().clear();
             rejection.addJavaDocLine("/** 显式停用通用服务入口，立即拒绝且不访问持久层。 */");
             rejection.getBodyLines().clear();
-            rejection.addBodyLine("throw new VgoServiceEntryDisabledException("
+            rejection.addBodyLine("throw new com.vgosoft.core.exception.VgoServiceEntryDisabledException("
                     + literal(config.signature()) + ", " + literal(config.reason()) + ");");
             service.getMethods().removeIf(m -> ServiceMethods.signature(m).equals(config.signature()));
             service.addMethod(rejection);
@@ -274,9 +287,8 @@ public final class DisabledServiceEntries {
         }
         var config = table.getTableConfiguration();
         if (!config.getJavaServiceGeneratorConfiguration().isGenerate()
-                || !config.getJavaServiceImplGeneratorConfiguration().isGenerate()
-                || !config.getJavaServiceImplGeneratorConfiguration().isGenerateUnitTest()) {
-            throw failure(table, "显式停用要求生成 Service、实现及真实业务 Service 测试");
+                || !config.getJavaServiceImplGeneratorConfiguration().isGenerate()) {
+            throw failure(table, "显式停用要求生成 Service 接口及实现");
         }
         String model = config.getDomainObjectName();
         var contract = (InterfaceContract) table.getAttribute(ATTRIBUTE + ".interface");
@@ -342,6 +354,7 @@ public final class DisabledServiceEntries {
                 }
             }
         }
+        if (!config.getJavaServiceImplGeneratorConfiguration().isGenerateUnitTest()) { return; }
         TopLevelClass test = requireClass(table, files, serviceName + "Test.java",
                 config.getJavaServiceImplGeneratorConfiguration().getTargetPackage());
         if (policy.testContract.isEmpty()) { throw failure(table, "必需停用测试契约未生成"); }

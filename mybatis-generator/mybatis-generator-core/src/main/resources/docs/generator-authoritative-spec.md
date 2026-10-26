@@ -27,9 +27,9 @@ table 属性 `enableCasWriteContract` 省略默认关闭，仅字面 `true`/`fal
 
 `generateService/disabledMethod` 按无空格的完整擦除参数签名关闭公开入口；省略时不改变原有输出。服务与测试共用一个有效策略，复用 `ServiceMethods` 方法描述及真实父类泛型绑定，覆盖没有本地生成体的继承 CRUD。生成公开、非 final 的覆盖方法，立即抛出基础 `VgoServiceEntryDisabledException(signature, reason)`；拒绝方法不保留事务、缓存、敏感写及事件等方法注解。
 
-只有显式配置 `internalMethod` 才复制该方法既有生成原语为 protected，并清除 `@Override` 及全部方法拦截注解；原 private final Mapper 字段保持不变，事务、缓存和事件边界由业务入口负责。禁止接口暴露、名称遮蔽及把 CAS 已拒绝入口重新开放。未配置时不产生内部旁路；继承方法没有可复制生成体时明确失败，不猜测其底层实现。未知、重复、不可覆盖或歧义签名均拒绝。既有 CAS 的默认 `IllegalStateException("ENTRY_DISABLED")` 不变；显式配置可增强为具备完整 operation/reason 的拒绝，不放开 Mapper 写契约。
+只有显式配置 `internalMethod` 才保留 protected 原语，并清除 `@Override` 及全部方法拦截注解：本地已有生成体原样复制；无本地生成体时，仅对真实可调用的具体父类公开实例方法生成 `return super.原方法(参数);`（void 不带 return）。共用签名工厂只解析签名/反射来源，委托体由停用元素策略装配；类方法优先于接口声明，最近抽象覆盖不得回退祖先具体实现。抽象/仅接口声明或默认实现、final/static/方法级泛型等不支持原语的情况明确拒绝，不以空方法体推测具体实现。原 private final Mapper 字段保持不变，事务、缓存和事件边界由业务入口负责。禁止接口暴露、名称遮蔽及把 CAS 已拒绝入口重新开放。继承委托依赖真实父实现，不改变基础持久化行为；父实现内部的虚方法调用仍可能进入其他停用覆盖或业务重写，不保证绕过其他停用入口，消费业务必须验收实际调用链和失败行为。未配置时不产生内部旁路。未知、重复、不可覆盖或歧义签名均拒绝。既有 CAS 的默认 `IllegalStateException("ENTRY_DISABLED")` 不变；显式配置可增强为具备完整 operation/reason 的拒绝，不放开 Mapper 写契约。`generateUnitTest=false` 保留关闭语义，不要求生成测试，但不豁免公开拒绝、protected 原语与接口的最终插件后校验；开启时继续强制生成并校验真实业务 Service 测试契约。
 
-生成测试返回完整签名到原因的映射，沿实际业务 Service 实例验证；基类已覆盖的入口不重复生成测试，其余使用非空有效参数补充测试。全部 context 插件结束后核验接口、拒绝体、内部原语、映射与测试输出，缺失、否决和篡改均失败。此能力不是授权拦截器，也不禁止已接管覆盖保护的业务扩展；实际业务重写后仍须运行生成测试验收。配置、支持边界及隔离回归入口见[配置指南：显式 Service 入口停用](generator-config-guide.md#显式-service-入口停用180)。
+开启测试生成时返回完整签名到原因的映射，沿实际业务 Service 实例验证；基类已覆盖的入口不重复生成测试，其余使用非空有效参数补充测试。全部 context 插件结束后核验接口、拒绝体、内部原语及已启用的映射/测试输出，缺失、否决和篡改均失败。此能力不是授权拦截器，也不禁止已接管覆盖保护的业务扩展；实际业务重写后仍须通过消费项目测试验收，生成测试开启时也须实际运行。配置、支持边界及隔离回归入口见[配置指南：显式 Service 入口停用](generator-config-guide.md#显式-service-入口停用180)。
 
 独立离线驱动可通过程序 API `Context.setRootClassSchemaSynchronizationEnabled(false)` 禁止内省后的根实体结构同步，不改变继承关系或 Service 输出；默认 true 保持既有正式入口行为，无新增 DTD 属性。`generate(..., false)` 本身仅禁止文件写盘，不能当作数据库只读保证；隔离步骤及元数据偏差排查仍见上述指南。
 

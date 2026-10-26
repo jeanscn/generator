@@ -34,11 +34,13 @@
 |---|---|
 | `signature` | 必填，方法名与**准确全限定、擦除后的参数类型**，不含参数名或任何空格；数组用 `[]`，集合用 `java.util.List` 而不是泛型。短类名、错误重载、未知、重复、歧义及不可覆盖方法显式失败，不做猜测或宽松匹配。 |
 | `reason` | 必填且非空白，原样进入异常与生成测试映射；字符串中的引号、反斜杠及换行按 Java 字符串转义。 |
-| `internalMethod` | 可选，合法 Java 标识符且不能与公开、受保护继承方法或本地生成方法同名。仅复制**当前已生成、尚未被 CAS 拒绝**的方法体为 protected；不暴露到接口，不自动创建其他旁路。没有生成体的继承 CRUD 只能拒绝，不能凭空保留内部原语。 |
+| `internalMethod` | 可选，合法 Java 标识符且不能与公开、受保护继承方法或本地生成方法同名。本地生成方法原样复制**尚未被 CAS 拒绝**的方法体；没有本地生成体时，仅对真实可调用的具体父类公开实例方法生成 `protected` 的 `return super.原方法(参数);` 委托（void 不带 return）。抽象覆盖、仅接口声明/默认实现及 final/static/方法级泛型入口不支持内部原语，明确失败；不以空方法体猜测可调用性，不暴露到接口，不自动创建其他旁路。 |
 
 **输出与使用：** 停用入口生成 public、非 final 的 `@Override`，唯一执行语句为 `throw new com.vgosoft.core.exception.VgoServiceEntryDisabledException(signature, reason)`；不保留原有事务、缓存、敏感写或事件等方法注解。内部复制只保留原签名与方法体，设为 protected 并清除全部方法注解，包括 `@Override`、缓存、事务和事件拦截注解；不改变原类的 private final Mapper 字段。上例内部递增保留原 `return mapper.incrementRevisionByPrimaryKey(id);` 原语，业务扩展的 `advance` 可在明确事务和业务门禁中调用 `super.incrementRevisionInternal(id)`，事务、缓存及事件编排由业务入口显式负责。业务扩展依然按原覆盖保护规则接管，禁止手改 codegen Java/XML；非 final 是为了允许业务重写，不代表允许绕过验收。
 
-**测试与失败门禁：** 显式停用要求 Service 接口、实现及 `generateUnitTest=true`。生成 `protected Map<String,String> disabledServiceEntries()`，返回全部精确签名及原因。基类已有 CRUD/SQL-builder/相应 BLOB 用例通过共用 helper 验证，其余入口补充 `assertDisabledServiceEntry(signature, () -> serviceImplUnderTest.method(...))` 测试；对象仍为真实业务 Service，不是拒绝专用替身。补充参数支持实际实体、Example、非空字符串、整数/长整数/布尔、BigDecimal、Date、ComSelSqlParameter 及有界单元素 List/Collection/Set；不能可靠构造有效参数时明确失败，不以 null 伪造通过。方法级泛型、final/static/非 public 入口不在当前可覆盖范围。
+继承原语示例：为继承的 `insert(完整实体类型)` 配置 `internalMethod="insertInternal"`，生成 `protected ServiceResult<实体> insertInternal(实体 arg0) { return super.insert(arg0); }`。签名解析按 Java 类方法优先和最近覆盖优先处理，接口抽象声明不得遮蔽具体祖先类方法，最近的抽象类覆盖也不得回退到更远的具体实现。该委托**依赖实际父实现**，不改写基础持久化行为；若父实现内部调用其他虚方法，仍会动态分派到其他停用覆盖或业务重写，不能承诺绕过所有停用入口。业务必须验收实际父实现调用链、返回/失败、事务、缓存、事件及所依赖入口。
+
+**测试与失败门禁：** 显式停用要求生成 Service 接口及实现；沿用 `generateUnitTest` 配置，不强制打开原本关闭的测试生成。开启时生成 `protected Map<String,String> disabledServiceEntries()`，返回全部精确签名及原因。基类已有 CRUD/SQL-builder/相应 BLOB 用例通过共用 helper 验证，其余入口补充 `assertDisabledServiceEntry(signature, () -> serviceImplUnderTest.method(...))` 测试；对象仍为真实业务 Service，不是拒绝专用替身。关闭时不生成映射/补充测试，也不要求不存在的测试产物，但公开拒绝、内部原语及接口的插件后校验仍执行，业务接管后的测试由消费项目负责。补充参数支持实际实体、Example、非空字符串、整数/长整数/布尔、BigDecimal、Date、ComSelSqlParameter 及有界单元素 List/Collection/Set；不能可靠构造有效参数时明确失败，不以 null 伪造通过。方法级泛型、final/static/非 public 入口不在当前可覆盖范围。
 
 运行依赖必须提供基础 `VgoServiceEntryDisabledException` 及 `vgosoft-test` 的 `disabledServiceEntries/assertDisabledServiceEntry` 契约；helper 校验精确异常类型、operation、reason、FAIL 以及无 Mapper 交互。基类覆盖清单与生成侧补充测试清单须同步维护；仅生成映射不代表实际业务 Service 已通过测试。最后一个 context 附加文件回调之后统一校验接口继承/签名、拒绝体、protected 原语及测试契约；插件删除、否决、重新开放、增加拒绝方法注解或更改测试对象均失败。
 

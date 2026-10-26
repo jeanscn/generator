@@ -42,6 +42,41 @@ public class ServiceMethods {
      * @return 可覆盖的完整继承方法集合
      */
     public List<Method> getInheritedServiceMethods(FullyQualifiedJavaType parentType, CompilationUnit unit) {
+        return getInheritedServiceMethodMetadata(parentType, unit).stream()
+                .map(InheritedServiceMethod::method).toList();
+    }
+
+    /**
+     * 保存解析后的签名和真实声明，不用空方法体推断父实现的可调用性。
+     *
+     * @author vgosoft-agent
+     */
+    public record InheritedServiceMethod(Method method, java.lang.reflect.Method source) {
+        /**
+         * 判断是否存在可由生成子类通过 super 调用的具体类实现。
+         *
+         * @return 具体类公开实例方法时为真，接口默认实现也不作为支持的内部原语
+         */
+        public boolean callableFromSuper() {
+            int modifiers = source.getModifiers();
+            return !source.getDeclaringClass().isInterface()
+                    && java.lang.reflect.Modifier.isPublic(modifiers)
+                    && !java.lang.reflect.Modifier.isAbstract(modifiers)
+                    && !java.lang.reflect.Modifier.isFinal(modifiers)
+                    && !java.lang.reflect.Modifier.isStatic(modifiers)
+                    && source.getTypeParameters().length == 0;
+        }
+    }
+
+    /**
+     * 按类优先、最近覆盖优先的 Java 解析顺序收集继承签名和声明元数据。
+     *
+     * @param parentType 已绑定泛型的真实父类
+     * @param unit 接收签名依赖的编译单元
+     * @return 继承方法及真实来源，不包含执行方法体
+     */
+    public List<InheritedServiceMethod> getInheritedServiceMethodMetadata(
+            FullyQualifiedJavaType parentType, CompilationUnit unit) {
         try {
             Class<?> parent = org.mybatis.generator.internal.ObjectFactory.externalClassForName(
                     parentType.getFullyQualifiedNameWithoutTypeParameters());
@@ -49,8 +84,9 @@ public class ServiceMethods {
             for (int i = 0; i < parent.getTypeParameters().length; i++) {
                 bindings.put(parent.getTypeParameters()[i], parentType.getTypeArguments().get(i));
             }
-            Map<String, Method> methods = new LinkedHashMap<>();
-            collectInherited(parent, bindings, unit, methods);
+            Map<String, InheritedServiceMethod> methods = new LinkedHashMap<>();
+            collectInherited(parent, bindings, unit, methods, false);
+            collectInherited(parent, bindings, unit, methods, true);
             return new ArrayList<>(methods.values());
         } catch (ClassNotFoundException exception) {
             throw new IllegalArgumentException("disabledMethod 无法读取真实 Service 父类：" + parentType, exception);
@@ -59,15 +95,19 @@ public class ServiceMethods {
 
     private void collectInherited(Class<?> type,
                                   Map<java.lang.reflect.TypeVariable<?>, FullyQualifiedJavaType> bindings,
-                                  CompilationUnit unit, Map<String, Method> methods) {
+                                  CompilationUnit unit, Map<String, InheritedServiceMethod> methods,
+                                  boolean interfaces) {
         if (type == Object.class) { return; }
-        for (var source : type.getDeclaredMethods()) {
+        for (var source : type.isInterface() == interfaces ? type.getDeclaredMethods()
+                : new java.lang.reflect.Method[0]) {
             if (!java.lang.reflect.Modifier.isPublic(source.getModifiers())
-                    || java.lang.reflect.Modifier.isStatic(source.getModifiers())
+                    || (type.isInterface() && java.lang.reflect.Modifier.isStatic(source.getModifiers()))
                     || source.isBridge() || source.isSynthetic()) { continue; }
             Method method = new Method(source.getName());
             method.setVisibility(JavaVisibility.PUBLIC);
             method.setFinal(java.lang.reflect.Modifier.isFinal(source.getModifiers()));
+            method.setStatic(java.lang.reflect.Modifier.isStatic(source.getModifiers()));
+            method.setAbstract(java.lang.reflect.Modifier.isAbstract(source.getModifiers()));
             for (var variable : source.getTypeParameters()) {
                 method.addTypeParameter(new TypeParameter(variable.getName()));
             }
@@ -86,10 +126,16 @@ public class ServiceMethods {
                 method.addException(resolved);
                 unit.addImportedType(resolved);
             }
-            methods.putIfAbsent(signature(method), method);
+            String signature = signature(method);
+            var previous = methods.get(signature);
+            if (previous == null || (previous.source().getDeclaringClass().isInterface()
+                    && previous.source().getDeclaringClass().isAssignableFrom(source.getDeclaringClass()))) {
+                methods.put(signature, new InheritedServiceMethod(method, source));
+            }
         }
-        List<java.lang.reflect.Type> ancestors = new ArrayList<>(List.of(type.getGenericInterfaces()));
+        List<java.lang.reflect.Type> ancestors = new ArrayList<>();
         if (type.getGenericSuperclass() != null) { ancestors.add(type.getGenericSuperclass()); }
+        if (interfaces) { ancestors.addAll(List.of(type.getGenericInterfaces())); }
         for (var ancestor : ancestors) {
             Class<?> raw = ancestor instanceof java.lang.reflect.ParameterizedType parameterized
                     ? (Class<?>) parameterized.getRawType() : (Class<?>) ancestor;
@@ -100,7 +146,7 @@ public class ServiceMethods {
                             resolveInheritedType(parameterized.getActualTypeArguments()[i], bindings));
                 }
             }
-            collectInherited(raw, next, unit, methods);
+            collectInherited(raw, next, unit, methods, interfaces);
         }
     }
 
