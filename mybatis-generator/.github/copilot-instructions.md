@@ -143,6 +143,14 @@
 
 参照实现：`ServiceMethods.getPreviewExcelImportMethod`、`getConfirmExcelImportMethod` 统一 Excel 导入预览/确认方法的签名和依赖；`JavaServiceGenerator` 以接口模式调用，`ExcelImportWorkflowElement` 以实现模式复用后补充注解与方法体，保留受保护业务钩子。该示例用于说明分层方式，不要求其他能力采用 Excel 工作流的事务或业务策略。
 
+### 8.2 前端产物 UI 约定（必须遵守）
+
+- 规范来源：消费项目 mpmm-ui 的 [前端 UI 设计规范](D:\vscode\mpmm-ui\docs\frontend-ui-design-standard.md) §2.4（间距与栅格）、§6.1（组件使用约定）。生成页面属于业务页面，与手写页面适用同一套约定。
+- **不得写死组件尺寸**：模板禁止输出 `size="small"` / `size="large"` / `size="default"`，组件尺寸一律继承应用侧 `ElConfigProvider`（全局密度档位）。密集工具区等豁免场景只适用于 framework 组件自身，不适用于生成页面。
+- **间距不得写死密度档位 px**：`margin` / `padding` 中的 7.5 / 10 / 13 / 15 / 20 必须写成 `var(--vgo-space-base, 15px)`、`var(--vgo-space-header-y, 13px)` 或由其 `calc()` 派生（回落值取默认档现状值，保证未应用密度时视觉不变）。8px 及以下的装饰性留白按规范属组件自身约定，不受此限。
+- **产物侧不手工改**：消费项目按「生成产物不手工改、改模板再重新生成」的口径处理，UI 类存量差异一律回到模板修正，不逐文件改写产物。
+- 固化审计：`VueUiConventionAuditTest` 对全部生成 `.vue` 做零违例断言（写死 size、密度档位间距 px），并在取不到任何 `.vue` 产物时直接判失败以避免空跑通过。修改 vue3 模板后必须执行该测试。
+
 ## 9. 数据库建设规范（必须遵守）
 
 - 规范来源：依赖包 `com.vgosoft:vgosoft-core-db`。

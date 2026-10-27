@@ -142,7 +142,8 @@
     :deep(.el-form-item) {
         --font-size: 1em;
         --el-form-label-font-size: 1em;
-        margin: 7.5px 0 -1px 0;
+        /* 纵向间距取密度基准的一半（默认档 15px/2=7.5px）；末位 -1px 为相邻边框合并，不随密度变化 */
+        margin: calc(var(--vgo-space-base, 15px) / 2) 0 -1px 0;
         border-bottom: 1px solid var(--el-border-color);
         height: 100%;
     }
