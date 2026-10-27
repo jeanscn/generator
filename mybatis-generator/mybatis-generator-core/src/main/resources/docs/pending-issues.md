@@ -3,7 +3,7 @@
 > 所属项目：`generator/mybatis-generator`
 > 模块/范围：`mybatis-generator-core`
 > 规范：[非主线问题登记与后续处理规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\deferred-issue-management-standard.md)
-> 更新时间：2026-10-27
+> 更新时间：2026-10-28
 
 ## 1. 问题总览
 
@@ -14,6 +14,8 @@
 | generator-core-ISSUE-0003 | 中 | 其他 | 未启用停用配置的业务消费者缺真实再生成编译测试证据 | core 1.7→1.8 同输入生成对照、消费编译及 Service 测试已验证；Controller 测试受隔离上下文依赖阻塞 | 部分完成，仍待处理 | 2026-10-26 | [遗留项核查](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\service-entry-disable-contract-task.md#5-后续遗留项核查2026-10-26) |
 | generator-core-ISSUE-0004 | 中 | 测试与基线 | 锁查询离线输出基线与 Excel 资源限额拒绝测试存在既有失败 | 已复现 | 待处理 | 2026-10-26 | 无（Service 停用 import 范围修改的验证旁路发现） |
 | generator-core-ISSUE-0005 | 中 | 测试与基线 | 消费方完整输出基线测试存在既有失败（前端产物重复键） | 已复现 | 待处理 | 2026-10-26 | 无（import 登记侧审计的验证旁路发现） |
+| generator-core-ISSUE-0006 | 中 | 测试与基线 | CAS 消费者生成 fixture 的 TIMESTAMP 类型与受管契约不匹配 | 已复现 | 待处理 | 2026-10-28 | Sensitive SC05 隔离生成回归阻塞 |
+| generator-core-ISSUE-0007 | 低 | 测试与基线 | SensitiveGenerationTest 的 FreeMarker include 缺少模板加载器 | 已复现 | 待处理 | 2026-10-28 | 无（同批生成器回归中的非主线问题） |
 
 ## 2. 问题详情
 
@@ -64,7 +66,7 @@
 - 与当前任务的关系：本次 import 改动的三组回归（`DisabledServiceEntryGenerationTest` 57 项、`SensitiveGenerationTest` 20 项含 1 项既有跳过、`CacheAwareBaseMethodsElementTest` 2 项）全部通过；本问题不通过修改断言、重录基线或放宽校验处理。
 - 建议后续处理：独立批准后固定去敏输入与基线版本，分别核实两个失败是自基线漂移还是有真实行为回归；确认后再决定是修正生成器还是更新基线，并须说明差异原因后方可调整快照。
 - 责任与关联：生成器测试维护方，负责人待指定；当前任务只登记，不修复、不更新快照、不执行提交。
-- 更新与关闭记录：2026-10-26 首次登记，中/已复现/待处理；与 generator-core-ISSUE-0001 的归属关系待核实后决定是否合并。
+- 更新与关闭记录：2026-10-26 首次登记，中/已复现/待处理；与 generator-core-ISSUE-0001 的归属关系待核实后决定是否合并。2026-10-28 按 Sensitive SC05 所需生成器 fixture 命令复验，`SelectForUpdateGenerationTest.offlineOutputBaseline` 仍为同一摘要不匹配（17 项中 1 失败）；未改写基线。
 
 ### generator-core-ISSUE-0005 消费方完整输出基线测试存在既有失败（前端产物重复键）
 
@@ -75,4 +77,26 @@
 - 与当前任务的关系：本次 import 改动的回归（`DisabledServiceEntryGenerationTest` 57 项、`SensitiveGenerationTest` 20 项含 1 项既有跳过、`CacheAwareBaseMethodsElementTest` 2 项、`DictPrefetchGenerationTest` 7 项、`ImportScopeAuditTest` 1 项）全部通过；本问题不通过修改断言、重录基线或放宽校验处理。
 - 建议后续处理：独立批准后定位 `PrivateTableColumnSlots.vue` 的重复生成来源（表配置或前端元素装配），确认是应去重还是输出路径应区分，说明差异原因后方可调整。
 - 责任与关联：生成器测试维护方，负责人待指定；当前任务只登记，不修复、不更新快照、不执行提交。
-- 更新与关闭记录：2026-10-26 首次登记，中/已复现/待处理。
+- 更新与关闭记录：2026-10-26 首次登记，中/已复现/待处理。2026-10-28 当前 CAS fixture 生成命令在生成阶段先因 TIMESTAMP 元数据类型不符合受管契约而失败，未执行到重复文件键断言；此前记录的重复键仍待独立复验。
+
+### generator-core-ISSUE-0006 CAS 消费者生成 fixture 的 TIMESTAMP 类型与受管契约不匹配
+
+- 发现来源：2026-10-28 为 Sensitive SC05 运行任务书规定的隔离生成器与 Plus 工厂两步回归。
+- 位置与证据：`src\test\java\org\mybatis\generator\codegen\mybatis3\CasConsumerBaselineTest.java` 的 `capturesCompleteConsumerOutputWithoutExternalWrites` 在 `generator.generate(...)` 期间失败；Surefire 错误为 `sensitive_category` 的 `created_` 列类型/可写性不受支持：`java.util.Date/TIMESTAMP`。同批 `CasWriteGenerationTest` 的 43 项通过；`GeneratedCasPlusTest` 随后因所需 `target\sc03-final-generated\output\META-INF\vgosoft\write-contracts\sensitive.xml` 未生成，在 Plus 测试入口断言失败。全程使用隔离生成配置和测试元数据，未连接业务数据库。
+- 问题现象与触发条件：按已记录命令设置 `sc03.cas=true` 并执行消费者快照生成时，测试元数据解析出的审计时间 Java 类型与受管契约校验允许类型不一致，导致生成中止，无法提供真实生成文件给 Plus 组合测试。尚未证明是 metadata fixture 缺少类型覆盖、消费配置形状变化或契约校验问题。
+- 影响与分级依据：中。阻断本次所需的真实生成文件组合回归，但不构成生产运行故障证据；可通过核对测试元数据、消费配置和契约类型规则后确认，且没有数据库副作用。
+- 与当前任务的关系：SC05 的共享门禁手工 fixture 回归 152 项通过；真实生成 Plus 组合验收仍未完成。未修改测试、生成器配置或业务生成产物，也未用手工 fixture 替代生成输出。
+- 建议后续处理：由生成器维护方核对固定消费配置的 TIMESTAMP Java 类型、离线 `DatabaseMetaData` 替身及 `CasWriteContractValidator` 的审计类型约束；确认唯一正确契约后，修复隔离 fixture 或实现并重新运行两步测试。不得放宽校验以掩盖不兼容，也不得连接业务数据库或覆盖 Sensitive 工作副本。
+- 责任与关联：生成器测试/契约维护方；关联 Sensitive SC05/SC03 当前隔离验证。
+- 更新与关闭记录：2026-10-28 首次登记，中/已复现/待处理；本轮不修复、不重新生成业务产物、不安装发布。
+
+### generator-core-ISSUE-0007 SensitiveGenerationTest 的 FreeMarker include 缺少模板加载器
+
+- 发现来源：2026-10-28 执行 SC05 隔离生成器回归时，附带的 `SensitiveGenerationTest` 两项模板渲染用例失败。
+- 位置与证据：`src\test\java\org\mybatis\generator\codegen\mybatis3\SensitiveGenerationTest.java` 的 `render`（第 662 行）创建包含 `sensitive-types` 的 FreeMarker `Template`；模板包含 `vue_module_type_imports.ts.ftl`，当前测试配置未能解析该 include。Surefire 中 `rendersEscapedFrontendMappingAndKeepsUnconfiguredTemplateBytes` 与 `offlineOutputBaseline` 均报 `TemplateNotFoundException`，提示 `template_loader` 未设置。
+- 问题现象与触发条件：运行该测试类的相应模板用例时，模板处理遇到 include 即失败；本轮未修改模板、测试或生成配置。
+- 影响与分级依据：低。仅确认测试辅助渲染路径无法完成，未发现生产生成或运行故障证据；问题可通过补齐测试模板加载配置并复验确认。
+- 与当前任务的关系：该类的失败不解释 CAS Consumer 的 TIMESTAMP 契约错误，也不是形成 SC05 Plus fixture 的单独替代路径；按非主线只登记，不处理。
+- 建议后续处理：由生成器测试维护方核对 include 所需的 classpath/file template loader，并以测试资源验证两项用例；不删除 include 断言或降低输出基线校验。
+- 责任与关联：生成器测试维护方；无当前 Sensitive 业务实现依赖。
+- 更新与关闭记录：2026-10-28 首次登记，低/已复现/待处理；本轮不修复。
