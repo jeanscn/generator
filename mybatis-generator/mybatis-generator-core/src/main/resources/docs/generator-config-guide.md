@@ -151,6 +151,14 @@ YAML 值按文件中的 YAML 标量读取；生成器不会启动 Spring 容器�
 
 `integrateMybatisPlus` 是 `context` 级生成选项，对该 context 下的表生成物生效。例如设为 `false` 时，不生成由该选项控制的 MyBatis-Plus 专属内容，如 Mapper 接口上的 Plus `Mapper<T>` 继承、模型/字段上的 Plus 注解。它不表示消费宿主未依赖或未启用 MyBatis-Plus，也不控制宿主的依赖、自动配置、`SqlSessionFactory` 或插件；宿主运行时集成情况须独立核对。DTD 接受该属性不等于切换或排除宿主运行框架。
 
+### 生成范围、全量恢复与产物覆盖边界
+
+`onlyTables` 用于单表或少量表的临时调试，不是最终输出清单。局部生成可能覆盖或留下不完整的跨表、共享 SQL/数据脚本；调试完成后，应清空为 `onlyTables=""`，在表级配置未变更且本次任务已授权覆盖的前提下执行全量生成，恢复与完整配置一致的生成产物和数据脚本。`updateModuleData`、`updateMenuData` 及 Mojo 的 `sqlScript` 是独立开关；生成 SQL 文件不等于执行 SQL，未经单独授权不得应用 DDL/DML、权限或菜单脚本。
+
+生成前必须确认 Maven Mojo 实际读取的配置文件。若继承的 `pluginManagement` 显式配置了 `configurationFile`，命令行 `-Dmybatis.generator.configurationFile=...` 不一定能替换该值；不能只依据命令参数推断 `onlyTables` 或临时安全配置已经生效。应核对有效插件配置及实际运行日志中的配置路径，日志不得输出或留存明文凭据。
+
+每次覆盖前，在任务记录中逐类列出实际输出路径，并明确标为**生成器受保护产物**或**允许人工维护的扩展产物**；不得用“生成代码”一词笼统代替边界。`codegen` 目录、带 `@mbg.generated` 标记的 Mapper/XML 片段及显式强制覆盖文件按生成器受保护产物处理，不直接手改；可人工维护的扩展壳、Hooks、列插槽等必须列明合法路径及覆盖标记/扩展机制。标记含义以对应生成器与消费项目规则为准，例如 Vue3 文件的完整 `@VCF.overridable` 表示可被覆盖，人工接管时须按项目约定使其不再严格匹配；显式强制覆盖的类型或 Modal 文件应把自定义行为迁到受支持扩展点，不能依赖该标记保留。生成前记录完整文件清单、工作副本状态与哈希，生成后审阅完整 Diff，确认受保护扩展未丢失、所有变化均在授权范围内，并完成消费编译/回归。
+
 ### `additionalDbTypes` 说明
 
 - 这是 **表级/上下文级** 方言扩展集合。
