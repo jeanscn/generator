@@ -2,6 +2,8 @@
 
 > 本项目会话入口位于 `.github\copilot-instructions.md`；每次会话必读本文、文档映射及其中引用的跨项目规范。
 
+设计与编码共同入口：[设计规范 §6.3](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\project-design-standard.md#63-适度设计校验责任与主流程可读性)规定适度设计、校验责任、函数抽取与主流程可读性；[全局过程规范 §1.6](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\ai-assisted-development-standard.md#16-复杂度范围与工具流程变更控制)规定额外复杂度、范围及工具流程变更的确认要求。唯一正文均归属 `vgosoft-doc-spec`。
+
 1. [生成器权威说明](..\mybatis-generator-core\src\main\resources\docs\generator-authoritative-spec.md)  
    用途：生成器能力、输入输出、扩展点与限制；§2.1.1 说明 Entity 的 `@TableMeta`/`@ColumnMeta` 元数据契约及适用边界。
 2. [生成器配置指南](..\mybatis-generator-core\src\main\resources\docs\generator-config-guide.md)  

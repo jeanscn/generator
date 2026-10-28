@@ -4,6 +4,7 @@
 
 | 能力类别 | 文档路径 | 所属项目 | 性质 | 备注 |
 |---|---|---|---|---|
+| `design/simplicity-and-boundaries` | [设计规范 §6.3](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\project-design-standard.md#63-适度设计校验责任与主流程可读性)、[全局过程 §1.6](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\ai-assisted-development-standard.md#16-复杂度范围与工具流程变更控制) | `vgosoft-doc-spec` | 外部跨项目设计与过程规范 | 适度设计、校验责任、函数抽取与主流程可读性；额外复杂度、范围及工具流程变更确认 |
 | 生成器模块问题台账 | [pending-issues](..\mybatis-generator-core\src\main\resources\docs\pending-issues.md) | `mybatis-generator-core` | 项目问题台账 | 历史基线漂移、主键结构同步及非启用消费者真实再生成验收缺口；Git 根在父目录 generator，非主线只登记 |
 | Service 方法生成结构 | [主规范第 8.1 节](copilot-instructions.md#81-service-方法签名共用与实现装配规范) | `generator/mybatis-generator` | 再开发规范正文 | `ServiceMethods` 统一签名与依赖，接口生成器及实现元素复用；实现注解、方法体与业务钩子留在元素层 |
 | 字典预取排序与共用查询 | [任务书](..\mybatis-generator-core\src\main\resources\docs\task\dict-prefetch-order-contract-task.md) | `mybatis-generator-core` | 跨仓过程与验收资产 | 批准范围、G01/W01/V01 进度及离线验证证据；规则正文仍归配置指南 §13.5 |

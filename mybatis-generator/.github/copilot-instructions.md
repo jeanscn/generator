@@ -7,6 +7,8 @@
 
 ## 1. 适用范围
 
+设计与编码共同必读：[设计规范 §6.3](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\project-design-standard.md#63-适度设计校验责任与主流程可读性)、[全局过程规范 §1.6](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\ai-assisted-development-standard.md#16-复杂度范围与工具流程变更控制)。适度设计、校验责任、函数抽取、主流程可读性及额外复杂度、范围和工具流程变更确认，统一按上述唯一权威正文执行；本项目只维护引用入口。
+
 - 修改/新增生成器能力（Java/XML/HTML/SQL 生成逻辑）
 - 修改配置解析器（DTD、parser、配置对象）
 - 新增数据库方言或调整 SQL 方言分支
