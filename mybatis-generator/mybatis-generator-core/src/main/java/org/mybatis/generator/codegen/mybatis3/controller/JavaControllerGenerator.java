@@ -9,6 +9,7 @@ import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
+import org.mybatis.generator.codegen.mybatis3.SensitiveFieldResolver;
 import org.mybatis.generator.codegen.mybatis3.controller.elements.*;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
@@ -144,7 +145,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             addTemplateElement(conTopClazz);
         }
         if (introspectedTable.getRules().isGenerateExcelVo()) {
-            if (!importWorkflow) {
+            if (isLegacyExcelImportEnabled()) {
                 addImportElement(conTopClazz);
             }
             addExportElement(conTopClazz);
@@ -200,7 +201,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         }
         //追加1、导入监听的工厂方法、2、构造导入Excel模板的样例数据方法
         if (introspectedTable.getRules().isGenerateExcelVo() || importWorkflow) {
-            if (introspectedTable.getRules().isGenerateExcelVo() && !importWorkflow) {
+            if (isLegacyExcelImportEnabled()) {
             //追加一个导入监听的工厂方法
             Method getImportReadListener = new Method("getImportReadListener");
             getImportReadListener.setVisibility(JavaVisibility.PROTECTED);
@@ -755,11 +756,16 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
     }
 
     private void addImportElement(TopLevelClass parentElement) {
-        if (introspectedTable.getRules().isGenerateExcelVo()
-                && !introspectedTable.getRules().isGenerateExcelImportWorkflow()) {
+        if (isLegacyExcelImportEnabled()) {
             AbstractControllerElementGenerator elementGenerator = new ImportElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
+    }
+
+    private boolean isLegacyExcelImportEnabled() {
+        return introspectedTable.getRules().isGenerateExcelVo()
+                && !introspectedTable.getRules().isGenerateExcelImportWorkflow()
+                && !SensitiveFieldResolver.isEnabled(introspectedTable);
     }
 
     private void addImportWorkflowElement(TopLevelClass parentElement) {

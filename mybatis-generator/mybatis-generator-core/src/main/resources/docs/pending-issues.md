@@ -3,7 +3,7 @@
 > 所属项目：`generator/mybatis-generator`
 > 模块/范围：`mybatis-generator-core`
 > 规范：[非主线问题登记与后续处理规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\deferred-issue-management-standard.md)
-> 更新时间：2026-10-28
+> 更新时间：2026-10-29
 
 ## 1. 问题总览
 
@@ -12,7 +12,7 @@
 | generator-core-ISSUE-0001 | 中 | 其他 | CAS/逻辑删除回归依赖可变消费配置导致历史基线漂移 | 已复现并固定当前输入 | 已处理（当前快照版本化） | 2026-10-26 | [Service 停用任务书](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\service-entry-disable-contract-task.md) |
 | generator-core-ISSUE-0002 | 中 | 数据一致性 | 根实体结构同步可能为主键生成可空列变更 | 已修复并回归 | 已处理（主键强制 NOT NULL） | 2026-10-26 | [Service 停用任务书](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\service-entry-disable-contract-task.md) |
 | generator-core-ISSUE-0003 | 中 | 其他 | 未启用停用配置的业务消费者缺真实再生成编译测试证据 | core 1.7→1.8 同输入生成对照、消费编译及 Service 测试已验证；Controller 测试受隔离上下文依赖阻塞 | 部分完成，仍待处理 | 2026-10-26 | [遗留项核查](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\service-entry-disable-contract-task.md#5-后续遗留项核查2026-10-26) |
-| generator-core-ISSUE-0004 | 中 | 测试与基线 | 锁查询离线输出基线与 Excel 资源限额拒绝测试存在既有失败 | 已复现 | 待处理 | 2026-10-26 | 无（Service 停用 import 范围修改的验证旁路发现） |
+| generator-core-ISSUE-0004 | 中 | 测试与基线 | 锁查询离线输出基线漂移（Excel 限额拒绝已修复） | 余项已复现（最近证据 2026-10-28） | 待处理 | 2026-10-26 | 无（生成器关联回归发现） |
 | generator-core-ISSUE-0005 | 中 | 测试与基线 | 消费方完整输出基线测试存在既有失败（前端产物重复键） | 已复现 | 待处理 | 2026-10-26 | 无（import 登记侧审计的验证旁路发现） |
 | generator-core-ISSUE-0006 | 中 | 测试与基线 | CAS 消费者生成 fixture 的 TIMESTAMP 类型与受管契约不匹配 | 已复现 | 待处理 | 2026-10-28 | Sensitive SC05 隔离生成回归阻塞 |
 | generator-core-ISSUE-0007 | 低 | 测试与基线 | SensitiveGenerationTest 的 FreeMarker include 缺少模板加载器 | 已复现 | 待处理 | 2026-10-28 | 无（同批生成器回归中的非主线问题） |
@@ -57,16 +57,16 @@
 - 责任与关联：生成器维护方与 application/root 消费模块维护方；版本提交及基线来源由仓库负责人确认。
 - 更新与关闭记录：2026-10-26 首次登记，中/源码已定位/待处理；2026-10-27 补齐 application 有效版本、core 1.7→1.8 同输入输出比较、主/测试编译和 52 项 Service 测试。Controller 测试 22 项因缺失 root 上下文 bean 未通过，ISSUE 保持部分完成、未关闭。
 
-### generator-core-ISSUE-0004 锁查询离线输出基线与 Excel 资源限额拒绝测试存在既有失败
+### generator-core-ISSUE-0004 锁查询离线输出基线漂移（Excel 限额拒绝已修复）
 
-- 发现来源：2026-10-26 修改 Service 实现类生成 import 范围后扩大回归范围时发现；与本次 import 改动无关。
-- 位置与证据：`SelectForUpdateGenerationTest.offlineOutputBaseline`（第 85 行）断言「重构前真实输出基线：模型 0，层 3」期望摘要 `e611db88837710b8c92f58ffbe4cdfbf0a07b9abc4312fd94ab1730a9fdd6665`，实际 `c7b11865021a59a04bc5e152773ef379210225632722e50e82b73a5b8213c4f7`；`ExcelImportWorkflowGenerationTest.rejectsEnabledWorkflowWithoutExplicitResourceLimits`（第 106 行）期望抛出可抛对象而实际未抛出。改前对照：临时回退本次四份源码到 HEAD 后执行同两条测试，失败项与数量完全一致（`SelectForUpdateGenerationTest` 17 项 1 失败、`ExcelImportWorkflowGenerationTest` 8 项 1 失败），证据 `mybatis-generator-core\target\surefire-reports`。未连接任何数据库。
-- 问题现象与触发条件：直接执行上述两个测试类即失败；离线内省与固定消费配置为输入。若 `SelectForUpdateGenerationTest` 同样读取消费仓当前 `generatorConfig.xml`，则与 generator-core-ISSUE-0001 同源；`ExcelImportWorkflowGenerationTest` 的资源限额拒绝路径是否为同一根因尚未核实。
-- 影响与分级依据：中。属于历史/离线回归的可重复性缺陷，不影响本次 import 交付；不得通过改写期望摘要或删除断言通过。
-- 与当前任务的关系：本次 import 改动的三组回归（`DisabledServiceEntryGenerationTest` 57 项、`SensitiveGenerationTest` 20 项含 1 项既有跳过、`CacheAwareBaseMethodsElementTest` 2 项）全部通过；本问题不通过修改断言、重录基线或放宽校验处理。
-- 建议后续处理：独立批准后固定去敏输入与基线版本，分别核实两个失败是自基线漂移还是有真实行为回归；确认后再决定是修正生成器还是更新基线，并须说明差异原因后方可调整快照。
-- 责任与关联：生成器测试维护方，负责人待指定；当前任务只登记，不修复、不更新快照、不执行提交。
-- 更新与关闭记录：2026-10-26 首次登记，中/已复现/待处理；与 generator-core-ISSUE-0001 的归属关系待核实后决定是否合并。2026-10-28 按 Sensitive SC05 所需生成器 fixture 命令复验，`SelectForUpdateGenerationTest.offlineOutputBaseline` 仍为同一摘要不匹配（17 项中 1 失败）；未改写基线。
+- 发现来源：2026-10-26 扩大 Service 生成相关回归范围时发现，原记录包含锁查询基线漂移与 Excel 限额拒绝校验失效两个现象。
+- 位置与证据：锁查询项为 `SelectForUpdateGenerationTest.offlineOutputBaseline`（第 85 行），断言「重构前真实输出基线：模型 0，层 3」期望摘要 `e611db88837710b8c92f58ffbe4cdfbf0a07b9abc4312fd94ab1730a9fdd6665`，最近一次记录的实际摘要为 `c7b11865021a59a04bc5e152773ef379210225632722e50e82b73a5b8213c4f7`（2026-10-28，17 项中 1 失败）。Excel 限额项位于 `ExcelImportWorkflowGenerationTest.rejectsEnabledWorkflowWithoutExplicitResourceLimits`；2026-10-29 已修正解析器对缺失限额使用默认值的问题，六项资源限制现要求显式提供并校验，`ExcelImportWorkflowGenerationTest` 全类 11 项通过。未连接数据库。
+- 问题现象与触发条件：锁查询离线输出摘要与已记录的历史基线不一致；本轮未重新执行该非主线基线测试。Excel 限额遗漏不再复现；工作流启用时缺任一限额、限额非正或边界不一致均应被拒绝。
+- 影响与分级依据：中。剩余问题限于历史离线输出基线漂移，不影响本轮两阶段导入资源限制验收；不得通过改写期望摘要或删除断言通过。
+- 与当前任务的关系：Excel 限额校验缺陷与本轮显式两阶段工作流契约紧密相关，已通过解析器修正和 11 项回归覆盖解决；锁查询基线属于独立回归问题，本轮未改动或重验。
+- 建议后续处理：独立安排后固定去敏输入与基线版本，核实锁查询摘要不匹配是否与 generator-core-ISSUE-0001 同源；说明真实差异后再决定修复或更新快照，不调整期望值掩盖问题。
+- 责任与关联：生成器测试维护方，负责人待指定；锁查询余项仍待处理。
+- 更新与关闭记录：2026-10-26 首次登记；2026-10-28 锁查询摘要仍不一致。2026-10-29 修复 Excel 限额解析和校验，`ExcelImportWorkflowGenerationTest` 11 项通过；该 ID 部分解决，锁查询基线余项仍待处理，未关闭。
 
 ### generator-core-ISSUE-0005 消费方完整输出基线测试存在既有失败（前端产物重复键）
 
@@ -88,7 +88,7 @@
 - 与当前任务的关系：SC05 的共享门禁手工 fixture 回归 152 项通过；真实生成 Plus 组合验收仍未完成。未修改测试、生成器配置或业务生成产物，也未用手工 fixture 替代生成输出。
 - 建议后续处理：由生成器维护方核对固定消费配置的 TIMESTAMP Java 类型、离线 `DatabaseMetaData` 替身及 `CasWriteContractValidator` 的审计类型约束；确认唯一正确契约后，修复隔离 fixture 或实现并重新运行两步测试。不得放宽校验以掩盖不兼容，也不得连接业务数据库或覆盖 Sensitive 工作副本。
 - 责任与关联：生成器测试/契约维护方；关联 Sensitive SC05/SC03 当前隔离验证。
-- 更新与关闭记录：2026-10-28 首次登记，中/已复现/待处理；本轮不修复、不重新生成业务产物、不安装发布。
+- 更新与关闭记录：2026-10-28 首次登记，低/已复现/待处理。2026-10-29 完整运行 `SensitiveGenerationTest` 再次复现两项模板渲染错误；同批 5 项 Sensitive 写支持矩阵方法通过。未修改测试加载器或模板，本问题仍待单独处理。
 
 ### generator-core-ISSUE-0007 SensitiveGenerationTest 的 FreeMarker include 缺少模板加载器
 

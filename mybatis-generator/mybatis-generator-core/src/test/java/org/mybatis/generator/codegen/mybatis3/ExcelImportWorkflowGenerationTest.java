@@ -99,11 +99,67 @@ class ExcelImportWorkflowGenerationTest {
                 .doesNotContain("VgoFesodSheet.read(");
     }
 
-    /** 启用工作流但遗漏必需资源限额时，配置解析必须失败并指出缺失属性。 */
+    /** Sensitive 启用时应只省略旧式逐行导入，保留导出和模板能力。 */
+    @Test
+    void suppressesLegacyImportForSensitiveTablesAndKeepsExport() throws Exception {
+        Map<String, String> generated = generate(parse(
+                enableLegacyExcelVo(enableSensitiveWordCheck(consumerXmlWithoutWorkflow()))));
+        String controller = generated.values().stream()
+                .filter(source -> source.contains("class AbstractSensitiveWordController"))
+                .findFirst().orElseThrow();
+        assertThat(controller)
+                .contains("exportPost", "buildTemplateSampleData",
+                        "return failure(ApiCodeEnum.FAIL_CUSTOM,serviceResult.getMessage());")
+                .doesNotContain("VgoFesodSheet.read(", "insertOrUpdate(", "getImportReadListener(",
+                        "ResponseResult<Integer> importSensitiveWord");
+    }
+
+    /** Sensitive 工作流显式启用后只生成两阶段入口，不恢复旧式逐行 upsert。 */
+    @Test
+    void keepsOnlyExplicitWorkflowImportForSensitiveTables() throws Exception {
+        Map<String, String> generated = generate(parse(
+                enableSensitiveWordCheck(workflowXml(true))));
+        String controller = generated.values().stream()
+                .filter(source -> source.contains("class AbstractSensitiveWordController"))
+                .findFirst().orElseThrow();
+        assertThat(controller)
+                .contains("import/preview", "import/confirm", "exportPost")
+                .doesNotContain("VgoFesodSheet.read(", "insertOrUpdate(", "getImportReadListener(");
+    }
+
+    /** 非 Sensitive 表继续生成既有 excelVo 直接导入和 upsert 兜底，保持默认兼容。 */
+    @Test
+    void preservesLegacyImportAndCreateFallbackForNonSensitiveTables() throws Exception {
+        Map<String, String> generated = generate(parse(enableLegacyExcelVo(consumerXmlWithoutWorkflow())));
+        String controller = generated.values().stream()
+                .filter(source -> source.contains("class AbstractSensitiveWordController"))
+                .findFirst().orElseThrow();
+        assertThat(controller)
+                .contains("VgoFesodSheet.read(", "insertOrUpdate(", "getImportReadListener(", "exportPost");
+    }
+
+    /** 启用工作流但遗漏或误配必需资源限额时，生成校验必须失败并指出属性。 */
     @Test
     void rejectsEnabledWorkflowWithoutExplicitResourceLimits() throws Exception {
-        String xml = workflowXml(false).replace(" maxRows=\"100\"", "");
-        assertThatThrownBy(() -> parse(xml)).hasMessageContaining("maxRows");
+        Map<String, String> attributes = Map.of(
+                "maxInputBytes", "1048576",
+                "maxExpandedBytes", "8388608",
+                "maxEntryBytes", "4194304",
+                "maxZipEntries", "100",
+                "maxRows", "100",
+                "maxErrorMessages", "50");
+        for (var entry : attributes.entrySet()) {
+            String xml = workflowXml(false).replace(" " + entry.getKey() + "=\"" + entry.getValue() + "\"", "");
+            assertThatThrownBy(() -> generate(parse(xml)))
+                    .as("缺少限额属性 %s 时生成校验应失败", entry.getKey())
+                    .hasMessageContaining(entry.getKey());
+        }
+        assertThatThrownBy(() -> generate(parse(workflowXml(false)
+                .replace("maxInputBytes=\"1048576\"", "maxInputBytes=\"2147483648\""))))
+                .hasMessageContaining("maxInputBytes");
+        assertThatThrownBy(() -> generate(parse(workflowXml(false)
+                .replace("maxExpandedBytes=\"8388608\"", "maxExpandedBytes=\"1\""))))
+                .hasMessageContaining("maxEntryBytes");
     }
 
     /** 未配置新工作流时，旧生成输出不得出现预览或确认入口。 */
@@ -241,6 +297,43 @@ class ExcelImportWorkflowGenerationTest {
         return xml.substring(0, start)
                 + table.replace(disabledExcelVo, "<excelVo generate=\"true\"/>")
                 + xml.substring(end);
+    }
+
+    private static String enableSensitiveWordCheck(String xml) {
+        String tableStart = "<table ignore=\"false\" tableName=\"sensitive_word\"";
+        int start = xml.indexOf(tableStart);
+        int end = start < 0 ? -1 : xml.indexOf("</table>", start);
+        if (end < 0) {
+            throw new IllegalStateException("Sensitive word table configuration was not found");
+        }
+        String table = xml.substring(start, end);
+        table = table.replace("tableName=\"sensitive_word\" domainObjectName=\"SensitiveWord\"",
+                "tableName=\"sensitive_word\" domainObjectName=\"SensitiveWord\" "
+                        + "enableInsertOrUpdate=\"true\" enableUpdateByExample=\"false\"");
+        int serviceEnd = table.indexOf("</generateService>");
+        if (serviceEnd < 0) {
+            throw new IllegalStateException("Sensitive word service configuration was not found");
+        }
+        List<String> disabledMethods = List.of(
+                "<disabledMethod signature=\"insertBatch(java.util.List)\" reason=\"敏感确认摘要不支持批量写入\"/>",
+                "<disabledMethod signature=\"updateBatchByPrimaryKey(java.util.List)\" reason=\"敏感确认摘要不支持批量更新\"/>",
+                "<disabledMethod signature=\"insertOrUpdate(com.vgosoft.sensitive.entity.SensitiveWord)\" reason=\"敏感确认摘要不支持 upsert\"/>",
+                "<disabledMethod signature=\"insertOrUpdateSelective(com.vgosoft.sensitive.entity.SensitiveWord)\" reason=\"敏感确认摘要不支持 upsert\"/>");
+        String service = table.substring(0, serviceEnd);
+        StringBuilder additions = new StringBuilder();
+        for (String disabledMethod : disabledMethods) {
+            String signature = disabledMethod.substring(
+                    disabledMethod.indexOf("signature=\"") + "signature=\"".length(),
+                    disabledMethod.indexOf('"', disabledMethod.indexOf("signature=\"") + "signature=\"".length()));
+            if (!service.contains("signature=\"" + signature + "\"")) {
+                additions.append("\n").append(disabledMethod);
+            }
+        }
+        table = table.substring(0, serviceEnd) + additions + "\n" + table.substring(serviceEnd);
+        if (!table.contains("<sensitiveCheck")) {
+            table += "<sensitiveCheck columns=\"word_\"/>\n";
+        }
+        return xml.substring(0, start) + table + xml.substring(end);
     }
 
     private static String withPhysicalTemplateDescriptors(String xml) {

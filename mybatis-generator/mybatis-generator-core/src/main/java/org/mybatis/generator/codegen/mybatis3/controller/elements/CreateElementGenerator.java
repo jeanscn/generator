@@ -5,6 +5,7 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
+import org.mybatis.generator.codegen.mybatis3.SensitiveFieldResolver;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
@@ -78,7 +79,8 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("serviceResult = {0}.insert({1});"
                 , serviceBeanName, getServiceMethodEntityParameter(false, "create"));
         method.addBodyLine("}");
-        if (introspectedTable.getRules().generateInsertOrUpdate()) {
+        if (introspectedTable.getRules().generateInsertOrUpdate()
+                && !SensitiveFieldResolver.isEnabled(introspectedTable)) {
             method.addBodyLine("if (!serviceResult.isSuccess()) {");
             method.addBodyLine("serviceResult = {0}.insertOrUpdate({1});",serviceBeanName,getServiceMethodEntityParameter(false, "create"));
             method.addBodyLine("}");

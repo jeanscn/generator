@@ -157,7 +157,7 @@ YAML 值按文件中的 YAML 标量读取；生成器不会启动 Spring 容器�
 
 生成前必须确认 Maven Mojo 实际读取的配置文件。若继承的 `pluginManagement` 显式配置了 `configurationFile`，命令行 `-Dmybatis.generator.configurationFile=...` 不一定能替换该值；不能只依据命令参数推断 `onlyTables` 或临时安全配置已经生效。应核对有效插件配置及实际运行日志中的配置路径，日志不得输出或留存明文凭据。
 
-每次覆盖前，在任务记录中逐类列出实际输出路径，并明确标为**生成器受保护产物**或**允许人工维护的扩展产物**；不得用“生成代码”一词笼统代替边界。`codegen` 目录、带 `@mbg.generated` 标记的 Mapper/XML 片段及显式强制覆盖文件按生成器受保护产物处理，不直接手改；可人工维护的扩展壳、Hooks、列插槽等必须列明合法路径及覆盖标记/扩展机制。标记含义以对应生成器与消费项目规则为准，例如 Vue3 文件的完整 `@VCF.overridable` 表示可被覆盖，人工接管时须按项目约定使其不再严格匹配；显式强制覆盖的类型或 Modal 文件应把自定义行为迁到受支持扩展点，不能依赖该标记保留。生成前记录完整文件清单、工作副本状态与哈希，生成后审阅完整 Diff，确认受保护扩展未丢失、所有变化均在授权范围内，并完成消费编译/回归。
+每次覆盖前，在任务记录中逐类列出实际输出路径，并明确标为**生成器受保护产物**或**允许人工维护的扩展产物**；不得用“生成代码”一词笼统代替边界。受保护产物的权威来源是生成器与当前配置；当配置或生成逻辑变化且全量输出已获批准时，覆盖这些产物是保持“生成器—配置—代码”一致性的预期动作，不应把受保护产物可被覆盖误解为禁止再生成。`codegen` 目录、带 `@mbg.generated` 标记的 Mapper/XML 片段及显式强制覆盖文件按生成器受保护产物处理，不直接手改；可人工维护的扩展壳、Hooks、列插槽等必须列明合法路径及覆盖标记/扩展机制。标记含义以对应生成器与消费项目规则为准，例如 Vue3 文件的完整 `@VCF.overridable` 表示可被覆盖，人工接管时须按项目约定使其不再严格匹配；显式强制覆盖的类型或 Modal 文件应把自定义行为迁到受支持扩展点，不能依赖该标记保留。生成前记录完整文件清单、工作副本状态与哈希，生成后审阅完整 Diff，确认受保护扩展未丢失、所有变化均在授权范围内，并完成消费编译/回归。
 
 ### `additionalDbTypes` 说明
 
@@ -275,6 +275,8 @@ DTD 属性仍为 `#IMPLIED`，仅当前 `mybatis-generator-config_1_8_0.dtd` 增
 | 方法矩阵不完整 | 标准写方法未完整装配 | 保证标准写方法生成开关与规则一致 |
 
 > 开关语义：未配置 `sensitiveCheck`，或所有声明均为 `enable=false`，不会触发上述阻止检查，也不会生成任何敏感相关内容。
+
+当至少一个 `sensitiveCheck` 声明启用时，创建 Controller 不生成单条新增/更新失败后的 `insertOrUpdate` 兜底，并且 `excelVo` 不生成旧式逐行 upsert 导入端点；原始单条写结果沿既有失败响应返回。非 Sensitive 表的默认输出不变。需要导入时必须显式配置 `<excelImport generate="true">`，由两阶段预览/确认接点承载，且业务 Service 钩子实现及通过消费验收后才可用；导出及模板能力不受此限制。
 
 实体生成 `com.vgosoft.core.annotation.sensitive` 包的 `SensitiveCheck`/策略/内容类型 import；仅实体字段生成规则注解，不在 VO 中复制可被客户端覆盖的策略。
 
@@ -561,7 +563,7 @@ for (Class<?> type = entityClass; type != null && type != Object.class; type = t
 
 生成器内部由 `ServiceMethods.getPreviewExcelImportMethod`、`getConfirmExcelImportMethod` 统一构建方法签名、参数说明、异常声明及依赖导入；`JavaServiceGenerator` 使用接口模式，`ExcelImportWorkflowElement` 使用实现模式，再补充覆盖注解、事务注解及方法体。业务扩展钩子仍由 `ExcelImportWorkflowElement` 生成，配置与对外契约不变。
 
-未配置或关闭 `excelImport` 时，既有 `excelVo` 输出不变。若同时启用 `excelVo` 和 `excelImport`，Excel 导出能力仍由 `excelVo` 提供，但旧的逐行 `POST import` 被抑制，避免同一资源同时暴露不具备事务保证的直接导入和两阶段工作流。
+未配置或关闭 `excelImport` 时，非 Sensitive 表既有 `excelVo` 输出不变。Sensitive 启用时，即使未配置两阶段工作流，旧的逐行 `POST import` 也会被抑制；`excelVo` 的导出及模板能力保留。只有显式启用 `excelImport` 才生成两阶段预览/确认端点。若同时启用 `excelVo` 和 `excelImport`，Excel 导出能力仍由 `excelVo` 提供，旧的逐行 `POST import` 一律被抑制，避免同一资源同时暴露不具备事务保证的直接导入和两阶段工作流。缺少任一必需限额、限额非正数或边界不一致时，配置解析/校验明确失败，不使用安全形态未知的默认值。
 
 ### 5.2 个性化导出接口与接入
 

@@ -1,5 +1,7 @@
 package org.mybatis.generator.config;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 
 import java.util.ArrayList;
@@ -11,8 +13,9 @@ import java.util.Set;
  * 配置独立的 Excel 两阶段导入工作流及其资源限制。
  *
  * @author vgosoft-agent
- * @author vgosoft
  */
+@Getter
+@Setter
 public class VoExcelImportWorkflowConfiguration extends AbstractModelGeneratorConfiguration {
 
     private List<String> importIncludeColumns = new ArrayList<>();
@@ -44,84 +47,29 @@ public class VoExcelImportWorkflowConfiguration extends AbstractModelGeneratorCo
         fullyQualifiedJavaType = excelImportType;
     }
 
-    public List<String> getImportIncludeColumns() {
-        return importIncludeColumns;
-    }
-
-    public void setImportIncludeColumns(List<String> importIncludeColumns) {
-        this.importIncludeColumns = importIncludeColumns;
-    }
-
-    public Set<String> getImportExcludeColumns() {
-        return importExcludeColumns;
-    }
-
-    public void setImportExcludeColumns(Set<String> importExcludeColumns) {
-        this.importExcludeColumns = importExcludeColumns;
-    }
-
-    public Set<String> getImportIgnoreFields() {
-        return importIgnoreFields;
-    }
-
-    public void setImportIgnoreFields(Set<String> importIgnoreFields) {
-        this.importIgnoreFields = importIgnoreFields;
-    }
-
-    public long getMaxInputBytes() {
-        return maxInputBytes;
-    }
-
-    public void setMaxInputBytes(long maxInputBytes) {
-        this.maxInputBytes = maxInputBytes;
-    }
-
-    public long getMaxExpandedBytes() {
-        return maxExpandedBytes;
-    }
-
-    public void setMaxExpandedBytes(long maxExpandedBytes) {
-        this.maxExpandedBytes = maxExpandedBytes;
-    }
-
-    public long getMaxEntryBytes() {
-        return maxEntryBytes;
-    }
-
-    public void setMaxEntryBytes(long maxEntryBytes) {
-        this.maxEntryBytes = maxEntryBytes;
-    }
-
-    public int getMaxZipEntries() {
-        return maxZipEntries;
-    }
-
-    public void setMaxZipEntries(int maxZipEntries) {
-        this.maxZipEntries = maxZipEntries;
-    }
-
-    public int getMaxRows() {
-        return maxRows;
-    }
-
-    public void setMaxRows(int maxRows) {
-        this.maxRows = maxRows;
-    }
-
-    public int getMaxErrorMessages() {
-        return maxErrorMessages;
-    }
-
-    public void setMaxErrorMessages(int maxErrorMessages) {
-        this.maxErrorMessages = maxErrorMessages;
-    }
-
-    public FullyQualifiedJavaType getExcelImportType() {
-        return excelImportType;
-    }
-
     @Override
     public void validate(List<String> errors, String contextId) {
         super.validate(errors, contextId, "VoExcelImportWorkflowConfiguration");
+        if (!isGenerate()) {
+            return;
+        }
+        if (maxInputBytes < 1 || maxInputBytes > Integer.MAX_VALUE) {
+            errors.add("excelImport.maxInputBytes 必须在 1 至 Integer.MAX_VALUE 之间，context " + contextId);
+        }
+        if (maxExpandedBytes < 1) {
+            errors.add("excelImport.maxExpandedBytes 必须大于 0，context " + contextId);
+        }
+        if (maxEntryBytes < 1 || maxEntryBytes > maxExpandedBytes) {
+            errors.add("excelImport.maxEntryBytes 必须大于 0 且不超过 maxExpandedBytes，context " + contextId);
+        }
+        if (maxZipEntries < 1) {
+            errors.add("excelImport.maxZipEntries 必须大于 0，context " + contextId);
+        }
+        if (maxRows < 1) {
+            errors.add("excelImport.maxRows 必须大于 0，context " + contextId);
+        }
+        if (maxErrorMessages < 1) {
+            errors.add("excelImport.maxErrorMessages 必须大于 0，context " + contextId);
+        }
     }
 }

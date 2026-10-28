@@ -329,6 +329,9 @@ public class TableConfiguration extends PropertyHolder {
         VoGeneratorConfiguration voConfiguration = getVoGeneratorConfiguration();
         VoExcelImportWorkflowConfiguration importWorkflow =
                 voConfiguration == null ? null : voConfiguration.getVoExcelImportWorkflowConfiguration();
+        if (importWorkflow != null) {
+            importWorkflow.validate(errors, fqTableName);
+        }
         if (importWorkflow != null && importWorkflow.isGenerate()) {
             if (!voConfiguration.isGenerate()) {
                 errors.add("excelImport requires generateVo generate=\"true\" for table " + fqTableName);
