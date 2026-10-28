@@ -16,6 +16,7 @@
 | generator-core-ISSUE-0005 | 中 | 测试与基线 | 消费方完整输出基线测试存在既有失败（前端产物重复键） | 已复现 | 待处理 | 2026-10-26 | 无（import 登记侧审计的验证旁路发现） |
 | generator-core-ISSUE-0006 | 中 | 测试与基线 | CAS 消费者生成 fixture 的 TIMESTAMP 类型与受管契约不匹配 | 已复现 | 待处理 | 2026-10-28 | Sensitive SC05 隔离生成回归阻塞 |
 | generator-core-ISSUE-0007 | 低 | 测试与基线 | SensitiveGenerationTest 的 FreeMarker include 缺少模板加载器 | 已复现 | 待处理 | 2026-10-28 | 无（同批生成器回归中的非主线问题） |
+| generator-core-ISSUE-0008 | 中 | 数据一致性 | 根实体结构同步 DDL 失败仅告警且生成继续 | 已复现 | 待处理 | 2026-10-29 | [根实体结构同步检查任务书](task/root-class-schema-sync-task.md) |
 
 ## 2. 问题详情
 
@@ -100,3 +101,14 @@
 - 建议后续处理：由生成器测试维护方核对 include 所需的 classpath/file template loader，并以测试资源验证两项用例；不删除 include 断言或降低输出基线校验。
 - 责任与关联：生成器测试维护方；无当前 Sensitive 业务实现依赖。
 - 更新与关闭记录：2026-10-28 首次登记，低/已复现/待处理；本轮不修复。
+
+### generator-core-ISSUE-0008 根实体结构同步 DDL 失败仅告警且生成继续
+
+- 发现来源：2026-10-29 检查 `ValidateDatabaseTable.executeUpdate()` 的异常处理与 Maven Mojo warning 处理，并运行既有隔离回归。
+- 位置与证据：`mybatis-generator-core/src/main/java/org/mybatis/generator/custom/db/ValidateDatabaseTable.java` 捕获 DDL 执行的 `SQLException` 后仅加入 warning；`mybatis-generator-core/src/main/java/org/mybatis/generator/config/Context.java` 随后继续正常生成；`mybatis-generator-maven-plugin/src/main/java/org/mybatis/generator/maven/MyBatisGeneratorMojo.java` 将 warning 逐条记录为 WARN。`RootClassSchemaSynchronizationTest.keepsPrimaryKeyNotNullWhenAnotherMetadataChangeRequiresModify` 以拒绝 DDL 的 Statement 替身确认错误被记录，生成调用未因该异常终止。未连接真实数据库。
+- 问题现象与触发条件：当根实体结构同步生成的 DDL 执行失败时，异常不会向生成入口传播；本次内存内省列也不会按失败操作更新，但后续生成仍可使用原内省元数据继续输出。Maven warning 不会单独使 Mojo 失败。
+- 影响与分级依据：中。特定 DDL/权限/方言失败会使数据库结构与生成物契约不一致；通过检查 warning 和复核实际 schema 可规避，未证明发生过真实数据库数据损坏。
+- 与当前任务的关系：结构同步的失败语义已纳入当前任务书及权威/配置说明；受控消费者生成后必须审阅全部结构同步 warning。当前仅获准检查和说明该行为，不改变生成失败契约。
+- 建议后续处理：独立评审是否需要可配置 fail-fast 或失败后阻止生成的策略；若获批，补充异常/输出契约、DDL 拒绝回归及 Maven Mojo 验收。不得仅吞掉 warning 或把未完成结构同步报告为成功。
+- 责任与关联：`mybatis-generator-core` 结构同步能力维护方；关联[根实体结构同步检查任务书](task/root-class-schema-sync-task.md)。
+- 更新与关闭记录：2026-10-29 首次登记，中/已复现/待处理；本轮不修改代码。

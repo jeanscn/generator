@@ -1748,6 +1748,14 @@ SQL、CachePo 和 `ServiceMethods` 注解共用有效排序解析。生成器将
 2. `rootClass` 一旦确定，VO/页面默认字段、校验、查询能力都会受影响。
 3. 涉及流程、附件、大字段时，优先用能表达该语义的父类，避免后续大量补丁配置。
 
+### 16.4 根实体字段与数据库物理结构同步
+
+生成器正式入口默认启用 `Context.rootClassSchemaSynchronizationEnabled=true`。内省当前生成范围内启用语句的表后，生成器会跳过 `ignore=true` 的表，并对其最终配置的 `rootClass` 及父类中带 `@ColumnMeta` 的字段执行结构比较。缺失物理列可能生成 `ALTER TABLE ... ADD`；类型、长度、精度、备注、主键/可空或显式默认值等已比较元数据不一致时可能生成 `ALTER TABLE ... MODIFY`。根字段标记为主键而数据库内省未识别时，还可能附加 `ADD PRIMARY KEY`。此同步不生成删除列操作，但 `MODIFY` 仍可能改变既有列定义，不能视为无风险的只读检查或替代数据库迁移评审。
+
+SQL 由当前数据库产品名选择 DDL 方言格式，并通过生成使用的 JDBC `Connection` 直接执行；执行成功后才将新增/更新列加入本次生成使用的内存内省结果。SQL 执行的 `SQLException` 会转为 warning，生成继续；Maven Mojo 将 warning 记录为 WARN 而不据此失败。因此出现“结构同步失败”warning 时，不能仅凭 Maven 成功退出认定 schema 和生成产物一致，应先核查失败 SQL、数据库实际结构及本次产物，再决定是否继续消费验收。真实目标数据库、驱动及 DDL 方言需在获准环境中验证。
+
+该行为不由普通 XML/DTD 属性控制。独立离线生成程序须显式对每个 context 调用 `context.setRootClassSchemaSynchronizationEnabled(false)`；`generate(..., false)` 只关闭生成文件写盘，不关闭结构同步。Maven Mojo 的可选 `sqlScript`（`mybatis.generator.sqlScript`）是另一条“生成前运行指定脚本”的独立入口；`sqlScript` 未配置时不运行该脚本，但不会因此关闭 Context 自动结构同步。权威能力说明见[生成器权威说明 §2.1.1](generator-authoritative-spec.md#211-实体物理表与列元数据注解)。
+
 ## 17. 补充：与 `mybatis-generator-config_1_8_0.dtd` 的对照关系
 
 本指南是“可执行解释”，DTD 是“结构定义源”。两者配套使用时，建议按“先 DTD 定位节点，再回本指南看行为与案例”的顺序。

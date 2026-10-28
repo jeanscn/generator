@@ -132,6 +132,12 @@ MySQL、MariaDB、TiDB、PolarDB、TDSQL 的 JDBC 兜底也必须调用 core-db 
 
 注解也不是 `ViewTableMeta`/`ViewColumnMeta` 的替代品：页面列可见性、编辑、过滤、排序和布局等视图契约读取对应 View VO 的视图注解及配置。
 
+#### 根实体字段与数据库物理结构同步
+
+正式生成入口默认启用 `Context.rootClassSchemaSynchronizationEnabled`。对本次生成范围内启用语句且未标记 `ignore` 的表，数据库元数据内省后会检查配置 `rootClass` 及其父类中带 `@ColumnMeta` 的字段：物理列缺失时可生成 `ADD`，列元数据不一致时可生成 `MODIFY`；根实体将字段标记为主键而数据库内省未识别为主键时，还可能生成 `ADD PRIMARY KEY`。该路径不生成删除列语句。它以当前根实体注解描述为同步输入，不是迁移计划或无副作用的元数据检查；修改既有列定义可能影响数据或约束，应先审阅生成警告和目标数据库行为。
+
+同步 DDL 通过生成使用的 JDBC 连接直接执行。执行成功后更新本次生成使用的内存列元数据；`SQLException` 会记入 warning 而不会使生成调用失败，Maven Mojo 也仅输出 WARN 并继续。因此数据库结构同步失败时仍可能产出基于旧内省元数据的文件，消费验收必须检查 warning 并再次核实实际 schema。独立离线驱动可调用 `Context.setRootClassSchemaSynchronizationEnabled(false)` 禁止该同步；此开关没有 XML/DTD 配置。`generate(..., false)` 仅禁止文件写盘，不能作为数据库只读保证。Maven Mojo 的可选 `sqlScript` 是独立脚本执行路径，不能与本功能混为一谈。操作细节见[配置指南 §16.4](generator-config-guide.md#164-根实体字段与数据库物理结构同步)。
+
 ## 2.2 Vue3 前端可生成能力
 
 | 能力域 | 可直接生成内容 | 设计含义 |

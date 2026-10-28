@@ -32,3 +32,5 @@
     用途：跨项目唯一权威，项目工程构成公式、工程分层与职责、依赖方向、跨项目工作规则与易混淆点；跨工程改动或判断能力归属前必读。
 15. [mybatis-generator-core 问题台账](..\mybatis-generator-core\src\main\resources\docs\pending-issues.md)
     用途：生成器模块项目问题台账；登记可变消费配置造成的历史测试基线漂移，不代表已批准修复。
+16. [根实体字段数据库结构同步检查任务书](..\mybatis-generator-core\src\main\resources\docs\task\root-class-schema-sync-task.md)
+    用途：记录默认结构同步触发范围、DDL 执行/失败语义、既有隔离回归及生成器权威说明与配置指南更新结果。

@@ -7,6 +7,7 @@
 | 生成器模块问题台账 | [pending-issues](..\mybatis-generator-core\src\main\resources\docs\pending-issues.md) | `mybatis-generator-core` | 项目问题台账 | 历史基线漂移、主键结构同步及非启用消费者真实再生成验收缺口；Git 根在父目录 generator，非主线只登记 |
 | Service 方法生成结构 | [主规范第 8.1 节](copilot-instructions.md#81-service-方法签名共用与实现装配规范) | `generator/mybatis-generator` | 再开发规范正文 | `ServiceMethods` 统一签名与依赖，接口生成器及实现元素复用；实现注解、方法体与业务钩子留在元素层 |
 | 字典预取排序与共用查询 | [任务书](..\mybatis-generator-core\src\main\resources\docs\task\dict-prefetch-order-contract-task.md) | `mybatis-generator-core` | 跨仓过程与验收资产 | 批准范围、G01/W01/V01 进度及离线验证证据；规则正文仍归配置指南 §13.5 |
+| 根实体字段数据库结构同步 | [检查任务书](..\mybatis-generator-core\src\main\resources\docs\task\root-class-schema-sync-task.md) | `mybatis-generator-core` | 过程与验收资产 | 记录默认 DDL 同步触发/失败边界及回归证据；能力正文见生成器权威说明 §2.1.1 与配置指南 §16.4 |
 | 生成器能力 | `mybatis-generator-core\src\main\resources\docs\generator-authoritative-spec.md` | `mybatis-generator-core` | 权威正文 | 生成器能力、输入输出、扩展点与限制；§2.1.1 定义 Entity `@TableMeta`/`@ColumnMeta` 的元数据契约及边界 |
 | 生成器配置 | `mybatis-generator-core\src\main\resources\docs\generator-config-guide.md` | `mybatis-generator-core` | 使用手册 | 配置、DTD 版本与生成行为；§5.0 提供从 Entity 类/字段注解读取物理表列映射的设计/开发指引 |
 | 生成配置实践 | [配置指南第 20 章](..\mybatis-generator-core\src\main\resources\docs\generator-config-guide.md#20-约定驱动配置与实践建议) | `mybatis-generator-core` | 实践决策索引 | 具体操作在主题章节维护；§7.2.3 布局、§7.3.1 文本输入、§13.5.1 分类/业务字典引用 |
