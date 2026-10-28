@@ -18,6 +18,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -68,9 +69,12 @@ public class ConfigurationParser {
     }
 
     public Configuration parseConfiguration(File inputFile) throws IOException,XMLParserException {
-        //FileReader fr = new FileReader(inputFile);
-        Reader fr = new InputStreamReader(Files.newInputStream(inputFile.toPath()), DEFAULT_CHARSET);
-        return parseConfiguration(fr);
+        Path configurationPath = inputFile.toPath().toAbsolutePath().normalize();
+        try (Reader reader = new InputStreamReader(Files.newInputStream(configurationPath), DEFAULT_CHARSET)) {
+            InputSource inputSource = new InputSource(reader);
+            inputSource.setSystemId(configurationPath.toUri().toString());
+            return parseConfiguration(inputSource);
+        }
     }
 
     public Configuration parseConfiguration(Reader reader) throws IOException,
@@ -127,7 +131,7 @@ public class ConfigurationParser {
             if (rootNode.getNodeType() == Node.ELEMENT_NODE
                     && docType.getPublicId().equals(
                     XmlConstants.MYBATIS_GENERATOR_CONFIG_PUBLIC_ID)) {
-                config = parseMyBatisGeneratorConfiguration(rootNode);
+                config = parseMyBatisGeneratorConfiguration(rootNode, inputSource.getSystemId());
             } else {
                 throw new XMLParserException(getString("RuntimeError.5"));
             }
@@ -158,13 +162,13 @@ public class ConfigurationParser {
             var writer = new java.io.StringWriter();
             source.getCharacterStream().transferTo(writer);
             String text = writer.toString();
-            original = new InputSource(new java.io.StringReader(text));
+            original = copyInputSource(source, new java.io.StringReader(text), null);
             if (!text.contains(PropertyRegistry.TABLE_ENABLE_CAS_WRITE_CONTRACT)) { return original; }
-            probe = new InputSource(new java.io.StringReader(text));
+            probe = copyInputSource(source, new java.io.StringReader(text), null);
         } else {
             byte[] bytes = source.getByteStream().readAllBytes();
-            original = new InputSource(new java.io.ByteArrayInputStream(bytes));
-            probe = new InputSource(new java.io.ByteArrayInputStream(bytes));
+            original = copyInputSource(source, null, new java.io.ByteArrayInputStream(bytes));
+            probe = copyInputSource(source, null, new java.io.ByteArrayInputStream(bytes));
         }
         try {
             var factory = DocumentBuilderFactory.newInstance();
@@ -189,10 +193,21 @@ public class ConfigurationParser {
         }
     }
 
-    private Configuration parseMyBatisGeneratorConfiguration(Element rootNode)
+    private Configuration parseMyBatisGeneratorConfiguration(Element rootNode, String configurationSystemId)
             throws XMLParserException {
-        MyBatisGeneratorConfigurationParser parser = new MyBatisGeneratorConfigurationParser(extraProperties,warnings);
+        MyBatisGeneratorConfigurationParser parser = new MyBatisGeneratorConfigurationParser(
+                extraProperties, warnings, configurationSystemId);
         return parser.parseConfiguration(rootNode);
+    }
+
+    private InputSource copyInputSource(InputSource source, Reader characterStream, InputStream byteStream) {
+        InputSource copy = characterStream == null
+                ? new InputSource(byteStream)
+                : new InputSource(characterStream);
+        copy.setPublicId(source.getPublicId());
+        copy.setSystemId(source.getSystemId());
+        copy.setEncoding(source.getEncoding());
+        return copy;
     }
 
     public void customConfig(Configuration config) {

@@ -89,8 +89,40 @@ DTD 维护只修改当前版本文件，保留历史版本契约；元素、属�
 | 节点 | 作用 | 关键点 |
 |---|---|---|
 | `generatorConfiguration` | 根节点 | 包含 `properties?`、`classPathEntry*`、`context+`。 |
-| `properties` | 外部属性文件 | `resource` / `url` 二选一。用于占位符替换。 |
+| `properties` | 外部属性文件 | `resource` / `url` / `path` 三选一。用于占位符替换。 |
 | `classPathEntry` | JDBC 驱动扩展 | `location` 必填。 |
+
+### 1.2.1 外部属性文件格式与路径
+
+根级 `<properties>` 必须且只能指定 `resource`、`url`、`path` 其中一个：
+
+| 属性 | 文件定位方式 |
+|---|---|
+| `resource` | 从生成器 classpath 加载资源 |
+| `url` | 使用绝对 URL 加载，例如 `file:///D:/settings/generator.properties` |
+| `path` | 使用文件系统路径；相对路径以 `generatorConfig.xml` 所在目录为基准，绝对路径按原样使用 |
+
+文件格式由文件名扩展名决定，`.properties` 使用 Java Properties 格式，`.yml` / `.yaml` 使用 YAML 格式，扩展名大小写不敏感。YAML 的嵌套映射展开为点分属性名，数组项展开为带索引的属性名；根节点必须是映射。属性键重复、无法解析或不支持的扩展名会明确报错，不输出文件内容。Reader/InputStream 入口没有配置文件目录，使用相对 `path` 时会失败；文件路径入口（包括 Maven 插件的配置文件入口）以配置文件目录解析。
+
+例如，读取 Spring Boot YAML 中的嵌套属性：
+
+```xml
+<generatorConfiguration>
+    <properties path="../config/application.yml"/>
+    <!-- context 中的 JDBC 配置 -->
+    <context id="example" appKeyword="example" moduleKeyword="example" moduleName="示例" jdkVersion="17">
+        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
+                        connectionURL="jdbc:mysql://localhost/example"
+                        userId="root" password="${spring.datasource.password}">
+            <property name="useInformationSchema" value="true"/>
+        </jdbcConnection>
+        <table tableName="example"/>
+    </context>
+</generatorConfiguration>
+```
+
+配置占位符仍按既有优先级解析：JVM 系统属性优先于 `<properties>` 文件，Maven/Ant 附加属性最低。配置文件可含凭据；不得将凭据复制到生成器 XML、文档、命令参数或日志。
+YAML 值按文件中的 YAML 标量读取；生成器不会启动 Spring 容器，也不会展开 Spring 环境变量占位符。
 
 ## 2. `context`
 
@@ -228,8 +260,9 @@ DTD 属性仍为 `#IMPLIED`，仅当前 `mybatis-generator-config_1_8_0.dtd` 增
 | Service 不可落地 | 未生成 ServiceImpl 或 `modelOnly=true` | 启用 Service 生成并关闭 `modelOnly` |
 | 写入口未受控 | 开启 `enableUpdateByExample` | 关闭后再启用敏感检测 |
 | 多实体级联写 | relation 开启 insert/update/upsert | 先拆分为可受控单实体写，或补齐多实体检测方案 |
-| 方法签名异常 | 写方法重复/不可代理/参数不是实体、`List<Entity>` 或受管 CAS 的 `(Entity, Integer expectedVersion)` | 保持标准方法签名，避免自定义破坏参数角色 |
-| CAS 与 update batch 冲突 | Sensitive opt-in 与受管 CAS 同时启用，且配置要求生成 `updateBatchByPrimaryKey` | 关闭 update batch；当前没有受管 CAS 批量更新入口 |
+| 方法签名异常 | 写方法重复/不可代理；受支持单条方法参数不是实体，或受管 CAS 参数不是 `(Entity, Integer expectedVersion)` | 保持标准方法签名；batch/upsert 不支持确认，须按下方配置封闭 |
+| batch/upsert 入口未封闭 | Sensitive opt-in 且启用 `insertBatch`、`updateBatchByPrimaryKey`、`insertOrUpdate` 或 `insertOrUpdateSelective`，但未以完整签名配置 `disabledMethod` | 在 `generateService` 中为每个启用入口配置 `disabledMethod`；生成公开拒绝覆盖且不生成敏感标记 |
+| CAS 与 update batch 冲突 | Sensitive opt-in 与受管 CAS 同时启用，且要求生成 `updateBatchByPrimaryKey` 但未配置停用 | 通过 `disabledMethod` 封闭 update batch；当前没有受管 CAS 批量更新入口 |
 | 事务声明不在白名单 | 已有 `@Transactional` 非已验证模板 | 统一为受支持事务模板后再启用 |
 | 方法矩阵不完整 | 标准写方法未完整装配 | 保证标准写方法生成开关与规则一致 |
 
@@ -244,13 +277,13 @@ DTD 属性仍为 `#IMPLIED`，仅当前 `mybatis-generator-config_1_8_0.dtd` 增
 | `insert`、`insertSelective` | 0 | 为 opt-in 表装配具体 override 并标记 |
 | `updateByPrimaryKey`、`updateByPrimaryKeySelective` | 0 | CAS 关闭时为 opt-in 表装配具体 override 并标记；受管 CAS 开启时旧方法为 `ENTRY_DISABLED` 且不加标记 |
 | `updateByPrimaryKeyCas`、`updateByPrimaryKeySelectiveCas` | 0（`expectedVersion` 为 1） | 仅受管 CAS 开启时标记真实单行方法；要求 `(Entity, Integer expectedVersion)`，使用 CAS 已生成的 MANDATORY 事务模板 |
-| `insertBatch` | 0 | 配置启用时标记；仅同类型有序 `List<Entity>` |
-| `updateBatchByPrimaryKey` | 0 | CAS 关闭时配置启用可标记；CAS 与 Sensitive 同时启用且 update batch 被要求时，生成期拒绝 |
-| `insertOrUpdate`、`insertOrUpdateSelective` | 0 | CAS 关闭时按配置标记；受管 CAS 开启时保持 disabled 且不加敏感标记 |
+| `insertBatch` | — | Sensitive opt-in 时必须以 `disabledMethod` 封闭，不生成敏感标记；漏配则生成期拒绝 |
+| `updateBatchByPrimaryKey` | — | Sensitive opt-in 时必须以 `disabledMethod` 封闭，不生成敏感标记；CAS 与 Sensitive 同时启用时同样适用 |
+| `insertOrUpdate`、`insertOrUpdateSelective` | — | Sensitive opt-in 时必须以 `disabledMethod` 封闭，不生成敏感标记；受管 CAS 已禁用的旧 upsert 保持不标记 |
 | `updateByExample*` | — | 未证实受限影响范围，生成期拒绝启用该配置；须关闭 `enableUpdateByExample` 后单独评审接入 |
 | select/delete/纯关系维护、SQL builder、直接 Mapper/JDBC | — | 不生成敏感标记；非标准内容写入口必须显式适配或限制入口 |
 
-`operationKey = 实体全限定名 + ":" + 实际方法名`，同一输入重生成稳定，长度不超过 256；实体包名/方法名改变时必须重新核对操作注册和未过期确认凭证。CAS 方法仍以 `entityArgumentIndex=0` 标记实体，独立 `expectedVersion` 位于参数索引 1；Sensitive 运行时必须把该参数一并绑定到确认请求。非 CAS 写方法继续按实体或同类型有序 `List<Entity>` 验证参数。重复方法、参数角色不明确或不能被 Spring 代理的受管写方法，以及已启用但未完整装配的方法均生成失败。当前 opt-in 基线按配置/事务模式要求完整装配标准写方法；CAS 模式必须生成两个 CAS 单行更新方法，不得把 disabled 旧方法标记为可写。
+`operationKey = 实体全限定名 + ":" + 实际方法名`，同一输入重生成稳定，长度不超过 256；实体包名/方法名改变时必须重新核对操作注册和未过期确认凭证。CAS 方法仍以 `entityArgumentIndex=0` 标记实体，独立 `expectedVersion` 位于参数索引 1；Sensitive 运行时必须把该参数一并绑定到确认请求。当前确认摘要只支持单实体及受管 CAS 单行更新；敏感检测启用表的 batch/upsert 必须配置完整签名 `disabledMethod`，以生成拒绝覆盖关闭 Service 写入口，不加 `@SensitiveWrite`；缺项时生成失败。对应 Controller 路由仍可存在，但调用被停用 Service 方法时会立即抛出 `VgoServiceEntryDisabledException`，不进入 Mapper。重复方法、参数角色不明确或不能被 Spring 代理的受管写方法，以及已启用但未完整装配的方法均生成失败。当前 opt-in 基线要求单条标准方法完整装配；CAS 模式必须生成两个 CAS 单行更新方法，不得把 disabled 旧方法标记为可写。
 
 CAS 关闭时，每个受标记方法在没有已有事务声明时添加 `@Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)`；已有受支持的 REQUIRED/Exception 回滚模板事务声明保留，不重复添加，其他自定义事务声明明确失败并要求评审。受管 CAS 方法保留 CAS 生成器提供的 `MANDATORY`、`rollbackFor = Exception.class` 事务声明，拒绝其他模板。既有缓存失效、关系元数据和事件语句保留，标记只加在具体方法而不是仅接口。事务 Advisor 必须在检测 Aspect 外层；批次原子性、失败结果、缓存提交时序和事件处理仍须宿主集成验收，生成元数据不是已安装敏感运行时。
 

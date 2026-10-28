@@ -23,8 +23,9 @@ import static org.mybatis.generator.codegen.mybatis3.SensitiveFieldResolver.isEn
 public class SensitiveWriteMethodsElement extends AbstractServiceElementGenerator {
     private static final String ANNOTATION_PACKAGE = "com.vgosoft.core.annotation.sensitive.";
     private static final Set<String> SINGLE_WRITES = Set.of("insert", "insertSelective",
-            "updateByPrimaryKey", "updateByPrimaryKeySelective", "insertOrUpdate", "insertOrUpdateSelective");
-    private static final Set<String> BATCH_WRITES = Set.of("insertBatch", "updateBatchByPrimaryKey");
+            "updateByPrimaryKey", "updateByPrimaryKeySelective");
+    private static final Set<String> UNSUPPORTED_WRITES = Set.of("insertBatch", "updateBatchByPrimaryKey",
+            "insertOrUpdate", "insertOrUpdateSelective");
     private static final Set<String> CAS_WRITES =
             Set.of("updateByPrimaryKeyCas", "updateByPrimaryKeySelectiveCas");
     private static final Set<String> CAS_DISABLED_WRITES = Set.of("updateByPrimaryKey",
@@ -72,9 +73,11 @@ public class SensitiveWriteMethodsElement extends AbstractServiceElementGenerato
             if (casContract && CAS_DISABLED_WRITES.contains(method.getName())) {
                 continue;
             }
+            if (UNSUPPORTED_WRITES.contains(method.getName())) {
+                throw failure(table, method.getName(), "敏感确认摘要不支持 batch/upsert 写方法，须通过 disabledMethod 封闭入口");
+            }
             boolean cas = CAS_WRITES.contains(method.getName());
-            boolean batch = BATCH_WRITES.contains(method.getName());
-            if (!batch && !cas && !SINGLE_WRITES.contains(method.getName())) {
+            if (!cas && !SINGLE_WRITES.contains(method.getName())) {
                 continue;
             }
             int expectedParameters = cas ? 2 : 1;
@@ -88,12 +91,9 @@ public class SensitiveWriteMethodsElement extends AbstractServiceElementGenerato
             boolean supported = cas
                     ? entity.equals(parameter)
                     && "java.lang.Integer".equals(method.getParameters().get(1).getType().getFullyQualifiedName())
-                    : batch
-                    ? "java.util.List".equals(parameter.getFullyQualifiedNameWithoutTypeParameters())
-                    && parameter.getTypeArguments().size() == 1 && entity.equals(parameter.getTypeArguments().get(0))
                     : entity.equals(parameter);
             if (!supported) {
-                throw failure(table, method.getName(), "只支持单实体或同类型有序 List 参数");
+                throw failure(table, method.getName(), "只支持单实体参数或受管 CAS 的 (Entity, Integer) 参数");
             }
             String operationKey = entity.getFullyQualifiedName() + ":" + method.getName();
             if (operationKey.length() > 256) {
@@ -116,7 +116,7 @@ public class SensitiveWriteMethodsElement extends AbstractServiceElementGenerato
         Set<String> requiredWrites = casContract
                 ? Set.of("insert", "insertSelective", "updateByPrimaryKeyCas", "updateByPrimaryKeySelectiveCas")
                 : Set.of("insert", "insertSelective", "updateByPrimaryKey",
-                        "updateByPrimaryKeySelective", "insertOrUpdateSelective");
+                    "updateByPrimaryKeySelective");
         if (!found.containsAll(requiredWrites)) {
             throw failure(table, "*", "标准单实体写方法未完整装配");
         }

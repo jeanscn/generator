@@ -21,6 +21,10 @@ import org.mybatis.generator.custom.enums.ViewVoUiFrameEnum;
 import org.mybatis.generator.exception.XMLParserException;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
+import org.yaml.snakeyaml.error.YAMLException;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -28,7 +32,10 @@ import org.w3c.dom.NodeList;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,12 +56,19 @@ public class MyBatisGeneratorConfigurationParser {
     private final Properties extraProperties;
     private final Properties configurationProperties;
     private final List<String> warnings;
+    private final String configurationSystemId;
 
     public MyBatisGeneratorConfigurationParser(Properties extraProperties,List<String> warnings) {
+        this(extraProperties, warnings, null);
+    }
+
+    public MyBatisGeneratorConfigurationParser(Properties extraProperties, List<String> warnings,
+                                               String configurationSystemId) {
         super();
         this.extraProperties = Objects.requireNonNullElseGet(extraProperties, Properties::new);
         configurationProperties = new Properties();
         this.warnings = warnings;
+        this.configurationSystemId = configurationSystemId;
     }
 
     public Configuration parseConfiguration(Element rootNode)
@@ -93,44 +107,190 @@ public class MyBatisGeneratorConfigurationParser {
         Properties attributes = parseAttributes(node);
         String resource = attributes.getProperty("resource");
         String url = attributes.getProperty("url");
+        String path = attributes.getProperty("path");
+        int sourceCount = (stringHasValue(resource) ? 1 : 0)
+                + (stringHasValue(url) ? 1 : 0)
+                + (stringHasValue(path) ? 1 : 0);
 
-        if (!stringHasValue(resource)
-                && !stringHasValue(url)) {
-            throw new XMLParserException(getString("RuntimeError.14"));
+        if (sourceCount != 1) {
+            throw new XMLParserException("The <properties> element must specify exactly one of resource, url, or path.");
         }
 
-        if (stringHasValue(resource)
-                && stringHasValue(url)) {
-            throw new XMLParserException(getString("RuntimeError.14"));
-        }
-
-        URL resourceUrl;
-
+        ExternalPropertiesSource source;
         try {
             if (stringHasValue(resource)) {
-                resourceUrl = ObjectFactory.getResource(resource);
+                URL resourceUrl = ObjectFactory.getResource(resource);
                 if (resourceUrl == null) {
                     throw new XMLParserException(getString(
                             "RuntimeError.15", resource));
                 }
+                source = new ExternalPropertiesSource(resourceUrl, resource, resource);
+            } else if (stringHasValue(url)) {
+                URL propertiesUrl = new URL(url);
+                source = new ExternalPropertiesSource(
+                        propertiesUrl, fileName(propertiesUrl.getPath()), fileName(propertiesUrl.getPath()));
             } else {
-                resourceUrl = new URL(url);
+                Path propertiesPath = Path.of(path);
+                if (!propertiesPath.isAbsolute()) {
+                    if (!stringHasValue(configurationSystemId)) {
+                        throw new XMLParserException(
+                                "A relative properties path requires a file-based generator configuration.");
+                    }
+                    URI configurationUri = URI.create(configurationSystemId);
+                    if (!"file".equalsIgnoreCase(configurationUri.getScheme())) {
+                        throw new XMLParserException(
+                                "A relative properties path requires a file-based generator configuration.");
+                    }
+                    Path configurationPath = Path.of(configurationUri);
+                    Path configurationDirectory = configurationPath.getParent();
+                    if (configurationDirectory == null) {
+                        throw new XMLParserException(
+                                "Cannot determine the generator configuration directory for a relative properties path.");
+                    }
+                    propertiesPath = configurationDirectory.resolve(propertiesPath);
+                }
+                propertiesPath = propertiesPath.normalize().toAbsolutePath();
+                URL propertiesUrl = propertiesPath.toUri().toURL();
+                String name = propertiesPath.getFileName().toString();
+                source = new ExternalPropertiesSource(propertiesUrl, name, name);
             }
 
-            InputStream inputStream = resourceUrl.openConnection()
-                    .getInputStream();
-
-            configurationProperties.load(inputStream);
-            inputStream.close();
+            PropertiesFileFormat format = getPropertiesFileFormat(source.fileName());
+            try (InputStream inputStream = source.url().openStream()) {
+                if (format == PropertiesFileFormat.YAML) {
+                    parseYamlProperties(inputStream, source.description());
+                } else {
+                    configurationProperties.load(inputStream);
+                }
+            }
+        } catch (XMLParserException e) {
+            throw e;
+        } catch (MalformedURLException | IllegalArgumentException e) {
+            throw new XMLParserException("Invalid external properties source.");
         } catch (IOException e) {
-            if (stringHasValue(resource)) {
-                throw new XMLParserException(getString(
-                        "RuntimeError.16", resource));
-            } else {
-                throw new XMLParserException(getString(
-                        "RuntimeError.17", url));
-            }
+            throw new XMLParserException(
+                    "Could not read external properties file: " + sourceDescription(resource, url, path));
         }
+    }
+
+    private PropertiesFileFormat getPropertiesFileFormat(String fileName) throws XMLParserException {
+        String normalized = fileName.toLowerCase(Locale.ROOT);
+        if (normalized.endsWith(".properties")) {
+            return PropertiesFileFormat.PROPERTIES;
+        }
+        if (normalized.endsWith(".yml") || normalized.endsWith(".yaml")) {
+            return PropertiesFileFormat.YAML;
+        }
+        throw new XMLParserException(
+                "Unsupported external properties file extension. Use .properties, .yml, or .yaml.");
+    }
+
+    private void parseYamlProperties(InputStream inputStream, String sourceDescription) throws XMLParserException {
+        Properties yamlProperties = new Properties();
+        try {
+            LoaderOptions loaderOptions = new LoaderOptions();
+            loaderOptions.setAllowDuplicateKeys(false);
+            Object yamlDocument = new Yaml(new SafeConstructor(loaderOptions)).load(inputStream);
+            if (!(yamlDocument instanceof Map<?, ?> yamlMap)) {
+                throw new XMLParserException("YAML properties file must contain a mapping: " + sourceDescription);
+            }
+            Set<Object> ancestors = Collections.newSetFromMap(new IdentityHashMap<>());
+            flattenYamlProperties(yamlMap, "", yamlProperties, sourceDescription, ancestors);
+        } catch (YAMLException e) {
+            throw new XMLParserException("Invalid YAML properties file: " + sourceDescription);
+        }
+        configurationProperties.putAll(yamlProperties);
+    }
+
+    private void flattenYamlProperties(Map<?, ?> yamlMap, String prefix, Properties properties,
+                                       String sourceDescription, Set<Object> ancestors) throws XMLParserException {
+        if (!ancestors.add(yamlMap)) {
+            throw new XMLParserException("Recursive YAML aliases are not supported: " + sourceDescription);
+        }
+        try {
+            for (Map.Entry<?, ?> entry : yamlMap.entrySet()) {
+                if (!(entry.getKey() instanceof String key) || key.isBlank()) {
+                    throw new XMLParserException("YAML property keys must be non-empty strings: " + sourceDescription);
+                }
+                String propertyName = prefix.isEmpty() ? key : prefix + "." + key;
+                Object value = entry.getValue();
+                if (value instanceof Map<?, ?> childMap) {
+                    flattenYamlProperties(childMap, propertyName, properties, sourceDescription, ancestors);
+                } else if (value instanceof List<?> values) {
+                    flattenYamlList(values, propertyName, properties, sourceDescription, ancestors);
+                } else {
+                    putYamlProperty(properties, propertyName, value, sourceDescription);
+                }
+            }
+        } finally {
+            ancestors.remove(yamlMap);
+        }
+    }
+
+    private void flattenYamlValue(Object value, String propertyName, Properties properties,
+                                  String sourceDescription, Set<Object> ancestors) throws XMLParserException {
+        if (value instanceof Map<?, ?> childMap) {
+            flattenYamlProperties(childMap, propertyName, properties, sourceDescription, ancestors);
+        } else if (value instanceof List<?> values) {
+            flattenYamlList(values, propertyName, properties, sourceDescription, ancestors);
+        } else {
+            putYamlProperty(properties, propertyName, value, sourceDescription);
+        }
+    }
+
+    private void flattenYamlList(List<?> values, String propertyName, Properties properties,
+                                 String sourceDescription, Set<Object> ancestors) throws XMLParserException {
+        if (!ancestors.add(values)) {
+            throw new XMLParserException("Recursive YAML aliases are not supported: " + sourceDescription);
+        }
+        try {
+            for (int i = 0; i < values.size(); i++) {
+                flattenYamlValue(values.get(i), propertyName + "[" + i + "]", properties, sourceDescription, ancestors);
+            }
+        } finally {
+            ancestors.remove(values);
+        }
+    }
+
+    private void putYamlProperty(Properties properties, String propertyName, Object value,
+                                 String sourceDescription) throws XMLParserException {
+        if (properties.containsKey(propertyName)) {
+            throw new XMLParserException("YAML property keys resolve to a duplicate name: " + sourceDescription);
+        }
+        properties.setProperty(propertyName, value == null ? "" : String.valueOf(value));
+    }
+
+    private String sourceDescription(String resource, String url, String path) {
+        String source = stringHasValue(path) ? path : stringHasValue(resource) ? resource : url;
+        return stringHasValue(source) ? fileName(source) : "external properties source";
+    }
+
+    private String fileName(String source) {
+        String normalized = source.replace('\\', '/');
+        int queryIndex = normalized.indexOf('?');
+        if (queryIndex >= 0) {
+            normalized = normalized.substring(0, queryIndex);
+        }
+        int separator = normalized.lastIndexOf('/');
+        return separator >= 0 ? normalized.substring(separator + 1) : normalized;
+    }
+
+    /**
+     * 外部属性文件支持的内容格式。
+     *
+     * @author vgosoft-agent
+     */
+    private enum PropertiesFileFormat {
+        PROPERTIES,
+        YAML
+    }
+
+    /**
+     * 外部属性文件的读取位置与格式识别名称。
+     *
+     * @author vgosoft-agent
+     */
+    private record ExternalPropertiesSource(URL url, String fileName, String description) {
     }
 
     private void parseContext(Configuration configuration, Node node) {

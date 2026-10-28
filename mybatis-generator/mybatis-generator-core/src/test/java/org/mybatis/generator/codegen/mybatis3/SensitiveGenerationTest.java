@@ -80,7 +80,9 @@ class SensitiveGenerationTest {
                 <table tableName="article_" domainObjectName="Article" enableUpdateByExample="false">
                   <property name="rootClass" value="com.vgosoft.core.entity.abs.AbstractEntity"/>
                   <generateModel generate="true"/>
-                  <generateService generate="true" generateUnitTest="false"/>
+                  <generateService generate="true" generateUnitTest="false">
+                    %s
+                  </generateService>
                   <generateController generate="false"/>
                   <generateSqlSchema generate="false"/>
                   <generateVo generate="false"/>
@@ -89,6 +91,16 @@ class SensitiveGenerationTest {
               </context>
             </generatorConfiguration>
             """;
+    private static final String DISABLED_WRITES = """
+            <disabledMethod signature="insertBatch(java.util.List)" reason="敏感确认摘要不支持批量写入"/>
+            <disabledMethod signature="updateBatchByPrimaryKey(java.util.List)" reason="敏感确认摘要不支持批量更新"/>
+            <disabledMethod signature="insertOrUpdate(sample.entity.Article)" reason="敏感确认摘要不支持 upsert"/>
+            <disabledMethod signature="insertOrUpdateSelective(sample.entity.Article)" reason="敏感确认摘要不支持 upsert"/>
+            """;
+    private static final String CAS_DISABLED_INSERT_BATCH =
+            "<disabledMethod signature=\"insertBatch(java.util.List)\" reason=\"敏感确认摘要不支持批量写入\"/>";
+    private static final String CAS_DISABLED_UPDATE_BATCH =
+            "<disabledMethod signature=\"updateBatchByPrimaryKey(java.util.List)\" reason=\"敏感确认摘要不支持批量更新\"/>";
     private static final String CHECK = "<sensitiveCheck columns=\"content_\"/>";
 
     @Test
@@ -144,7 +156,7 @@ class SensitiveGenerationTest {
                     method.addAnnotation("@Transactional(propagation = Propagation.NOT_SUPPORTED)");
                 });
         List<String> reasons = List.of("受管写方法必须是可代理的 public 非静态、非 final 具体方法",
-                "只支持单实体或同类型有序 List 参数",
+                "只支持单实体参数或受管 CAS 的 (Entity, Integer) 参数",
                 "事务声明不是已验证的 REQUIRED/Exception 回滚模板，须单独评审");
         for (int index = 0; index < mutations.size(); index++) {
             IntrospectedTableMyBatis3Impl alteredService = fixture(CHECK);
@@ -309,8 +321,9 @@ class SensitiveGenerationTest {
         assertThatThrownBy(() -> SensitiveGenerationValidator.validate(table)).hasMessageContaining("分层模型");
     }
 
+    /** 验证仅单条写入生成敏感标记，batch/upsert 通过生成的拒绝覆盖封闭且重生成稳定。 */
     @Test
-    void rendersActualModelAndServiceWithCompleteMethodMatrixAndStableRegeneration() throws Exception {
+    void marksOnlySupportedSingleWriteMethodsAndDisablesBatchUpsert() throws Exception {
         IntrospectedTableMyBatis3Impl table = fixture(CHECK);
         TopLevelClass model = model(table);
         Field field = model.getFields().stream().filter(item -> "bodyText".equals(item.getName())).findFirst().orElseThrow();
@@ -322,8 +335,8 @@ class SensitiveGenerationTest {
         StaticJavaParser.parse(before);
 
         TopLevelClass service = service(table);
-        List<String> writes = List.of("insert", "insertSelective", "insertBatch", "updateByPrimaryKey",
-                "updateByPrimaryKeySelective", "updateBatchByPrimaryKey", "insertOrUpdate", "insertOrUpdateSelective");
+        List<String> writes = List.of("insert", "insertSelective", "updateByPrimaryKey",
+                "updateByPrimaryKeySelective");
         for (String name : writes) {
             Method method = service.getMethods().stream().filter(item -> name.equals(item.getName())).findFirst().orElseThrow();
             assertThat(method.getAnnotations()).contains(
@@ -331,13 +344,36 @@ class SensitiveGenerationTest {
             assertThat(method.getAnnotations().stream().filter(value -> value.startsWith("@Transactional")).toList())
                     .hasSize(1).allSatisfy(value -> assertThat(value).contains("rollbackFor = Exception.class"));
         }
-        assertThat(service.getMethods().stream().filter(method -> !writes.contains(method.getName()))
-                .flatMap(method -> method.getAnnotations().stream())).noneMatch(value -> value.startsWith("@SensitiveWrite"));
+        for (String name : List.of("insertBatch", "updateBatchByPrimaryKey", "insertOrUpdate",
+                "insertOrUpdateSelective")) {
+            Method method = service.getMethods().stream().filter(item -> name.equals(item.getName()))
+                    .findFirst().orElseThrow();
+            assertThat(method.getAnnotations()).noneMatch(value -> value.startsWith("@SensitiveWrite"));
+            assertThat(method.getAnnotations()).noneMatch(value -> value.startsWith("@Transactional"));
+            assertThat(method.getBodyLines()).anyMatch(value ->
+                    value.contains("VgoServiceEntryDisabledException"));
+        }
         String source = format(service);
         StaticJavaParser.parse(source);
         SensitiveWriteMethodsElement.addWriteAnnotations(service, table);
         assertThat(format(service)).isEqualTo(source);
         assertThat(format(service(fixture(CHECK)))).isEqualTo(source);
+    }
+
+    /** 验证启用敏感检测时，未显式停用的 batch/upsert 入口会在生成阶段失败。 */
+    @Test
+    void rejectsSensitiveBatchAndUpsertMethodsWithoutDisabledConfiguration() throws Exception {
+        List<String> signatures = List.of(
+                "insertBatch(java.util.List)",
+                "updateBatchByPrimaryKey(java.util.List)",
+                "insertOrUpdate(sample.entity.Article)",
+                "insertOrUpdateSelective(sample.entity.Article)");
+        for (String signature : signatures) {
+            String method = signature.substring(0, signature.indexOf('('));
+            assertThatThrownBy(() -> service(fixture(CHECK, false, false, disabledWritesWithout(signature))))
+                    .hasMessageContaining(method)
+                    .hasMessageContaining("disabledMethod");
+        }
     }
 
     /** 受管 CAS 启用时仅真实 CAS 单行方法获得敏感标记，旧 disabled 更新与 upsert 不得标记。 */
@@ -367,6 +403,18 @@ class SensitiveGenerationTest {
     void rejectsSensitiveCasWhenUpdateBatchIsEnabled() throws Exception {
         assertThatThrownBy(() -> fixture(CHECK, true, true))
                 .hasMessageContaining("没有受支持的 CAS 批量更新");
+    }
+
+    /** 验证 CAS 与敏感检测并用时，显式停用批量更新可生成拒绝覆盖而非放开写入。 */
+    @Test
+    void allowsSensitiveCasWhenUpdateBatchIsExplicitlyDisabled() throws Exception {
+        IntrospectedTableMyBatis3Impl table = fixture(
+                CHECK, true, true, CAS_DISABLED_INSERT_BATCH + "\n" + CAS_DISABLED_UPDATE_BATCH);
+        Method batch = service(table).getMethods().stream()
+                .filter(method -> "updateBatchByPrimaryKey".equals(method.getName()))
+                .findFirst().orElseThrow();
+        assertThat(batch.getAnnotations()).noneMatch(value -> value.startsWith("@SensitiveWrite"));
+        assertThat(batch.getBodyLines()).anyMatch(value -> value.contains("VgoServiceEntryDisabledException"));
     }
 
     @Test
@@ -399,9 +447,9 @@ class SensitiveGenerationTest {
         TopLevelClass service = service(table);
         Method batch = service.getMethods().stream().filter(item -> "insertBatch".equals(item.getName())).findFirst().orElseThrow();
         batch.getParameters().clear();
-        batch.addParameter(new Parameter(new FullyQualifiedJavaType("java.util.List<java.lang.String>"), "records"));
+        batch.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "record"));
         assertThatThrownBy(() -> SensitiveWriteMethodsElement.addWriteAnnotations(service, table))
-                .hasMessageContaining("insertBatch").hasMessageContaining("List");
+                .hasMessageContaining("insertBatch").hasMessageContaining("disabledMethod");
     }
 
     @Test
@@ -476,7 +524,7 @@ class SensitiveGenerationTest {
         TopLevelClass generated = service(table);
         for (Method method : generated.getMethods().stream()
                 .filter(item -> List.of("insert", "insertSelective", "updateByPrimaryKey",
-                        "insertOrUpdateSelective").contains(item.getName())).toList()) {
+                        "updateByPrimaryKeySelective").contains(item.getName())).toList()) {
             assertThat(method.getAnnotations().toString()).contains("@SensitiveWrite", "@Transactional", "articleTags#72h");
             assertThat(method.getAnnotations().stream().filter(value -> value.startsWith("@Transactional")).count()).isEqualTo(1);
         }
@@ -543,7 +591,7 @@ class SensitiveGenerationTest {
     }
 
     private Context parse(String check) throws Exception {
-        return new ConfigurationParser(new ArrayList<>()).parseConfiguration(new StringReader(XML.formatted(check)))
+        return new ConfigurationParser(new ArrayList<>()).parseConfiguration(new StringReader(XML.formatted("", check)))
                 .getContexts().get(0);
     }
 
@@ -553,7 +601,14 @@ class SensitiveGenerationTest {
 
     private IntrospectedTableMyBatis3Impl fixture(String check, boolean casContract, boolean updateBatch)
             throws Exception {
-        String configuration = XML.formatted(check);
+        return fixture(check, casContract, updateBatch,
+                casContract ? CAS_DISABLED_INSERT_BATCH : DISABLED_WRITES);
+    }
+
+    private IntrospectedTableMyBatis3Impl fixture(
+            String check, boolean casContract, boolean updateBatch, String disabledWrites)
+            throws Exception {
+        String configuration = XML.formatted(disabledWrites, check);
         if (casContract) {
             configuration = configuration.replace("tableName=\"article_\"",
                     "tableName=\"article_\" enableCasWriteContract=\"true\"")
@@ -600,6 +655,12 @@ class SensitiveGenerationTest {
         table.initialize();
         table.setRules(new FlatModelRules(table));
         return table;
+    }
+
+    private String disabledWritesWithout(String signature) {
+        return DISABLED_WRITES.lines()
+                .filter(line -> !line.contains("signature=\"" + signature + "\""))
+                .collect(java.util.stream.Collectors.joining("\n"));
     }
 
     private IntrospectedColumn column(String name, String property) {
