@@ -1,0 +1,45 @@
+// mybatis-generator 项目级 Devin 配置：权限策略随仓提交，个人覆盖放 config.local.json
+{
+  "permissions": {
+    "allow": [
+      "Read(/**)",
+      "Exec(git status)",
+      "Exec(git diff)",
+      "Exec(git log)",
+      "Exec(git show)",
+      "Exec(svn status)",
+      "Exec(svn diff)",
+      "Exec(svn log)",
+      "Exec(svn info)",
+      "Exec(mvn compile)",
+      "Exec(mvn test)",
+      "Exec(mvn package)",
+      "Exec(mvn install)",
+      "Exec(mvn verify)",
+      "Exec(mvn dependency)",
+      "Exec(mvn -pl)",
+      "Exec(ls)",
+      "Exec(cat)",
+      "Exec(find)",
+      "Exec(rg)"
+    ],
+    "deny": [
+      "Exec(rm)",
+      "Exec(sudo)",
+      "Exec(del)",
+      "Exec(rmdir)",
+      "Exec(git push)",
+      "Exec(git reset)",
+      "Exec(git rebase)",
+      "Exec(git clean)",
+      "Exec(svn commit)",
+      "Exec(svn delete)",
+      "Exec(svn revert)",
+      "Exec(mvn deploy)",
+      "Exec(mvn release)",
+      "Write(.env*)",
+      "Write(**/*.iml)",
+      "Write(**/codegen/**)"
+    ]
+  }
+}

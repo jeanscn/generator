@@ -78,9 +78,9 @@ class MyBatisGeneratorTest {
     @Disabled
     @Test
     void testGenerateInitDataInsertSqlForPermission() {
-        String code = "organization:authorizationdiagnosticimpl:roleremovalpreview";
-        String name = "预览移除角色后的授权影响";
-        String parentId = "100000001516504231";
+        String code = "sensitive:sensitiveruntimeimpl:status";
+        String name = "读取本节点敏感词运行状态";
+        String parentId = "100000002023624345";
         String id = VMD5Util.MD5_15(code);
         InsertSqlBuilder sqlBuilder = GenerateSqlTemplate.insertSqlForPermission();
         sqlBuilder.updateStringValues("id_", id);
