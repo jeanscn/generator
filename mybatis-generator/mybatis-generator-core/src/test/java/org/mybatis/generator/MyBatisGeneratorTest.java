@@ -5,6 +5,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.vgosoft.core.constant.GlobalConstant;
+import com.vgosoft.mybatis.generate.GenerateSqlTemplate;
+import com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder;
+import com.vgosoft.tool.core.VMD5Util;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.config.Configuration;
@@ -68,5 +73,24 @@ class MyBatisGeneratorTest {
                     myBatisGenerator.generate(null, null, null, false);
                 });
         assertEquals(3, e.getErrors().size());
+    }
+
+    @Disabled
+    @Test
+    void testGenerateInitDataInsertSqlForPermission() {
+        String code = "organization:authorizationdiagnosticimpl:roleremovalpreview";
+        String name = "预览移除角色后的授权影响";
+        String parentId = "100000001516504231";
+        String id = VMD5Util.MD5_15(code);
+        InsertSqlBuilder sqlBuilder = GenerateSqlTemplate.insertSqlForPermission();
+        sqlBuilder.updateStringValues("id_", id);
+        sqlBuilder.updateValues("sort_", "10");
+        sqlBuilder.updateStringValues("parent_id", parentId);
+        sqlBuilder.updateStringValues("code_", code);
+        sqlBuilder.updateStringValues("name_", name);
+        sqlBuilder.updateStringValues("created_id", GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID);
+        sqlBuilder.updateStringValues("modified_id", GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID);
+        String sql = sqlBuilder.toSql();
+        System.out.println(sql);
     }
 }
