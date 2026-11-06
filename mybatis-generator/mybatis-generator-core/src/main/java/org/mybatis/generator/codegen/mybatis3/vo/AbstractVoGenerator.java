@@ -14,6 +14,7 @@ import org.mybatis.generator.internal.util.StringUtility;
 import org.mybatis.generator.internal.util.VoGenService;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeSet;
@@ -123,6 +124,24 @@ public abstract class AbstractVoGenerator extends AbstractJavaGenerator {
 
     public Method addMappingMethod(FullyQualifiedJavaType fromType, FullyQualifiedJavaType toType, boolean isList) {
        return VoGeneratorUtil.addMappingMethod(fromType, toType, isList, introspectedTable);
+    }
+
+    /**
+     * 生成 VO→实体映射方法，并按实际生成的忽略声明登记 MapStruct 映射注解导入。
+     *
+     * @param fromType     源类型
+     * @param toType       目标类型
+     * @param isList       是否生成集合映射方法
+     * @param ignoreFields 需要忽略的目标实体属性名
+     * @return 映射方法
+     */
+    public Method addMappingMethod(FullyQualifiedJavaType fromType, FullyQualifiedJavaType toType,
+                                   boolean isList, Collection<String> ignoreFields) {
+        Method method = VoGeneratorUtil.addMappingMethod(fromType, toType, isList, introspectedTable, ignoreFields);
+        if (method.getAnnotations().stream().anyMatch(annotation -> annotation.startsWith("@Mapping"))) {
+            mappingsInterface.addImportedType(new FullyQualifiedJavaType(VoGeneratorUtil.MAPSTRUCT_MAPPING_TYPE));
+        }
+        return method;
     }
 
     protected void addJavaCollectionRelation(TopLevelClass topLevelClass,String type) {

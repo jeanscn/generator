@@ -109,8 +109,9 @@ public class VoExcelImportGenerator extends AbstractVoGenerator {
         mappingsInterface.addImportedType(new FullyQualifiedJavaType(excelImportVoType.getFullyQualifiedName()));
         mappingsInterface.addMethod(addMappingMethod(entityType, excelImportVoClass.getType(), false));
         mappingsInterface.addMethod(addMappingMethod(entityType, excelImportVoClass.getType(), true));
-        mappingsInterface.addMethod(addMappingMethod(excelImportVoClass.getType(), entityType, false));
-        mappingsInterface.addMethod(addMappingMethod(excelImportVoClass.getType(), entityType, true));
+        // 仅 VO→实体方向忽略服务端强制字段，实体→VO 方向保持原样
+        mappingsInterface.addMethod(addMappingMethod(excelImportVoClass.getType(), entityType, false, VoGeneratorUtil.auditIgnoreFields()));
+        mappingsInterface.addMethod(addMappingMethod(excelImportVoClass.getType(), entityType, true, VoGeneratorUtil.auditIgnoreFields()));
 
         return excelImportVoClass;
     }

@@ -82,8 +82,9 @@ public class VoUpdateGenerator extends AbstractVoGenerator {
         addJavaCollectionRelation(updateVoClass,"update");
 
         mappingsInterface.addImportedType(new FullyQualifiedJavaType(updateVoType));
-        mappingsInterface.addMethod(addMappingMethod(updateVoClass.getType(), entityType, false));
-        mappingsInterface.addMethod(addMappingMethod(updateVoClass.getType(), entityType, true));
+        // 保留 version 供 C05 旧链乐观锁回传，其余服务端强制字段一律忽略
+        mappingsInterface.addMethod(addMappingMethod(updateVoClass.getType(), entityType, false, VoGeneratorUtil.auditIgnoreFieldsForUpdate()));
+        mappingsInterface.addMethod(addMappingMethod(updateVoClass.getType(), entityType, true, VoGeneratorUtil.auditIgnoreFieldsForUpdate()));
 
         return updateVoClass;
     }

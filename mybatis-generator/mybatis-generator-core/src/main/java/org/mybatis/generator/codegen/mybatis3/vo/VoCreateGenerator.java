@@ -117,8 +117,9 @@ public class VoCreateGenerator extends AbstractVoGenerator {
           生成映射方法
          */
         mappingsInterface.addImportedType(new FullyQualifiedJavaType(createVoType));
-        mappingsInterface.addMethod(addMappingMethod(createVoClass.getType(), entityType, false));
-        mappingsInterface.addMethod(addMappingMethod(createVoClass.getType(), entityType, true));
+        // VO→实体方向忽略服务端强制字段，避免客户端审计值进入实体
+        mappingsInterface.addMethod(addMappingMethod(createVoClass.getType(), entityType, false, VoGeneratorUtil.auditIgnoreFields()));
+        mappingsInterface.addMethod(addMappingMethod(createVoClass.getType(), entityType, true, VoGeneratorUtil.auditIgnoreFields()));
 
         return createVoClass;
     }
