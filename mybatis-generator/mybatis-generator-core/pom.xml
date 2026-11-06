@@ -172,6 +172,7 @@
         <dependency>
             <groupId>com.vgosoft</groupId>
             <artifactId>vgosoft-core</artifactId>
+            <version>${vgosoft-basic.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mybatis</groupId>
