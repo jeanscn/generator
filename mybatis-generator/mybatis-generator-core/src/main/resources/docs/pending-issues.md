@@ -7,16 +7,16 @@
 
 ## 1. 问题总览
 
-| ID | 优先级 | 类别 | 标题 | 证据状态 | 处理状态 | 发现日期 | 关联任务/主记录 |
-|---|---|---|---|---|---|---|---|
-| generator-core-ISSUE-0001 | 中 | 其他 | CAS/逻辑删除回归依赖可变消费配置导致历史基线漂移 | 已复现并固定当前输入 | 已处理（当前快照版本化） | 2026-10-26 | [Service 停用任务书](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\service-entry-disable-contract-task.md) |
-| generator-core-ISSUE-0002 | 中 | 数据一致性 | 根实体结构同步可能为主键生成可空列变更 | 已修复并回归 | 已处理（主键强制 NOT NULL） | 2026-10-26 | [Service 停用任务书](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\service-entry-disable-contract-task.md) |
-| generator-core-ISSUE-0003 | 中 | 其他 | 未启用停用配置的业务消费者缺真实再生成编译测试证据 | core 1.7→1.8 同输入生成对照、消费编译及 Service 测试已验证；Controller 测试受隔离上下文依赖阻塞 | 部分完成，仍待处理 | 2026-10-26 | [遗留项核查](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\service-entry-disable-contract-task.md#5-后续遗留项核查2026-10-26) |
-| generator-core-ISSUE-0004 | 中 | 测试与基线 | 锁查询离线输出基线漂移（Excel 限额拒绝已修复） | 余项已复现（最近证据 2026-10-28） | 待处理 | 2026-10-26 | 无（生成器关联回归发现） |
-| generator-core-ISSUE-0005 | 中 | 测试与基线 | 消费方完整输出基线测试存在既有失败（前端产物重复键） | 已复现 | 待处理 | 2026-10-26 | 无（import 登记侧审计的验证旁路发现） |
-| generator-core-ISSUE-0006 | 中 | 测试与基线 | CAS 消费者生成 fixture 的 TIMESTAMP 类型与受管契约不匹配 | 已复现 | 待处理 | 2026-10-28 | Sensitive SC05 隔离生成回归阻塞 |
-| generator-core-ISSUE-0007 | 低 | 测试与基线 | SensitiveGenerationTest 的 FreeMarker include 缺少模板加载器 | 已复现 | 待处理 | 2026-10-28 | 无（同批生成器回归中的非主线问题） |
-| generator-core-ISSUE-0008 | 中 | 数据一致性 | 根实体结构同步 DDL 失败仅告警且生成继续 | 已复现 | 待处理 | 2026-10-29 | [根实体结构同步检查任务书](task/root-class-schema-sync-task.md) |
+| ID | 优先级 | 类别 | 标题 | 证据状态 | 处理状态 | 复核状态 | 发现日期 | 关联任务/主记录 |
+|---|---|---|---|---|---|---|---|---|
+| generator-core-ISSUE-0001 | 中 | 其他 | CAS/逻辑删除回归依赖可变消费配置导致历史基线漂移 | 已复现并固定当前输入 | 已处理（当前快照版本化） | — | 2026-10-26 | [Service 停用任务书](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\service-entry-disable-contract-task.md) |
+| generator-core-ISSUE-0002 | 中 | 数据一致性 | 根实体结构同步可能为主键生成可空列变更 | 已修复并回归 | 已处理（主键强制 NOT NULL） | — | 2026-10-26 | [Service 停用任务书](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\service-entry-disable-contract-task.md) |
+| generator-core-ISSUE-0003 | 中 | 其他 | 未启用停用配置的业务消费者缺真实再生成编译测试证据 | core 1.7→1.8 同输入生成对照、消费编译及 Service 测试已验证；Controller 测试受隔离上下文依赖阻塞 | 部分完成，仍待处理 | — | 2026-10-26 | [遗留项核查](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\service-entry-disable-contract-task.md#5-后续遗留项核查2026-10-26) |
+| generator-core-ISSUE-0004 | 中 | 测试与基线 | 锁查询离线输出基线漂移（Excel 限额拒绝已修复） | 余项已复现（最近证据 2026-10-28） | 待处理 | — | 2026-10-26 | 无（生成器关联回归发现） |
+| generator-core-ISSUE-0005 | 中 | 测试与基线 | 消费方完整输出基线测试存在既有失败（前端产物重复键） | 已复现 | 待处理 | — | 2026-10-26 | 无（import 登记侧审计的验证旁路发现） |
+| generator-core-ISSUE-0006 | 中 | 测试与基线 | CAS 消费者生成 fixture 的 TIMESTAMP 类型与受管契约不匹配 | 已复现 | 待处理 | — | 2026-10-28 | Sensitive SC05 隔离生成回归阻塞 |
+| generator-core-ISSUE-0007 | 低 | 测试与基线 | SensitiveGenerationTest 的 FreeMarker include 缺少模板加载器 | 已复现 | 待处理 | — | 2026-10-28 | 无（同批生成器回归中的非主线问题） |
+| generator-core-ISSUE-0008 | 中 | 数据一致性 | 根实体结构同步 DDL 失败仅告警且生成继续 | 已复现 | 待处理 | — | 2026-10-29 | [根实体结构同步检查任务书](task/root-class-schema-sync-task.md) |
 
 ## 2. 问题详情
 

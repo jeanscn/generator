@@ -171,6 +171,6 @@ public class ConstantsUtil {
             ,"curProcessors","parentBusinessKey","branchCount","branchCompleteCount","sectionHidden","rootProcessInstanceId"
             ,"processInstanceId","isSubflow","subFlowElement","subFlowProcessInstanceId","taskDefinitionKey","taskId"
             ,"taskName","nodeExecNumber","actionList","sectionReadonly","sectionKeepEditable","sectionShow","assigneeType"
-            ,"assignmentType","assignee","enableEdit","addtionalSave","enableTransfer","enableTackback","enableSendback"
+            ,"assignmentType","assignee","enableEdit","addtionalSave","enableTransfer","enableTakeback","enableSendback"
             ,"allowCancel","lastAssignee","lastTaskId");
 }
