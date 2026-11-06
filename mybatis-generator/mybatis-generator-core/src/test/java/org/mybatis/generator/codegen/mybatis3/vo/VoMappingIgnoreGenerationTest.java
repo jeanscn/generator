@@ -80,7 +80,8 @@ class VoMappingIgnoreGenerationTest {
         assertThat(method.getName()).isEqualTo("fromArticleUpdateVos");
         assertThat(method.getAnnotations()).contains(annotation("created"), annotation("tenantId"))
                 .doesNotContain(annotation("version"));
-        assertThat(method.getReturnType().get().getFullyQualifiedName()).startsWith("java.util.List");
+        FullyQualifiedJavaType fullyQualifiedJavaType = method.getReturnType().orElse(null);
+        assertThat(fullyQualifiedJavaType!=null && fullyQualifiedJavaType.getFullyQualifiedName().startsWith("java.util.List")).isTrue();
     }
 
     /** 目标实体不存在的属性不输出忽略声明，根实体父类声明的属性仍可识别。 */
