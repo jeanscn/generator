@@ -2,6 +2,7 @@ package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.core.annotation.ColumnMeta;
 import com.vgosoft.core.constant.GlobalConstant;
+import com.vgosoft.core.constant.enums.db.DbFiledDefaultValueEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -53,7 +54,12 @@ public class ColumnMetaDesc extends AbstractAnnotation{
         this.dataFormat = introspectedColumn.getDatePattern();
         this.nullable = introspectedColumn.isNullable();
         this.charSet = "utf8mb4";
-        this.defaultValue = "";
+        // 命中约定默认值枚举的列（如 currentUserId/currentDeptId），输出去掉单引号的规范化代码，
+        // 供运行时按 @ColumnMeta.defaultValue 解析身份值；其余列保持空
+        String columnDefaultValue = introspectedColumn.getDefaultValue();
+        this.defaultValue = DbFiledDefaultValueEnum.ofCode(columnDefaultValue) != null
+                ? columnDefaultValue.replace("'", "")
+                : "";
         this.remarks = introspectedColumn.getRemarks(true);
         this.position = "";
         this.addImports(ColumnMeta.class.getCanonicalName());

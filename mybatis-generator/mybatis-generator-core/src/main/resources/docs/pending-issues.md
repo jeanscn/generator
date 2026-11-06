@@ -17,6 +17,7 @@
 | generator-core-ISSUE-0006 | 中 | 测试与基线 | CAS 消费者生成 fixture 的 TIMESTAMP 类型与受管契约不匹配 | 已复现 | 待处理 | — | 2026-10-28 | Sensitive SC05 隔离生成回归阻塞 |
 | generator-core-ISSUE-0007 | 低 | 测试与基线 | SensitiveGenerationTest 的 FreeMarker include 缺少模板加载器 | 已复现 | 待处理 | — | 2026-10-28 | 无（同批生成器回归中的非主线问题） |
 | generator-core-ISSUE-0008 | 中 | 数据一致性 | 根实体结构同步 DDL 失败仅告警且生成继续 | 已复现 | 待处理 | — | 2026-10-29 | [根实体结构同步检查任务书](task/root-class-schema-sync-task.md) |
+| generator-core-ISSUE-0009 | 中 | 依赖兼容 | `vgosoft-tool:7.0.0-SNAPSHOT` 的 `VArrayUtil.merge` 新增受检异常导致生成器无法全量编译 | 已复现 | 待处理（T08 已验证临时修复） | — | 2026-11-07 | [审计字段自动填充任务书](task/audit-field-filling-task.md) T08 |
 
 ## 2. 问题详情
 
@@ -112,3 +113,14 @@
 - 建议后续处理：独立评审是否需要可配置 fail-fast 或失败后阻止生成的策略；若获批，补充异常/输出契约、DDL 拒绝回归及 Maven Mojo 验收。不得仅吞掉 warning 或把未完成结构同步报告为成功。
 - 责任与关联：`mybatis-generator-core` 结构同步能力维护方；关联[根实体结构同步检查任务书](task/root-class-schema-sync-task.md)。
 - 更新与关闭记录：2026-10-29 首次登记，中/已复现/待处理；本轮不修改代码。
+
+### generator-core-ISSUE-0009 vgosoft-tool:7.0.0 的 VArrayUtil.merge 受检异常导致生成器无法全量编译
+
+- 发现来源：2026-11-07 执行审计字段自动填充任务书 T08（生成器清理 getter 回退）时，`clean compile` 全量重编暴露。
+- 位置与证据：`vgosoft-tool:7.0.0-SNAPSHOT` 的 `com.vgosoft.tool.core.VArrayUtil.merge(Collection, Collection, boolean)` 签名为 `throws InvocationTargetException, IllegalAccessException`（basic 已提交代码，SVN 无未提交改动；本地 jar `vgosoft-tool-7.0.0-SNAPSHOT.jar` 为 2026-11-05 install）。生成器 `TableConfiguration.calculateReusableElementsConfiguration` 的 5 处 `VArrayUtil.merge` 调用（L570/L588/L593/L608/L616，其中 L570、L608 位于 lambda 内）未捕获该受检异常，`mvn clean compile` 报「未报告的异常错误 InvocationTargetException」。此前增量编译因 `TableConfiguration.class` 已在 target 中未被重编而掩盖此问题。
+- 问题现象与触发条件：全量重编（`clean compile`）即失败；`vgosoft-tool` 5.3.0/6.0.0 的 `merge` 无受检异常，7.0.0 起新增。生成器 dependencyManagement 未锁定 `vgosoft-tool` 版本，传递解析到 7.0.0-SNAPSHOT 后触发。
+- 影响与分级依据：中。阻塞生成器全量编译与后续 T12 回归，但与 T08 的 getter 回退清理无因果关系；`merge` 的反射异常对生成器配置合并属于「不应发生」场景，转为运行时异常语义合理。
+- 与当前任务的关系：T08 为完成定向验证，临时将 `calculateReusableElementsConfiguration` 加 `throws` 并在 `reprocessConfiguration` 调用处以 try-catch 转 `IllegalStateException`、两个 lambda 内各自 try-catch；T08 定向测试 3 项通过。该修复属既有问题的顺带处理，非 T08 范围，待 Copilot/需求负责人确认是否正式采纳（或改为锁定 `vgosoft-tool` 兼容版本）。
+- 建议后续处理：由生成器维护方与 basic `vgosoft-tool` 维护方确认 `merge` 受检异常的正式处理方式（生成器适配签名，或 `vgosoft-tool` 降级/改为运行时异常）；确认后补充回归，不擅自扩大 T08 范围。
+- 责任与关联：生成器维护方；关联 basic `vgosoft-tool` 模块。
+- 更新与关闭记录：2026-11-07 首次登记，中/已复现/待处理；T08 已验证临时修复（3 项定向测试通过），正式修复待确认。

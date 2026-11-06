@@ -1,6 +1,5 @@
 package org.mybatis.generator.codegen.mybatis3.controller;
 
-import com.vgosoft.core.constant.enums.db.DbFiledDefaultValueEnum;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import lombok.Getter;
@@ -16,7 +15,6 @@ import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.custom.annotations.IAnnotation;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
@@ -313,33 +311,6 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
             return VStringUtil.format("mappings.from{0}Vo{2}({1}Vo{2})", entityType.getShortName(), entityType.getShortNameFirstLowCase(), isMulti ? "s" : "");
         } else {
             return entityType.getShortNameFirstLowCase() + (isMulti ? "s" : "");
-        }
-    }
-
-    /**
-     * 添加ioc注入的默认值到方法体中
-     * @param abstractIntrospectedTable 内省表对象
-     * @param method 方法对象
-     * @param type 类型对象
-     * @deprecated 该方法已弃用，默认值的注入应该在service层进行处理，而不是在controller层进行处理
-     * 该方法在controller层中注入默认值可能会导致一些问题
-     */
-    @Deprecated(since = "1.8.0")
-    protected static void addIocInitialDefaultValue(AbstractIntrospectedTable abstractIntrospectedTable, Method method, FullyQualifiedJavaType type) {
-        List<IntrospectedColumn> initialColumns = abstractIntrospectedTable.getAllColumns().stream()
-                .filter(column -> VStringUtil.stringHasValue(column.getDefaultValue()) && DbFiledDefaultValueEnum.ofCode(column.getDefaultValue()) != null)
-                .toList();
-        if (!initialColumns.isEmpty()) {
-            for (IntrospectedColumn initialColumn : initialColumns) {
-
-                String propertyName = initialColumn.getJavaProperty();
-                DbFiledDefaultValueEnum defaultValueEnum = DbFiledDefaultValueEnum.ofCode(initialColumn.getDefaultValue());
-                if (defaultValueEnum != null) {
-                    method.addBodyLine("{0}.{1}({0}.{2}());", type.getShortNameFirstLowCase()
-                            , JavaBeansUtil.getSetterMethodName(propertyName)
-                            , JavaBeansUtil.getGetterMethodName(propertyName, initialColumn.getFullyQualifiedJavaType()));
-                }
-            }
         }
     }
 

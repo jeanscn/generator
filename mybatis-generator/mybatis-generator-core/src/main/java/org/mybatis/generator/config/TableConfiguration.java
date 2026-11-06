@@ -20,6 +20,7 @@ import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 import org.mybatis.generator.internal.util.messages.Messages;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -424,7 +425,11 @@ public class TableConfiguration extends PropertyHolder {
         updateVoModelType(introspectedTable);
 
         // 处理复用元素的配置
-        calculateReusableElementsConfiguration(introspectedTable, context, warnings);
+        try {
+            calculateReusableElementsConfiguration(introspectedTable, context, warnings);
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new IllegalStateException("合并复用元素配置失败", e);
+        }
 
         //更新TC与表结构相关的自定义属性
         updateTableConfiguration(introspectedTable);
@@ -558,7 +563,7 @@ public class TableConfiguration extends PropertyHolder {
         return reservedMethodNames.contains(methodName);
     }
 
-    private void calculateReusableElementsConfiguration(AbstractIntrospectedTable introspectedTable, Context context, List<String> warnings) {
+    private void calculateReusableElementsConfiguration(AbstractIntrospectedTable introspectedTable, Context context, List<String> warnings) throws InvocationTargetException, IllegalAccessException {
         ReusableElementsConfiguration reusableElementsConfiguration = context.getReusableElementsConfiguration();
         if (reusableElementsConfiguration.getExcludedTables().contains(this.tableName)) {
             return;
@@ -567,7 +572,12 @@ public class TableConfiguration extends PropertyHolder {
         List<HtmlElementDescriptor> reusableHtmlElementDescriptors = reusableElementsConfiguration.getHtmlElementDescriptors(introspectedTable);
         if (!reusableHtmlElementDescriptors.isEmpty() && !introspectedTable.getTableConfiguration().getHtmlGeneratorConfigurations().isEmpty()) {
             introspectedTable.getTableConfiguration().getHtmlGeneratorConfigurations().forEach(htmlGeneratorConfiguration -> {
-                Collection<HtmlElementDescriptor> htmlElementDescriptors = VArrayUtil.merge(htmlGeneratorConfiguration.getElementDescriptors(), reusableHtmlElementDescriptors, false);
+                Collection<HtmlElementDescriptor> htmlElementDescriptors;
+                try {
+                    htmlElementDescriptors = VArrayUtil.merge(htmlGeneratorConfiguration.getElementDescriptors(), reusableHtmlElementDescriptors, false);
+                } catch (InvocationTargetException | IllegalAccessException e) {
+                    throw new IllegalStateException("合并 HTML 元素描述符失败", e);
+                }
                 htmlElementDescriptors.forEach(htmlElementDescriptor -> {
                     if (htmlElementDescriptor.getHtmlGeneratorConfiguration() == null) {
                         htmlElementDescriptor.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
@@ -605,7 +615,12 @@ public class TableConfiguration extends PropertyHolder {
             if (!reusableElementsConfiguration.getListColumnDescriptors().isEmpty()) {
                 List<InnerListViewConfiguration> innerListViewConfigurations = this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations();
                 innerListViewConfigurations.forEach(innerListViewConfiguration -> {
-                    Collection<ListColumnConfiguration> listColumnConfigurations = VArrayUtil.merge(innerListViewConfiguration.getListColumnConfigurations(), reusableElementsConfiguration.getListColumnConfigurations(innerListViewConfiguration, introspectedTable), false);
+                    Collection<ListColumnConfiguration> listColumnConfigurations;
+                    try {
+                        listColumnConfigurations = VArrayUtil.merge(innerListViewConfiguration.getListColumnConfigurations(), reusableElementsConfiguration.getListColumnConfigurations(innerListViewConfiguration, introspectedTable), false);
+                    } catch (InvocationTargetException | IllegalAccessException e) {
+                        throw new IllegalStateException("合并列表列配置失败", e);
+                    }
                     innerListViewConfiguration.getListColumnConfigurations().clear();
                     innerListViewConfiguration.getListColumnConfigurations().addAll(listColumnConfigurations);
                 });

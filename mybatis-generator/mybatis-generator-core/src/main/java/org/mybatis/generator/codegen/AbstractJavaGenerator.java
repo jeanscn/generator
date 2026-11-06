@@ -3,6 +3,8 @@ package org.mybatis.generator.codegen;
 import com.vgosoft.core.constant.SymbolConstants;
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import com.vgosoft.core.constant.enums.db.DbFiledDefaultValueEnum;
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum.AuditRole;
 import com.vgosoft.tool.core.VStringUtil;
 import lombok.Getter;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
@@ -143,6 +145,18 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
                 return;
             }
             String defaultValue = c.getDefaultValue();
+            // 命中约定默认值枚举的字段（A 类 createdId/modifiedId 由基础实体声明、B 类 applyUserId 等由子类 @ColumnMeta 声明），
+            // 不再生成 getter 回退或初始化块赋值，统一由运行时拦截器按 @ColumnMeta.defaultValue 填充
+            if (DbFiledDefaultValueEnum.ofCode(defaultValue) != null) {
+                return;
+            }
+            // 审计字段跳过初始化：A/A' 类字段（created/modified/version/tenantId 及受控主键）
+            // 由运行时拦截器在 SQL 层统一填充，不在初始化块赋值；deleteFlag 例外保留其 = 0 初始化语义（方案 §5.2/§6.2）
+            DefaultColumnNameEnum columnEnum = DefaultColumnNameEnum.ofColumnName(c.getActualColumnName()).orElse(null);
+            if (columnEnum != null && columnEnum != DefaultColumnNameEnum.DELETE_FLAG
+                    && (columnEnum.auditRole() == AuditRole.A || columnEnum.auditRole() == AuditRole.A_PRIME)) {
+                return;
+            }
             if (defaultValue != null && !SymbolConstants.NULL.equalsIgnoreCase(defaultValue)) {
                 if (!defaultFields.contains(c.getJavaProperty())) {
                     columnNames.add(c.getActualColumnName());
@@ -158,25 +172,6 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
                         initializationBlock.addBodyLine(VStringUtil.format("this.{0} = VDateUtils.getCurrentTime();", c.getJavaProperty()));
                         topLevelClass.addImportedType(V_DATE_UTILS);
                     }
-                } else if (DbFiledDefaultValueEnum.ofCode(defaultValue) != null) {
-                    // 这里需要重写getter，依赖ioc，只能进行懒加载
-                    DbFiledDefaultValueEnum defaultValueEnum = DbFiledDefaultValueEnum.ofCode(defaultValue);
-                    // defaultValue的getter方法
-                    String getterMethodName = getGetterMethodName(c.getJavaProperty(), c.getFullyQualifiedJavaType());
-                    Method getterMethod = new Method(getterMethodName);
-                    if (topLevelClass.getFields().stream().noneMatch(f -> f.getName().equals(c.getJavaProperty()))) {
-                        getterMethod.addAnnotation("@Override");
-                    }
-                    getterMethod.setVisibility(JavaVisibility.PUBLIC);
-                    getterMethod.setReturnType(c.getFullyQualifiedJavaType());
-                    getterMethod.addBodyLine("if ({0} == null) '{'", c.getJavaProperty());
-                    getterMethod.addBodyLine(VStringUtil.format("return {0};", defaultValueEnum.codeName()));
-                    getterMethod.addBodyLine("}");
-                    getterMethod.addBodyLine(VStringUtil.format("return {0};", c.getJavaProperty()));
-                    if (VStringUtil.stringHasValue(defaultValueEnum.imports())) {
-                        topLevelClass.addMultipleImports(defaultValueEnum.imports().split(","));
-                    }
-                    topLevelClass.addMethod(getterMethod);
                 } else if (c.isJdbcCharacterColumn()) {
                     initializationBlock.addBodyLine(VStringUtil.format("this.{0} = \"{1}\";", c.getJavaProperty(), defaultValue));
                 } else if ("BigDecimal".equals(c.getFullyQualifiedJavaType().getShortName())) {
