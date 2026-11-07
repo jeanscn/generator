@@ -11,9 +11,11 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.IntrospectedTableMyBatis3Impl;
+import org.mybatis.generator.codegen.mybatis3.model.BaseRecordGenerator;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.xml.ConfigurationParser;
 import org.mybatis.generator.custom.annotations.ColumnMetaDesc;
+import org.mybatis.generator.plugins.TableMetaAnnotationPlugin;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.PluginAggregator;
 import org.mybatis.generator.internal.rules.FlatModelRules;
@@ -22,6 +24,7 @@ import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,17 +49,22 @@ class AuditFieldInitGenerationTest {
         mappings.setVisibility(org.mybatis.generator.api.dom.java.JavaVisibility.PUBLIC);
         var callback = new ProgressCallback() { };
         var warnings = new ArrayList<String>();
+        TopLevelClass entity = generateEntity(table, callback, warnings);
         TopLevelClass createVo = new VoCreateGenerator(table, "src", callback, warnings, mappings).generate();
-        String rendered = format(createVo);
+        TopLevelClass excelImportVo = new VoExcelImportGenerator(table, "src", callback, warnings, mappings).generate();
 
-        // 初始化块不再出现 A 类审计字段（created/modified/version/createdId/modifiedId/tenantId）
-        assertThat(rendered).doesNotContain("this.created =", "this.modified =", "this.version =",
-                "this.createdId =", "this.modifiedId =", "this.tenantId =");
-        // 不再生成 getter 回退（无 VCurrentUserUtil 导入、无 getCreatedId/getModifiedId 重写）
-        assertThat(rendered).doesNotContain("VCurrentUserUtil", "getCreatedId", "getModifiedId");
-        // 命中约定默认值枚举的字段（createdId/applyUserId）不再字面量初始化
-        assertThat(rendered).doesNotContain("this.createdId = \"'currentUserId'\"",
-                "this.applyUserId = \"'currentUserId'\"");
+        for (TopLevelClass generatedType : List.of(entity, createVo, excelImportVo)) {
+            String rendered = format(generatedType);
+            // 初始化块不再出现 A 类审计字段（created/modified/version/createdId/modifiedId/tenantId）
+            assertThat(rendered).doesNotContain("this.created =", "this.modified =", "this.version =",
+                    "this.createdId =", "this.modifiedId =", "this.tenantId =");
+            // 不再生成 getter 回退（无 VCurrentUserUtil 导入、无 getCreatedId/getModifiedId 重写）
+            assertThat(rendered).doesNotContain("VCurrentUserUtil", "getCreatedId", "getModifiedId");
+            // 命中约定默认值枚举的字段（createdId/applyUserId）不再字面量初始化
+            assertThat(rendered).doesNotContain("this.createdId = \"'currentUserId'\"",
+                    "this.applyUserId = \"'currentUserId'\"");
+        }
+        assertThat(format(entity)).contains("defaultValue = \"currentUserId\"");
     }
 
     /** deleteFlag 的 = 0 初始化语义保留（方案 §5.2/§6.2），普通字段的字面量初始化保留。 */
@@ -75,6 +83,19 @@ class AuditFieldInitGenerationTest {
         assertThat(rendered).contains("this.applyDate = \"2026-01-01\";");
     }
 
+    @Test
+    void managedCasEntityKeepsRequiredVersionInitializer() throws Exception {
+        var table = fixture(true);
+        var version = table.getColumn("version_").orElseThrow();
+        version.setFullyQualifiedJavaType(new FullyQualifiedJavaType("java.lang.Integer"));
+        version.setJdbcType(Types.INTEGER);
+        version.setJdbcTypeName("INTEGER");
+        var entity = generateEntity(table, new ProgressCallback() { }, new ArrayList<>());
+
+        assertThat(format(entity)).contains("this.version = 1;")
+                .doesNotContain("this.created =", "this.modified =", "this.createdId =", "this.tenantId =");
+    }
+
     /** ColumnMetaDesc 只对命中 DbFiledDefaultValueEnum 的列输出规范化 defaultValue（去单引号）。 */
     @Test
     void columnMetaDescEmitsNormalizedDefaultValue() {
@@ -89,6 +110,16 @@ class AuditFieldInitGenerationTest {
 
     private static String format(CompilationUnit unit) {
         return new DefaultJavaFormatter().getFormattedContent(unit);
+    }
+
+    private static TopLevelClass generateEntity(IntrospectedTableMyBatis3Impl table, ProgressCallback callback,
+                                                List<String> warnings) {
+        BaseRecordGenerator generator = new BaseRecordGenerator("src");
+        generator.setContext(table.getContext());
+        generator.setIntrospectedTable(table);
+        generator.setProgressCallback(callback);
+        generator.setWarnings(warnings);
+        return (TopLevelClass) generator.getCompilationUnits().get(0);
     }
 
     private static IntrospectedColumn column(String columnName, String property, String defaultValue) {
@@ -107,6 +138,10 @@ class AuditFieldInitGenerationTest {
 
     /** 构造离线内省替身，覆盖 A 类、A' 主键、B 约定默认与普通字段，rootClass 沿用配置中的 AbstractEntity。 */
     private IntrospectedTableMyBatis3Impl fixture() throws Exception {
+        return fixture(false);
+    }
+
+    private IntrospectedTableMyBatis3Impl fixture(boolean managedCas) throws Exception {
         String xml;
         try (var stream = getClass().getResourceAsStream("/dict-prefetch-generator.xml")) {
             assertThat(stream).as("离线生成配置资源").isNotNull();
@@ -121,11 +156,17 @@ class AuditFieldInitGenerationTest {
         }
         Context context = new ConfigurationParser(new ArrayList<>()).parseConfiguration(new StringReader(xml))
                 .getContexts().get(0);
+        var tableConfiguration = context.getTableConfigurations().get(0);
+        PluginAggregator pluginAggregator = new PluginAggregator();
+        TableMetaAnnotationPlugin tableMetaAnnotationPlugin = new TableMetaAnnotationPlugin();
+        tableMetaAnnotationPlugin.setContext(context);
+        assertThat(tableMetaAnnotationPlugin.validate(new ArrayList<>())).isTrue();
+        pluginAggregator.addPlugin(tableMetaAnnotationPlugin);
         var plugins = Context.class.getDeclaredField("pluginAggregator");
         plugins.setAccessible(true);
-        plugins.set(context, new PluginAggregator());
+        plugins.set(context, pluginAggregator);
         var table = (IntrospectedTableMyBatis3Impl) ObjectFactory.createIntrospectedTable(
-                context.getTableConfigurations().get(0), new FullyQualifiedTable(null, null, "article_", "Article",
+                tableConfiguration, new FullyQualifiedTable(null, null, "article_", "Article",
                         null, true, null, null, null, false, null, context), context);
         table.setRemarks("文章");
         // A 类审计字段：created/modified 用 CURRENT_TIMESTAMP，version 用字面量 1
@@ -144,6 +185,7 @@ class AuditFieldInitGenerationTest {
         table.addColumn(column("name_", "name", ""));
         table.addPrimaryKeyColumn("id_");
         table.initialize();
+        tableConfiguration.setCasWriteContractEnabled(managedCas);
         table.setRules(new FlatModelRules(table));
         return table;
     }

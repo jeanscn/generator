@@ -3,7 +3,7 @@
 > 所属项目：`generator/mybatis-generator`
 > 模块/范围：`mybatis-generator-core`
 > 规范：[非主线问题登记与后续处理规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\deferred-issue-management-standard.md)
-> 更新时间：2026-10-29
+> 更新时间：2026-11-07
 
 ## 1. 问题总览
 
@@ -11,13 +11,13 @@
 |---|---|---|---|---|---|---|---|---|
 | generator-core-ISSUE-0001 | 中 | 其他 | CAS/逻辑删除回归依赖可变消费配置导致历史基线漂移 | 已复现并固定当前输入 | 已处理（当前快照版本化） | — | 2026-10-26 | [Service 停用任务书](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\service-entry-disable-contract-task.md) |
 | generator-core-ISSUE-0002 | 中 | 数据一致性 | 根实体结构同步可能为主键生成可空列变更 | 已修复并回归 | 已处理（主键强制 NOT NULL） | — | 2026-10-26 | [Service 停用任务书](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\service-entry-disable-contract-task.md) |
-| generator-core-ISSUE-0003 | 中 | 其他 | 未启用停用配置的业务消费者缺真实再生成编译测试证据 | core 1.7→1.8 同输入生成对照、消费编译及 Service 测试已验证；Controller 测试受隔离上下文依赖阻塞 | 部分完成，仍待处理 | — | 2026-10-26 | [遗留项核查](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\service-entry-disable-contract-task.md#5-后续遗留项核查2026-10-26) |
-| generator-core-ISSUE-0004 | 中 | 测试与基线 | 锁查询离线输出基线漂移（Excel 限额拒绝已修复） | 余项已复现（最近证据 2026-10-28） | 待处理 | — | 2026-10-26 | 无（生成器关联回归发现） |
-| generator-core-ISSUE-0005 | 中 | 测试与基线 | 消费方完整输出基线测试存在既有失败（前端产物重复键） | 已复现 | 待处理 | — | 2026-10-26 | 无（import 登记侧审计的验证旁路发现） |
-| generator-core-ISSUE-0006 | 中 | 测试与基线 | CAS 消费者生成 fixture 的 TIMESTAMP 类型与受管契约不匹配 | 已复现 | 待处理 | — | 2026-10-28 | Sensitive SC05 隔离生成回归阻塞 |
-| generator-core-ISSUE-0007 | 低 | 测试与基线 | SensitiveGenerationTest 的 FreeMarker include 缺少模板加载器 | 已复现 | 待处理 | — | 2026-10-28 | 无（同批生成器回归中的非主线问题） |
-| generator-core-ISSUE-0008 | 中 | 数据一致性 | 根实体结构同步 DDL 失败仅告警且生成继续 | 已复现 | 待处理 | — | 2026-10-29 | [根实体结构同步检查任务书](task/root-class-schema-sync-task.md) |
-| generator-core-ISSUE-0009 | 中 | 依赖兼容 | `vgosoft-tool:7.0.0-SNAPSHOT` 的 `VArrayUtil.merge` 新增受检异常导致生成器无法全量编译 | 已复现 | 待处理（T08 已验证临时修复） | — | 2026-11-07 | [审计字段自动填充任务书](task/audit-field-filling-task.md) T08 |
+| generator-core-ISSUE-0003 | 中 | 其他 | 未启用停用配置的业务消费者缺真实再生成编译测试证据 | core 1.7→1.8 同输入生成对照、消费编译及 Service 测试已验证；Controller 测试受隔离上下文依赖阻塞 | 部分完成，仍待处理（跨仓库，需 application/root 维护方提供隔离测试配置） | — | 2026-10-26 | [遗留项核查](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\service-entry-disable-contract-task.md#5-后续遗留项核查2026-10-26) |
+| generator-core-ISSUE-0004 | 中 | 测试与基线 | 锁查询离线输出基线漂移（Excel 限额拒绝已修复） | 已定位根因并更新基线（2026-11-07） | 已处理（基线更新为 codegen 子包设计后的当前输出） | — | 2026-10-26 | 无（生成器关联回归发现） |
+| generator-core-ISSUE-0005 | 中 | 测试与基线 | 消费方完整输出基线测试存在既有失败（前端产物重复键） | 已定位根因并修复（2026-11-07） | 已处理（测试 key 构造纳入 targetProject 尾部目录） | — | 2026-10-26 | 无（import 登记侧审计的验证旁路发现） |
+| generator-core-ISSUE-0006 | 中 | 测试与基线 | CAS 消费者生成 fixture 的 TIMESTAMP 类型与受管契约不匹配 | 已定位根因并修复（2026-11-07） | 已处理（测试补 customConfig，与真实 Maven 入口一致） | — | 2026-10-28 | Sensitive SC05 隔离生成回归阻塞 |
+| generator-core-ISSUE-0007 | 低 | 测试与基线 | SensitiveGenerationTest 的 FreeMarker include 缺少模板加载器 | 已定位根因并修复（2026-11-07） | 已处理（render 补 ClassTemplateLoader） | — | 2026-10-28 | 无（同批生成器回归中的非主线问题） |
+| generator-core-ISSUE-0008 | 中 | 数据一致性 | 根实体结构同步 DDL 失败仅告警且生成继续 | 已复现 | 待处理（2026-11-07 确认保持登记，不实现 fail-fast） | — | 2026-10-29 | [根实体结构同步检查任务书](task/root-class-schema-sync-task.md) |
+| generator-core-ISSUE-0009 | 中 | 依赖兼容 | `vgosoft-tool:7.0.0-SNAPSHOT` 的 `VArrayUtil.merge` 新增受检异常导致生成器无法全量编译 | 已复现 | 已解决（生成器适配异常契约） | 复核通过 | 2026-11-07 | [审计字段自动填充任务书](task/audit-field-filling-task.md) T08 |
 
 ## 2. 问题详情
 
@@ -57,7 +57,7 @@
 - 与当前任务的关系：本轮不重开 revision 问题；跨消费者交付证据作为独立后续项，不通过重录历史基线掩盖 generator-core-ISSUE-0001。
 - 建议后续处理：由 application/root 模块维护方提供可复用的隔离 Controller 测试配置或完整测试依赖（H2、RoleServiceAdapter、IWorkflowProcessorResolver 等运行期 Bean 均明确本地化），再执行两组生成 Controller 测试；不得加载真实远程配置。要严格归因停用特性本身，还需从停用功能改动前的 1.8 源码构建 core，并与当前 1.8 对同一配置/DDL 再生成比较。不得触发目标库结构同步、菜单/权限更新或直接覆盖工作副本。
 - 责任与关联：生成器维护方与 application/root 消费模块维护方；版本提交及基线来源由仓库负责人确认。
-- 更新与关闭记录：2026-10-26 首次登记，中/源码已定位/待处理；2026-10-27 补齐 application 有效版本、core 1.7→1.8 同输入输出比较、主/测试编译和 52 项 Service 测试。Controller 测试 22 项因缺失 root 上下文 bean 未通过，ISSUE 保持部分完成、未关闭。
+- 更新与关闭记录：2026-10-26 首次登记，中/源码已定位/待处理；2026-10-27 补齐 application 有效版本、core 1.7→1.8 同输入输出比较、主/测试编译和 52 项 Service 测试。Controller 测试 22 项因缺失 root 上下文 bean 未通过，ISSUE 保持部分完成、未关闭。2026-11-07 确认属跨仓库问题：缺失 `RoleServiceAdapter`、`IWorkflowProcessorResolver` 等运行期 Bean 需 application/root 模块维护方提供可复用隔离测试配置，超出生成器仓库范围，本次仅登记不处理。
 
 ### generator-core-ISSUE-0004 锁查询离线输出基线漂移（Excel 限额拒绝已修复）
 
@@ -68,7 +68,7 @@
 - 与当前任务的关系：Excel 限额校验缺陷与本轮显式两阶段工作流契约紧密相关，已通过解析器修正和 11 项回归覆盖解决；锁查询基线属于独立回归问题，本轮未改动或重验。
 - 建议后续处理：独立安排后固定去敏输入与基线版本，核实锁查询摘要不匹配是否与 generator-core-ISSUE-0001 同源；说明真实差异后再决定修复或更新快照，不调整期望值掩盖问题。
 - 责任与关联：生成器测试维护方，负责人待指定；锁查询余项仍待处理。
-- 更新与关闭记录：2026-10-26 首次登记；2026-10-28 锁查询摘要仍不一致。2026-10-29 修复 Excel 限额解析和校验，`ExcelImportWorkflowGenerationTest` 11 项通过；该 ID 部分解决，锁查询基线余项仍待处理，未关闭。
+- 更新与关闭记录：2026-10-26 首次登记；2026-10-28 锁查询摘要仍不一致。2026-10-29 修复 Excel 限额解析和校验，`ExcelImportWorkflowGenerationTest` 11 项通过；该 ID 部分解决，锁查询基线余项仍待处理，未关闭。2026-11-07 定位根因：`SelectForUpdateGuardGenerator` 经 `getTargetPackageGen()` 把 guard 类落到 `codegen.dao` 子包（权威规范「codegen 生成区」+ `select-for-update-task.md` 已批准的设计），包名/类名较「重构前基线」漂移；与 ISSUE-0001（CAS/逻辑删除消费配置漂移）不同源。按负责人批准更新 `SelectForUpdateGenerationTest.offlineOutputBaseline` 三个 variant 的层 3 期望摘要为当前输出，问题关闭。
 
 ### generator-core-ISSUE-0005 消费方完整输出基线测试存在既有失败（前端产物重复键）
 
@@ -79,7 +79,7 @@
 - 与当前任务的关系：本次 import 改动的回归（`DisabledServiceEntryGenerationTest` 57 项、`SensitiveGenerationTest` 20 项含 1 项既有跳过、`CacheAwareBaseMethodsElementTest` 2 项、`DictPrefetchGenerationTest` 7 项、`ImportScopeAuditTest` 1 项）全部通过；本问题不通过修改断言、重录基线或放宽校验处理。
 - 建议后续处理：独立批准后定位 `PrivateTableColumnSlots.vue` 的重复生成来源（表配置或前端元素装配），确认是应去重还是输出路径应区分，说明差异原因后方可调整。
 - 责任与关联：生成器测试维护方，负责人待指定；当前任务只登记，不修复、不更新快照、不执行提交。
-- 更新与关闭记录：2026-10-26 首次登记，中/已复现/待处理。2026-10-28 当前 CAS fixture 生成命令在生成阶段先因 TIMESTAMP 元数据类型不符合受管契约而失败，未执行到重复文件键断言；此前记录的重复键仍待独立复验。
+- 更新与关闭记录：2026-10-26 首次登记，中/已复现/待处理。2026-10-28 当前 CAS fixture 生成命令在生成阶段先因 TIMESTAMP 元数据类型不符合受管契约而失败，未执行到重复文件键断言；此前记录的重复键仍待独立复验。2026-11-07 定位根因：`GeneratedVueFile` 的 `targetPackage` 恒为空、两张管理表同名 `PrivateTableColumnSlots.vue` 的真实区分在 `targetProject` 尾部 modelPath（`sensitivecategory`/`sensitiveword`），测试 digests key 用 `targetPackage+fileName` 把两个不同文件误判为重复。按「输出路径应区分」结论修正测试 key 构造（targetPackage 为空时纳入 targetProject 尾部目录），问题关闭。
 
 ### generator-core-ISSUE-0006 CAS 消费者生成 fixture 的 TIMESTAMP 类型与受管契约不匹配
 
@@ -90,7 +90,7 @@
 - 与当前任务的关系：SC05 的共享门禁手工 fixture 回归 152 项通过；真实生成 Plus 组合验收仍未完成。未修改测试、生成器配置或业务生成产物，也未用手工 fixture 替代生成输出。
 - 建议后续处理：由生成器维护方核对固定消费配置的 TIMESTAMP Java 类型、离线 `DatabaseMetaData` 替身及 `CasWriteContractValidator` 的审计类型约束；确认唯一正确契约后，修复隔离 fixture 或实现并重新运行两步测试。不得放宽校验以掩盖不兼容，也不得连接业务数据库或覆盖 Sensitive 工作副本。
 - 责任与关联：生成器测试/契约维护方；关联 Sensitive SC05/SC03 当前隔离验证。
-- 更新与关闭记录：2026-10-28 首次登记，低/已复现/待处理。2026-10-29 完整运行 `SensitiveGenerationTest` 再次复现两项模板渲染错误；同批 5 项 Sensitive 写支持矩阵方法通过。未修改测试加载器或模板，本问题仍待单独处理。
+- 更新与关闭记录：2026-10-28 首次登记，低/已复现/待处理。2026-10-29 完整运行 `SensitiveGenerationTest` 再次复现两项模板渲染错误；同批 5 项 Sensitive 写支持矩阵方法通过。未修改测试加载器或模板，本问题仍待单独处理。2026-11-07 定位根因：`CasConsumerBaselineTest.capturesCompleteConsumerOutputWithoutExternalWrites` 解析配置后遗漏真实 Maven 入口（`MyBatisGeneratorMojo`）本会调用的 `parser.customConfig(config)`，故 `useJSR310Types` 未生效、TIMESTAMP→`java.util.Date`，与父类 `AbstractPersistenceObjectEntity` 的 `LocalDateTime` 契约不符。修复为补 `customConfig` 调用（与真实生成链一致），同步调整 targetRuntime 断言；`sc03.cas=true` 与默认场景均通过，问题关闭。
 
 ### generator-core-ISSUE-0007 SensitiveGenerationTest 的 FreeMarker include 缺少模板加载器
 
@@ -101,7 +101,7 @@
 - 与当前任务的关系：该类的失败不解释 CAS Consumer 的 TIMESTAMP 契约错误，也不是形成 SC05 Plus fixture 的单独替代路径；按非主线只登记，不处理。
 - 建议后续处理：由生成器测试维护方核对 include 所需的 classpath/file template loader，并以测试资源验证两项用例；不删除 include 断言或降低输出基线校验。
 - 责任与关联：生成器测试维护方；无当前 Sensitive 业务实现依赖。
-- 更新与关闭记录：2026-10-28 首次登记，低/已复现/待处理；本轮不修复。
+- 更新与关闭记录：2026-10-28 首次登记，低/已复现/待处理；本轮不修复。2026-11-07 定位根因：`render` 创建 FreeMarker `Configuration` 后未设 template loader，模板内 `#include "vue_module_type_imports.ts.ftl"` 无法解析。修复为设置 `ClassTemplateLoader(getClass(), "/templates/vue3")`，两项模板用例（`rendersEscapedFrontendMappingAndKeepsUnconfiguredTemplateBytes`、`offlineOutputBaseline` 层 2）恢复，问题关闭。
 
 ### generator-core-ISSUE-0008 根实体结构同步 DDL 失败仅告警且生成继续
 
@@ -112,15 +112,15 @@
 - 与当前任务的关系：结构同步的失败语义已纳入当前任务书及权威/配置说明；受控消费者生成后必须审阅全部结构同步 warning。当前仅获准检查和说明该行为，不改变生成失败契约。
 - 建议后续处理：独立评审是否需要可配置 fail-fast 或失败后阻止生成的策略；若获批，补充异常/输出契约、DDL 拒绝回归及 Maven Mojo 验收。不得仅吞掉 warning 或把未完成结构同步报告为成功。
 - 责任与关联：`mybatis-generator-core` 结构同步能力维护方；关联[根实体结构同步检查任务书](task/root-class-schema-sync-task.md)。
-- 更新与关闭记录：2026-10-29 首次登记，中/已复现/待处理；本轮不修改代码。
+- 更新与关闭记录：2026-10-29 首次登记，中/已复现/待处理；本轮不修改代码。2026-11-07 经负责人确认，本次保持登记、不实现可配置 fail-fast 策略（该决策独立于本次台账处理，若需实现另立专项）。
 
 ### generator-core-ISSUE-0009 vgosoft-tool:7.0.0 的 VArrayUtil.merge 受检异常导致生成器无法全量编译
 
 - 发现来源：2026-11-07 执行审计字段自动填充任务书 T08（生成器清理 getter 回退）时，`clean compile` 全量重编暴露。
-- 位置与证据：`vgosoft-tool:7.0.0-SNAPSHOT` 的 `com.vgosoft.tool.core.VArrayUtil.merge(Collection, Collection, boolean)` 签名为 `throws InvocationTargetException, IllegalAccessException`（basic 已提交代码，SVN 无未提交改动；本地 jar `vgosoft-tool-7.0.0-SNAPSHOT.jar` 为 2026-11-05 install）。生成器 `TableConfiguration.calculateReusableElementsConfiguration` 的 5 处 `VArrayUtil.merge` 调用（L570/L588/L593/L608/L616，其中 L570、L608 位于 lambda 内）未捕获该受检异常，`mvn clean compile` 报「未报告的异常错误 InvocationTargetException」。此前增量编译因 `TableConfiguration.class` 已在 target 中未被重编而掩盖此问题。
+- 位置与证据：`vgosoft-tool:7.0.0-SNAPSHOT` 的 `com.vgosoft.tool.core.VArrayUtil.merge(Collection, Collection, boolean)` 签名为 `throws InvocationTargetException, IllegalAccessException`（basic 已提交代码，本地 jar `vgosoft-tool-7.0.0-SNAPSHOT.jar` 为 2026-11-05 install）。生成器 `TableConfiguration.calculateReusableElementsConfiguration` 的五处调用位于当前源码 L577、L598、L603、L620、L631；直接调用由方法声明传播，lambda 内调用在各自位置转换为带中文上下文的 `IllegalStateException`，方法入口 `reprocessConfiguration`（L429-L430）统一包装传播出的受检异常。此前 `mvn clean compile` 因未处理受检异常失败。
 - 问题现象与触发条件：全量重编（`clean compile`）即失败；`vgosoft-tool` 5.3.0/6.0.0 的 `merge` 无受检异常，7.0.0 起新增。生成器 dependencyManagement 未锁定 `vgosoft-tool` 版本，传递解析到 7.0.0-SNAPSHOT 后触发。
-- 影响与分级依据：中。阻塞生成器全量编译与后续 T12 回归，但与 T08 的 getter 回退清理无因果关系；`merge` 的反射异常对生成器配置合并属于「不应发生」场景，转为运行时异常语义合理。
-- 与当前任务的关系：T08 为完成定向验证，临时将 `calculateReusableElementsConfiguration` 加 `throws` 并在 `reprocessConfiguration` 调用处以 try-catch 转 `IllegalStateException`、两个 lambda 内各自 try-catch；T08 定向测试 3 项通过。该修复属既有问题的顺带处理，非 T08 范围，待 Copilot/需求负责人确认是否正式采纳（或改为锁定 `vgosoft-tool` 兼容版本）。
-- 建议后续处理：由生成器维护方与 basic `vgosoft-tool` 维护方确认 `merge` 受检异常的正式处理方式（生成器适配签名，或 `vgosoft-tool` 降级/改为运行时异常）；确认后补充回归，不擅自扩大 T08 范围。
+- 影响与分级依据：中。原问题阻塞生成器全量编译与后续 T12 回归；`merge` 反射异常在配置合并路径被转为运行时失败信号，不会静默跳过合并或形成成功输出。
+- 与当前任务的关系：2026-11-07 需求负责人明确批准将 `TableConfiguration` 兼容修复纳入 T08，选择生成器适配受检异常契约，不调整 `vgosoft-tool` 依赖版本。修复覆盖全部五处调用，并随 T08 代码提交 `c1c0a318` 落地。
+- 建议后续处理：无需后续处理。若 `VArrayUtil.merge` 的异常签名再次变化，按编译器诊断更新调用边界和上下文错误信息。
 - 责任与关联：生成器维护方；关联 basic `vgosoft-tool` 模块。
-- 更新与关闭记录：2026-11-07 首次登记，中/已复现/待处理；T08 已验证临时修复（3 项定向测试通过），正式修复待确认。
+- 更新与关闭记录：2026-11-07 首次登记，中/已复现/待处理；同日需求负责人批准纳入 T08，Copilot 独立检查五处调用与异常包装并确认通过；使用 JDK 17 执行 T08 `clean test`，`AuditFieldInitGenerationTest` 3 项通过且生成器模块完整编译通过，问题关闭。异常分支未通过故障注入做运行期复现，关闭依据为编译器契约验证与调用边界源码复核。

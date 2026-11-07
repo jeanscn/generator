@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3;
 
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,5 +30,55 @@ public class ListUtilities {
         return columns.stream()
                 .filter(ic -> !ic.isGeneratedAlways() && !ic.isIdentity())
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 移除创建审计字段、租户字段和受控主键，保留删除标记、修改审计字段及版本字段供专门更新规则处理。
+     *
+     * @param columns 原始更新字段
+     * @return 可参与普通更新的字段及需专门处理的修改/版本字段
+     */
+    public static List<IntrospectedColumn> removeImmutableAuditColumns(List<IntrospectedColumn> columns) {
+        return columns.stream()
+                .filter(ic -> !isImmutableAuditColumn(ic))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 判断字段是否为服务端强制维护的修改审计字段。
+     *
+     * @param column 数据库列
+     * @return 属于修改时间或修改人字段时返回 true
+     */
+    public static boolean isModifiedAuditColumn(IntrospectedColumn column) {
+        return DefaultColumnNameEnum.ofColumnName(column.getActualColumnName())
+                .map(columnName -> columnName == DefaultColumnNameEnum.UPDATE_TIME
+                        || columnName == DefaultColumnNameEnum.UPDATE_BY)
+                .orElse(false);
+    }
+
+    /**
+     * 判断字段是否为服务端强制维护的版本字段。
+     *
+     * @param column 数据库列
+     * @return 属于版本字段时返回 true
+     */
+    public static boolean isVersionColumn(IntrospectedColumn column) {
+        return DefaultColumnNameEnum.ofColumnName(column.getActualColumnName())
+                .map(columnName -> columnName == DefaultColumnNameEnum.VERSION)
+                .orElse(false);
+    }
+
+    private static boolean isImmutableAuditColumn(IntrospectedColumn column) {
+        DefaultColumnNameEnum columnName = DefaultColumnNameEnum.ofColumnName(column.getActualColumnName()).orElse(null);
+        if (columnName == null
+                || columnName == DefaultColumnNameEnum.DELETE_FLAG
+                || columnName == DefaultColumnNameEnum.VERSION
+                || columnName == DefaultColumnNameEnum.UPDATE_TIME
+                || columnName == DefaultColumnNameEnum.UPDATE_BY) {
+            return false;
+        }
+        return columnName.auditRole() == DefaultColumnNameEnum.AuditRole.A
+                || columnName.auditRole() == DefaultColumnNameEnum.AuditRole.A_PRIME;
     }
 }

@@ -325,13 +325,19 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
         sb.setLength(0);
         sb.append("set ");
 
-        Iterator<IntrospectedColumn> iter = ListUtilities.removeGeneratedAlwaysColumns(columns).iterator();
+        Iterator<IntrospectedColumn> iter = ListUtilities.removeGeneratedAlwaysColumns(
+                ListUtilities.removeImmutableAuditColumns(columns)).iterator();
         while (iter.hasNext()) {
             IntrospectedColumn introspectedColumn = iter.next();
 
             sb.append(MyBatis3FormattingUtilities.getAliasedEscapedColumnName(introspectedColumn));
             sb.append(" = ");
-            sb.append(MyBatis3FormattingUtilities.getParameterClause(introspectedColumn, "row."));
+            if (ListUtilities.isVersionColumn(introspectedColumn)) {
+                sb.append(MyBatis3FormattingUtilities.getEscapedColumnName(introspectedColumn));
+                sb.append(" + 1");
+            } else {
+                sb.append(MyBatis3FormattingUtilities.getParameterClause(introspectedColumn, "row."));
+            }
 
             if (iter.hasNext()) {
                 sb.append(',');
@@ -368,13 +374,19 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
         sb.setLength(0);
         sb.append("set ");
 
-        Iterator<IntrospectedColumn> iter = ListUtilities.removeGeneratedAlwaysColumns(columns).iterator();
+        Iterator<IntrospectedColumn> iter = ListUtilities.removeGeneratedAlwaysColumns(
+                ListUtilities.removeImmutableAuditColumns(columns)).iterator();
         while (iter.hasNext()) {
             IntrospectedColumn introspectedColumn = iter.next();
 
             sb.append(MyBatis3FormattingUtilities.getEscapedColumnName(introspectedColumn));
             sb.append(" = ");
-            sb.append(MyBatis3FormattingUtilities.getParameterClause(introspectedColumn));
+            if (ListUtilities.isVersionColumn(introspectedColumn)) {
+                sb.append(MyBatis3FormattingUtilities.getEscapedColumnName(introspectedColumn));
+                sb.append(" + 1");
+            } else {
+                sb.append(MyBatis3FormattingUtilities.getParameterClause(introspectedColumn));
+            }
 
             if (iter.hasNext()) {
                 sb.append(',');

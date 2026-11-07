@@ -41,8 +41,10 @@ public class UpdateBatchByPrimaryKeySelectiveElementGenerator extends AbstractXm
         trimSetElement.addAttribute(new Attribute("suffixOverrides", ","));
         answer.addElement(trimSetElement);
 
-        for (IntrospectedColumn introspectedColumn :
-                ListUtilities.removeGeneratedAlwaysColumns(introspectedTable.getNonPrimaryKeyColumns())) {
+        for (IntrospectedColumn introspectedColumn : ListUtilities.removeGeneratedAlwaysColumns(
+                ListUtilities.removeImmutableAuditColumns(introspectedTable.getNonPrimaryKeyColumns()))) {
+            boolean versionColumn = ListUtilities.isVersionColumn(introspectedColumn);
+            boolean modifiedAuditColumn = ListUtilities.isModifiedAuditColumn(introspectedColumn);
 
             XmlElement fieldSetTrimElement = new XmlElement("trim");
             fieldSetTrimElement.addAttribute(new Attribute("prefix", introspectedColumn.getActualColumnName()+" = case id_"));
@@ -59,11 +61,20 @@ public class UpdateBatchByPrimaryKeySelectiveElementGenerator extends AbstractXm
             fieldSetTrimElement.addElement(foreachListField);
 
             XmlElement testItemIf = new XmlElement("if");
-            testItemIf.addAttribute(new Attribute("test", "item != null and item."+introspectedColumn.getJavaProperty()+" != null"));
+            String test = "item != null";
+            if (!versionColumn && !modifiedAuditColumn) {
+                test += " and item." + introspectedColumn.getJavaProperty() + " != null";
+            }
+            testItemIf.addAttribute(new Attribute("test", test));
             foreachListField.addElement(testItemIf);
 
             String parameterClause = MyBatis3FormattingUtilities.getParameterClause(introspectedColumn,"item.");
-            if (Mb3GenUtil.requiresPostgreCaseCast(introspectedColumn)) {
+            if (versionColumn) {
+                testItemIf.addElement(new TextElement("when #{item.id} then "
+                        + introspectedColumn.getActualColumnName() + " + 1"));
+            } else if (modifiedAuditColumn) {
+                testItemIf.addElement(new TextElement("when #{item.id} then " + parameterClause));
+            } else if (Mb3GenUtil.requiresPostgreCaseCast(introspectedColumn)) {
                 XmlElement chooseElement = new XmlElement("choose");
                 testItemIf.addElement(chooseElement);
 

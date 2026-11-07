@@ -36,7 +36,8 @@ public class InsertOrUpdateSelectiveElementGenerator extends AbstractXmlElementG
         introspectedTable.getTableConfiguration().getAdditionalDbTypes().forEach(dbType -> {
             XmlElement answer = buildInitialInsert(introspectedTable.getInsertOrUpdateStatementId(), introspectedTable.getRules().calculateAllFieldsClass(), dbType);
             List<IntrospectedColumn> insertColumns = ListUtilities.removeIdentityAndGeneratedAlwaysColumns(introspectedTable.getAllColumns());
-            List<IntrospectedColumn> updateColumns = ListUtilities.removeGeneratedAlwaysColumns(introspectedTable.getNonPrimaryKeyColumns());
+            List<IntrospectedColumn> updateColumns = ListUtilities.removeGeneratedAlwaysColumns(
+                    ListUtilities.removeImmutableAuditColumns(introspectedTable.getNonPrimaryKeyColumns()));
             List<IntrospectedColumn> primaryKeyColumns = introspectedTable.getPrimaryKeyColumns();
             UpsertDialectGroup dialectGroup = resolveDialectGroup(dbType);
             switch (dialectGroup) {
@@ -73,13 +74,7 @@ public class InsertOrUpdateSelectiveElementGenerator extends AbstractXmlElementG
                     addMergeByValues(answer, primaryKeyColumns, insertColumns, updateColumns);
                     break;
                 case PHOENIX_UPSERT:
-                    answer.addElement(new TextElement("upsert into " + introspectedTable.getFullyQualifiedTableNameAtRuntime()));
-                    XmlElement phoenixInsertTrimElement = buildColumnsTrimElement();
-                    answer.addElement(phoenixInsertTrimElement);
-                    XmlElement phoenixValuesTrimElement = buildValuesTrimElement();
-                    answer.addElement(phoenixValuesTrimElement);
-                    addSelectiveInsertColumnsAndValues(phoenixInsertTrimElement, phoenixValuesTrimElement, insertColumns, false);
-                    break;
+                    throw new IllegalStateException("insertOrUpdateSelective 不支持 Phoenix：单条 UPSERT 无法区分插入与更新，不能同时保留创建审计列和租户列");
                 default:
                     throw new IllegalStateException("Unexpected upsert dialect group: " + dialectGroup.name());
             }
@@ -163,13 +158,22 @@ public class InsertOrUpdateSelectiveElementGenerator extends AbstractXmlElementG
     private void addSelectiveUpdateAssignments(XmlElement updateTrimElement, List<IntrospectedColumn> updateColumns,
                                                String targetAlias, String sourceAlias) {
         for (IntrospectedColumn introspectedColumn : updateColumns) {
+            String columnName = MyBatis3FormattingUtilities.getEscapedColumnName(introspectedColumn);
+            String targetColumnName = targetAlias == null ? columnName : targetAlias + "." + columnName;
+            if (ListUtilities.isVersionColumn(introspectedColumn)) {
+                updateTrimElement.addElement(new TextElement(targetColumnName + " = " + targetColumnName + " + 1,"));
+                continue;
+            }
+            if (ListUtilities.isModifiedAuditColumn(introspectedColumn)) {
+                String value = sourceAlias == null
+                        ? MyBatis3FormattingUtilities.getParameterClause(introspectedColumn)
+                        : sourceAlias + "." + introspectedColumn.getJavaProperty();
+                updateTrimElement.addElement(new TextElement(targetColumnName + " = " + value + ","));
+                continue;
+            }
             XmlElement updateNotNullElement = new XmlElement("if");
             updateNotNullElement.addAttribute(new Attribute("test", introspectedColumn.getJavaProperty() + " != null"));
-            StringBuilder sb = new StringBuilder();
-            if (targetAlias != null) {
-                sb.append(targetAlias).append('.');
-            }
-            sb.append(MyBatis3FormattingUtilities.getEscapedColumnName(introspectedColumn));
+            StringBuilder sb = new StringBuilder(targetColumnName);
             sb.append(" = ");
             if (sourceAlias != null) {
                 sb.append(sourceAlias).append('.').append(introspectedColumn.getJavaProperty());

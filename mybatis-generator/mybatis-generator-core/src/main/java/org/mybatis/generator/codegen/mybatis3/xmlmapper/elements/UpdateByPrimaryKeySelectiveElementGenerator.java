@@ -44,8 +44,20 @@ public class UpdateByPrimaryKeySelectiveElementGenerator extends AbstractXmlElem
         XmlElement dynamicElement = new XmlElement("set");
         answer.addElement(dynamicElement);
 
-        for (IntrospectedColumn introspectedColumn :
-                ListUtilities.removeGeneratedAlwaysColumns(introspectedTable.getNonPrimaryKeyColumns())) {
+        for (IntrospectedColumn introspectedColumn : ListUtilities.removeGeneratedAlwaysColumns(
+                ListUtilities.removeImmutableAuditColumns(introspectedTable.getNonPrimaryKeyColumns()))) {
+            if (ListUtilities.isVersionColumn(introspectedColumn)) {
+                dynamicElement.addElement(new TextElement(
+                        MyBatis3FormattingUtilities.getEscapedColumnName(introspectedColumn) + " = "
+                                + MyBatis3FormattingUtilities.getEscapedColumnName(introspectedColumn) + " + 1,"));
+                continue;
+            }
+            if (ListUtilities.isModifiedAuditColumn(introspectedColumn)) {
+                dynamicElement.addElement(new TextElement(
+                        MyBatis3FormattingUtilities.getEscapedColumnName(introspectedColumn) + " = "
+                                + MyBatis3FormattingUtilities.getParameterClause(introspectedColumn) + ","));
+                continue;
+            }
             sb.setLength(0);
             sb.append(introspectedColumn.getJavaProperty());
             sb.append(" != null");

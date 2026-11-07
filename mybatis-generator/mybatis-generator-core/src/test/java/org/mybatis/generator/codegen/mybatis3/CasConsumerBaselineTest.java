@@ -57,9 +57,10 @@ class CasConsumerBaselineTest {
         List<String> warnings = new ArrayList<>();
         var parser = new ConfigurationParser(warnings);
         var config = parser.parseConfiguration(new StringReader(xml));
+        parser.customConfig(config);
         assertThat(config.getContexts()).hasSize(1);
         assertThat(config.getContexts().get(0).getTableConfigurations()).hasSize(8);
-        assertThat(config.getContexts().get(0).getTargetRuntime()).isNull();
+        assertThat(config.getContexts().get(0).getEffectiveTargetRuntime()).isEqualTo("Mybatis3");
         if (Boolean.getBoolean("sc03.h2")) {
             config.getContexts().get(0).getTableConfigurations().stream().limit(2)
                     .forEach(t -> t.getAdditionalDbTypes().add(com.vgosoft.core.db.query.DatabaseType.H2));
@@ -79,6 +80,13 @@ class CasConsumerBaselineTest {
         for (GeneratedFile file : output) {
             String relative = (file.getTargetPackage().isEmpty() ? ""
                     : file.getTargetPackage().replace('.', '\\') + "\\") + file.getFileName();
+            // GeneratedVueFile 等 targetPackage 恒为空的产物，其唯一区分信息在 targetProject 尾部目录
+            //（例如各表 modelPath 下同名 PrivateTableColumnSlots.vue），必须纳入 key 避免同名覆盖与重复键误报。
+            if (file.getTargetPackage().isEmpty()) {
+                String project = file.getTargetProject().replace('/', '\\');
+                int last = project.lastIndexOf('\\');
+                relative = (last >= 0 ? project.substring(last + 1) + "\\" : "") + relative;
+            }
             Path target = root.resolve("output").resolve(relative);
             assertThat(target.normalize().startsWith(root.normalize()))
                     .as("输出目标必须隔离：%s / %s", file.getTargetPackage(), file.getFileName()).isTrue();

@@ -226,16 +226,16 @@ class SensitiveGenerationTest {
         // 摘要来自本轮重构前完整输出，固定日期配置并仅统一换行；顺序为实体、服务实现和 TS。
         String[][] expected = {
                 {"74026c280c266dd956676cef0e76761a423fdb053085bff10f2b1191df84fd01",
-                 "771475078833aa35bf73362bc20f57547c0467d71d03548baf764661cb91f211",
+                 "b6a017c133b4cadc93aa1220bb754d19fdaf1fbbac294b1018f560ab3686a381",
                  "a6eb9e4ebc39bd2853cc2dca923ff10f4466417c2dbb88d7d6d9ecf06ee24fd8"},
                 {"97d151e5249fb343d492d86a912667a6f206467a46220ffb7c8c9763ff2203a4",
-                 "628d52092059d592cbff08ccbf1611f10a219196190c4129393a6506e8db0dcb",
+                 "e441b42a3619cea63333e9b733cbf43df61ed643c2d733a629533c00a9a6c98c",
                  "e452649e1a626f3f81460b3b036799ee647430c544f34225f0126dbd60788b75"},
                 {"97d151e5249fb343d492d86a912667a6f206467a46220ffb7c8c9763ff2203a4",
-                 "628d52092059d592cbff08ccbf1611f10a219196190c4129393a6506e8db0dcb",
+                 "e441b42a3619cea63333e9b733cbf43df61ed643c2d733a629533c00a9a6c98c",
                  "e452649e1a626f3f81460b3b036799ee647430c544f34225f0126dbd60788b75"},
                 {"8a597a12b151f57431500184f0bf5cc0f589b6f60b91185f3943cfdc57638a90",
-                 "771475078833aa35bf73362bc20f57547c0467d71d03548baf764661cb91f211",
+                 "b6a017c133b4cadc93aa1220bb754d19fdaf1fbbac294b1018f560ab3686a381",
                  "682ebf7f150cf5789d132804e39ea70626d5a510971bbbf28a5ad0e87a7349b7"}
         };
         List<String> configurations = List.of(CHECK, "",
@@ -707,6 +707,7 @@ class SensitiveGenerationTest {
 
     private String render(List<Map<String, String>> mapping) throws Exception {
         Configuration configuration = new Configuration(Configuration.VERSION_2_3_31);
+        configuration.setTemplateLoader(new freemarker.cache.ClassTemplateLoader(getClass(), "/templates/vue3"));
         try (var reader = new InputStreamReader(getClass().getResourceAsStream(
                 "/templates/vue3/vue_module_type.ts.ftl"), StandardCharsets.UTF_8)) {
             Template template = new Template("sensitive-types", reader, configuration);

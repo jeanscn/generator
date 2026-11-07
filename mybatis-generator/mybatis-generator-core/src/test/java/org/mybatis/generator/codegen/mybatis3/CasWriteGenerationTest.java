@@ -92,7 +92,7 @@ class CasWriteGenerationTest {
         assertThat(generate(parse("false", false))).isEqualTo(current);
     }
 
-    /** 真实 Maven 自定义配置链的省略与 false 全输出一致，仅两表 true 改变必需接口、SQL、VO 和单一资源。 */
+    /** 真实 Maven 自定义配置链的省略与 false 全输出一致，两表 true 另保留 CAS 所需的版本初始值。 */
     @Test
     void retainsAllDisabledOutputsAndLimitsOptInDiff() throws Exception {
         var omitted = generate(parse(null, true));
@@ -100,9 +100,18 @@ class CasWriteGenerationTest {
         var enabled = generate(parse("true", true));
         assertThat(enabled).hasSize(84);
         var changed = enabled.keySet().stream().filter(k -> !enabled.get(k).equals(omitted.get(k))).toList();
-        assertThat(changed).hasSize(11).allMatch(k -> k.endsWith("sensitive.xml")
+        assertThat(changed).hasSize(15)
+                .contains("com\\vgosoft\\sensitive\\entity\\SensitiveCategory.java",
+                        "com\\vgosoft\\sensitive\\entity\\SensitiveWord.java",
+                        "com\\vgosoft\\sensitive\\pojo\\vo\\SensitiveCategoryCreateVo.java",
+                        "com\\vgosoft\\sensitive\\pojo\\vo\\SensitiveWordCreateVo.java")
+                .allMatch(k -> k.endsWith("sensitive.xml")
                 || k.endsWith("Mapper.xml") || k.contains("\\codegen\\dao\\GenSensitive")
-                || k.contains("\\codegen\\service\\") || k.contains("\\pojo\\abs\\AbstractSensitive"));
+                || k.contains("\\codegen\\service\\") || k.contains("\\pojo\\abs\\AbstractSensitive")
+                || k.endsWith("\\entity\\SensitiveCategory.java")
+                || k.endsWith("\\entity\\SensitiveWord.java")
+                || k.endsWith("\\pojo\\vo\\SensitiveCategoryCreateVo.java")
+                || k.endsWith("\\pojo\\vo\\SensitiveWordCreateVo.java"));
         assertThat(enabled.get("META-INF\\vgosoft\\write-contracts\\sensitive.xml"))
                 .contains("managed-cas-1", "ENTRY_DISABLED").doesNotContain("sensitive_rule_revision");
     }

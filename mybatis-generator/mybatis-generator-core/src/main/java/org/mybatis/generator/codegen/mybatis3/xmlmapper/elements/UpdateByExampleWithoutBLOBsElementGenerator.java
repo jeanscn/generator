@@ -31,13 +31,18 @@ public class UpdateByExampleWithoutBLOBsElementGenerator extends
         answer.addElement(new TextElement(sb.toString()));
         sb.setLength(0);
         sb.append("set ");
-        Iterator<IntrospectedColumn> iter = ListUtilities.removeGeneratedAlwaysColumns(introspectedTable.getNonBlobColumns()).iterator();
+        Iterator<IntrospectedColumn> iter = ListUtilities.removeGeneratedAlwaysColumns(
+                ListUtilities.removeImmutableAuditColumns(introspectedTable.getNonBlobColumns())).iterator();
         while (iter.hasNext()) {
             IntrospectedColumn introspectedColumn = iter.next();
             sb.append(introspectedColumn.getActualColumnName());
             sb.append(" = ");
-            sb.append(MyBatis3FormattingUtilities.getParameterClause(
-                    introspectedColumn, "record."));
+            if (ListUtilities.isVersionColumn(introspectedColumn)) {
+                sb.append(introspectedColumn.getActualColumnName()).append(" + 1");
+            } else {
+                sb.append(MyBatis3FormattingUtilities.getParameterClause(
+                        introspectedColumn, "record."));
+            }
             if (iter.hasNext()) {
                 sb.append(',');
             }

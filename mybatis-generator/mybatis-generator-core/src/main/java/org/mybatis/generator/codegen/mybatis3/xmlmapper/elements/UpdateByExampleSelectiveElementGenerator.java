@@ -37,7 +37,20 @@ public class UpdateByExampleSelectiveElementGenerator extends
         XmlElement dynamicElement = new XmlElement("set");
         answer.addElement(dynamicElement);
 
-        for (IntrospectedColumn introspectedColumn : ListUtilities.removeGeneratedAlwaysColumns(introspectedTable.getAllColumns())) {
+        for (IntrospectedColumn introspectedColumn : ListUtilities.removeGeneratedAlwaysColumns(
+                ListUtilities.removeImmutableAuditColumns(introspectedTable.getAllColumns()))) {
+            if (ListUtilities.isVersionColumn(introspectedColumn)) {
+                dynamicElement.addElement(new TextElement(
+                        introspectedColumn.getActualColumnName() + " = "
+                                + introspectedColumn.getActualColumnName() + " + 1,"));
+                continue;
+            }
+            if (ListUtilities.isModifiedAuditColumn(introspectedColumn)) {
+                dynamicElement.addElement(new TextElement(
+                        introspectedColumn.getActualColumnName() + " = "
+                                + MyBatis3FormattingUtilities.getParameterClause(introspectedColumn, "record.") + ","));
+                continue;
+            }
             sb.setLength(0);
             sb.append(introspectedColumn.getJavaProperty("record."));
             sb.append(" != null");

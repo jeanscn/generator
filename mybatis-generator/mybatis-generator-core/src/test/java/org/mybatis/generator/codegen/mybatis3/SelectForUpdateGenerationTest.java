@@ -51,17 +51,17 @@ class SelectForUpdateGenerationTest {
                 {"5f0480fa4928e22b59be879b9aa1cc6eb06de8f022ae0040e760f0aed79f106d",
                  "f502155f9cdd95bb1727b7ee2717952dfc70d222da115c823279fb44284af5d6",
                  "096d3920b7b860207a64035e9b34a4406ce1a53002f2be9715483f009c861884",
-                 "e611db88837710b8c92f58ffbe4cdfbf0a07b9abc4312fd94ab1730a9fdd6665",
+                 "c7b11865021a59a04bc5e152773ef379210225632722e50e82b73a5b8213c4f7",
                  "eebda94e07a4245684e409fa80cf09de777bd272aeb9ae740eb605a4da68fe21"},
                 {"a64394bdb8c8f9bd0ce965427bcf6569318e03349504f11ecb83a12e14a2ed0c",
                  "15960a5431e4305e87051f8823d1c5cc289bee1cc122bf7202f2cb9c798e991e",
                  "ef3cc38566233af65b9fea79bc4c59a6790a7845789b03f37c4cf4e76b6022f9",
-                 "b16e7ec0040c8c17e672f24ee763f40a14cd191443f047892297b75228236320",
+                 "ba67900d921beaeab5f2d220bf5ef1348240b34f6bf9d9bcb5501971da851bfe",
                  "a9c7e59f754341745dcb756930339d91f2db43adcf76bd1a0e39101831e03e14"},
                 {"0fe0e71b254648896e3df3812b18332cb4b3d4ba64bc74c85e8799ac62137c59",
                  "ace2a53dd32e667afc14ffbf507a4b8927ceddf17962fe10dbc3a6fb3d64e9d0",
                  "0a8108cc5ec768e1e2b43237527050e1c1f2922f0ef8097681f940b6785a1b65",
-                 "b16e7ec0040c8c17e672f24ee763f40a14cd191443f047892297b75228236320",
+                 "ba67900d921beaeab5f2d220bf5ef1348240b34f6bf9d9bcb5501971da851bfe",
                  "7abc3a4c962b4d25b3bd1145b99eb9bfd12657face4c34805b8c06fbfdd2dbee"}
         };
         for (int variant = 0; variant < 3; variant++) {
