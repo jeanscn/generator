@@ -67,11 +67,9 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("if (viewParam.getId() != null) {");
         method.addBodyLine(format("ServiceResult<{0}> serviceResult = {1}.selectByPrimaryKey(viewParam.getId());", entityType.getShortName(), serviceBeanName));
         method.addBodyLine("if (serviceResult.hasResult()) {");
-        if (introspectedTable.getRules().isGenerateVoModel()) {
-            method.addBodyLine("{0} {1} = serviceResult.getResult();", entityType.getShortName(), entityType.getShortNameFirstLowCase());
-        }
         //如果是流程实例
         if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
+            method.addBodyLine("{0} {1} = serviceResult.getResult();", entityType.getShortName(), entityType.getShortNameFirstLowCase());
             //为父元素添加当前方法的使用的属性
             parentElement.addImportedType(new FullyQualifiedJavaType("jakarta.annotation.Resource"));
             FullyQualifiedJavaType qualifiedJavaType = new FullyQualifiedJavaType("com.vgosoft.workflow.adapter.service.IWorkflowTraceInfo");

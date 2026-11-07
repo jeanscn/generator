@@ -1,7 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.vo;
 
 import com.vgosoft.core.constant.GlobalConstant;
-import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -20,7 +19,6 @@ import java.util.TreeSet;
 
 import static org.mybatis.generator.codegen.mybatis3.vo.AbstractVoGenerator.SUB_PACKAGE_POJO;
 import static org.mybatis.generator.internal.util.StringUtility.packageToDir;
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -63,10 +61,10 @@ public class VoGeneratorUtil {
     }
 
     /**
-     * 生成映射方法，并为目标实体确实拥有的审计字段追加忽略声明。
+     * 生成映射方法，并为当前表实际存在的审计字段追加忽略声明。
      *
-     * <p>只对真实存在的目标属性输出 {@code @Mapping(target = "...", ignore = true)}，
-     * 避免 MapStruct 因未知属性编译失败；传入空集合时输出与原重载完全一致。
+     * <p>只对当前表内省列输出 {@code @Mapping(target = "...", ignore = true)}，
+     * 不因实体父类声明了同名字段就为缺失列生成注解；传入空集合时输出与原重载完全一致。
      * 本重载只用于 VO→实体方向，实体→VO 方向不应传入忽略字段。</p>
      *
      * @param fromType                   源类型
@@ -105,7 +103,7 @@ public class VoGeneratorUtil {
         method.setAbstract(true);
         abstractIntrospectedTable.getContext().getCommentGenerator().addMappingMethodJavaDocLine(method, fromType, toType);
         if (ignoreFields != null && !ignoreFields.isEmpty()) {
-            Set<String> targetProperties = entityTargetProperties(abstractIntrospectedTable);
+            Set<String> targetProperties = tableColumnProperties(abstractIntrospectedTable);
             for (String ignoreField : ignoreFields) {
                 if (targetProperties.contains(ignoreField)) {
                     method.addAnnotation(String.format("@Mapping(target = \"%s\", ignore = true)", ignoreField));
@@ -116,22 +114,15 @@ public class VoGeneratorUtil {
     }
 
     /**
-     * 汇总目标实体可映射的 Java 属性名：表列属性加上根实体抽象父类声明的属性。
+     * 汇总当前表实际内省出的 Java 属性名。
      *
      * @param table 内省表
-     * @return 目标实体具备的属性名集合
+     * @return 表列属性名集合
      */
-    private static Set<String> entityTargetProperties(AbstractIntrospectedTable table) {
+    private static Set<String> tableColumnProperties(AbstractIntrospectedTable table) {
         Set<String> properties = new LinkedHashSet<>();
         for (IntrospectedColumn column : table.getAllColumns()) {
             properties.add(column.getJavaProperty());
-        }
-        String rootClass = JavaBeansUtil.getRootClass(table);
-        if (stringHasValue(rootClass)) {
-            EntityAbstractParentEnum parent = EntityAbstractParentEnum.ofCode(new FullyQualifiedJavaType(rootClass).getShortName());
-            if (parent != null) {
-                properties.addAll(parent.fields());
-            }
         }
         return properties;
     }

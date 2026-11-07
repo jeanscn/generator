@@ -84,14 +84,20 @@ class VoMappingIgnoreGenerationTest {
         assertThat(fullyQualifiedJavaType!=null && fullyQualifiedJavaType.getFullyQualifiedName().startsWith("java.util.List")).isTrue();
     }
 
-    /** 目标实体不存在的属性不输出忽略声明，根实体父类声明的属性仍可识别。 */
+    /** 实体父类虽声明通用审计属性，表中缺少对应列时仍不输出忽略声明。 */
     @Test
-    void skipsAuditPropertiesAbsentFromEntity() throws Exception {
+    void skipsAuditPropertiesWithoutTableColumns() throws Exception {
         var table = fixture("id_:id", "name_:name");
         Method method = VoGeneratorUtil.addMappingMethod(createVoType(), entityType(table), false, table,
                 VoGeneratorUtil.auditIgnoreFields());
 
-        assertThat(method.getAnnotations()).containsExactly(annotation("deleteFlag"));
+        assertThat(method.getAnnotations()).isEmpty();
+
+        Interface mappings = new Interface("sample.pojo.maps.ArticleMappings");
+        new VoCreateGenerator(table, "src", new ProgressCallback() { }, new ArrayList<>(), mappings).generate();
+        assertThat(mappings.getMethods().stream().filter(m -> m.getName().startsWith("from")))
+                .isNotEmpty().allSatisfy(mapping ->
+                        assertThat(mapping.getAnnotations()).doesNotContain(annotation("deleteFlag")));
     }
 
     /** 未传入忽略字段的原重载输出保持不变，不影响实体→VO 等其他映射方向。 */

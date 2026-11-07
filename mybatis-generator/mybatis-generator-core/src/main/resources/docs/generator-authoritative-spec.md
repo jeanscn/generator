@@ -449,7 +449,7 @@ vgosoft-<domain>
 | `codegen/` | 生成区 | `controller/dao/service` 的生成实现，允许每次重新生成覆盖 |
 | `entity/` | 生成区 | 数据实体，每次重新生成覆盖 |
 | `pojo/abs` | 生成区 | 抽象 VO/POJO 基类，每次重新生成覆盖 |
-| `pojo/maps` | 生成区 | MapStruct/映射实现，每次重新生成覆盖 |
+| `pojo/maps` | 生成区 | MapStruct/映射实现，每次重新生成覆盖；VO→实体映射的忽略注解只针对当前表实际内省出的列，不因实体父类存在同名字段而为缺失列生成注解 |
 | `pojo/vo` | 生成区 | 对外 VO、Create/Update/View/Request/Excel 等，每次重新生成覆盖 |
 | `mappers/` | 生成区 | Mapper XML，每次重新生成覆盖 |
 | `sql/` | 生成区 | 生成的 DDL 与初始化数据脚本，每次重新生成覆盖 |
