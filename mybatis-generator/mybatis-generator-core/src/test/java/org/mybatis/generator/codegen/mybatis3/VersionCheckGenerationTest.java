@@ -8,9 +8,13 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.GeneratedFile;
 import org.mybatis.generator.api.MyBatisGenerator;
+import org.mybatis.generator.api.PluginAdapter;
+import org.mybatis.generator.codegen.mybatis3.VersionCheckGenerationValidator;
 import org.mybatis.generator.config.Configuration;
+import org.mybatis.generator.config.PluginConfiguration;
 import org.mybatis.generator.config.xml.ConfigurationParser;
 import org.mybatis.generator.internal.DefaultShellCallback;
 
@@ -139,6 +143,18 @@ class VersionCheckGenerationTest {
     }
 
     @Test
+    void rejectsGeneratedVersionColumn() throws Exception {
+        var configuration = parse("true");
+        var plugin = new PluginConfiguration();
+        plugin.setConfigurationType(GeneratedVersionColumnPlugin.class.getName());
+        configuration.getContexts().get(0).addPluginConfiguration(plugin);
+
+        assertThatThrownBy(() -> generate(configuration))
+                .hasMessageContaining("version_")
+                .hasMessageContaining("可写 Integer/INTEGER 或 Long/BIGINT");
+    }
+
+    @Test
     void h2MapperStatementsRejectStaleSingleAndBatchVersions() throws Exception {
         var generated = generate(parse("true"));
         String mapper = output(generated, MAPPER_FILE);
@@ -204,6 +220,24 @@ class VersionCheckGenerationTest {
                 assertThat(result.next()).isTrue();
                 return List.of(result.getInt(1), result.getString(2));
             }
+        }
+    }
+
+    /**
+     * 将版本列标记为数据库生成列，验证启用版本检查时会拒绝该结构。
+     *
+     * @author vgosoft-agent
+     */
+    public static class GeneratedVersionColumnPlugin extends PluginAdapter {
+        @Override
+        public boolean validate(List<String> warnings) {
+            return true;
+        }
+
+        @Override
+        public void initialized(AbstractIntrospectedTable table) {
+            table.getColumn("version_").ifPresent(column -> column.setGeneratedColumn(true));
+            VersionCheckGenerationValidator.validate(table);
         }
     }
 }

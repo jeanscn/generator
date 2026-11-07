@@ -59,7 +59,7 @@ public final class VersionCheckGenerationValidator {
         boolean longType = "BIGINT".equals(version.getJdbcTypeName())
                 && "java.lang.Long".equals(version.getFullyQualifiedJavaType().getFullyQualifiedName());
         if ((!integer && !longType) || version.isNullable() || version.isGeneratedAlways()
-                || version.isIdentity() || version.isAutoIncrement()
+                || version.isGeneratedColumn() || version.isIdentity() || version.isAutoIncrement()
                 || table.getPrimaryKeyColumns().contains(version)) {
             throw failure(table, "version_ 必须为非空、非主键、可写 Integer/INTEGER 或 Long/BIGINT");
         }
