@@ -2,6 +2,8 @@ package org.mybatis.generator.codegen.mybatis3;
 
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -51,7 +53,7 @@ public class ListUtilities {
      * @return 属于修改时间或修改人字段时返回 true
      */
     public static boolean isModifiedAuditColumn(IntrospectedColumn column) {
-        return DefaultColumnNameEnum.ofColumnName(column.getActualColumnName())
+        return findDefaultColumnName(column)
                 .map(columnName -> columnName == DefaultColumnNameEnum.UPDATE_TIME
                         || columnName == DefaultColumnNameEnum.UPDATE_BY)
                 .orElse(false);
@@ -64,13 +66,13 @@ public class ListUtilities {
      * @return 属于版本字段时返回 true
      */
     public static boolean isVersionColumn(IntrospectedColumn column) {
-        return DefaultColumnNameEnum.ofColumnName(column.getActualColumnName())
+        return findDefaultColumnName(column)
                 .map(columnName -> columnName == DefaultColumnNameEnum.VERSION)
                 .orElse(false);
     }
 
     private static boolean isImmutableAuditColumn(IntrospectedColumn column) {
-        DefaultColumnNameEnum columnName = DefaultColumnNameEnum.ofColumnName(column.getActualColumnName()).orElse(null);
+        DefaultColumnNameEnum columnName = findDefaultColumnName(column).orElse(null);
         if (columnName == null
                 || columnName == DefaultColumnNameEnum.DELETE_FLAG
                 || columnName == DefaultColumnNameEnum.VERSION
@@ -80,5 +82,13 @@ public class ListUtilities {
         }
         return columnName.auditRole() == DefaultColumnNameEnum.AuditRole.A
                 || columnName.auditRole() == DefaultColumnNameEnum.AuditRole.A_PRIME;
+    }
+
+    private static Optional<DefaultColumnNameEnum> findDefaultColumnName(IntrospectedColumn column) {
+        String actualColumnName = column.getActualColumnName();
+        if (actualColumnName == null) {
+            return Optional.empty();
+        }
+        return DefaultColumnNameEnum.ofColumnName(actualColumnName.toLowerCase(Locale.ROOT));
     }
 }

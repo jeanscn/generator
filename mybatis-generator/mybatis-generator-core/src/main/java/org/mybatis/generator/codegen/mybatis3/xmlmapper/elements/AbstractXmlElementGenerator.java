@@ -402,8 +402,22 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
         }
 
         buildPrimaryKeyWhereClause().forEach(answer::addElement);
+        addVersionCheckWhereClause(answer);
 
         return answer;
+    }
+
+    protected void addVersionCheckWhereClause(XmlElement answer) {
+        if (!org.mybatis.generator.codegen.mybatis3.VersionCheckGenerationValidator.isEnabled(introspectedTable)) {
+            return;
+        }
+        IntrospectedColumn versionColumn = introspectedTable.getAllColumns().stream()
+                .filter(ListUtilities::isVersionColumn)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("versionCheck 校验通过后仍缺少 version_ 列"));
+        answer.addElement(new TextElement("  and "
+                + MyBatis3FormattingUtilities.getEscapedColumnName(versionColumn) + " = "
+                + MyBatis3FormattingUtilities.getParameterClause(versionColumn)));
     }
 
     protected void addUpdateAliasedFullyQualifiedTableName(AbstractIntrospectedTable abstractIntrospectedTable, StringBuilder sb) {

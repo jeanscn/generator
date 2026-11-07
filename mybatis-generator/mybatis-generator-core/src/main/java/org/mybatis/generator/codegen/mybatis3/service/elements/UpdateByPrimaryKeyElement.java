@@ -3,6 +3,7 @@ package org.mybatis.generator.codegen.mybatis3.service.elements;
 import com.vgosoft.core.constant.enums.core.EntityEventEnum;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
+import org.mybatis.generator.codegen.mybatis3.VersionCheckGenerationValidator;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
@@ -28,6 +29,7 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
 
     @Override
     public void addElements(TopLevelClass parentElement) {
+        boolean versionCheck = VersionCheckGenerationValidator.isEnabled(introspectedTable);
 
         /* updateByPrimaryKeySelective */
         Method updateByPrimaryKeySelective = serviceMethods.getUpdateByPrimaryKey(parentElement, false, true, true);
@@ -45,6 +47,10 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
                 updateByPrimaryKeySelective.addBodyLine("ServiceResult<{0}> result = super.{1}(record);"
                         , entityType.getShortName()
                         , introspectedTable.getUpdateByPrimaryKeySelectiveStatementId());
+                if (versionCheck) {
+                    addVersionConflictGuard(updateByPrimaryKeySelective,
+                            "result.isSuccess() && result.getAffectedRows() <= 0", parentElement);
+                }
                 updateByPrimaryKeySelective.addBodyLine("if (result.hasResult()) {\n" +
                         "            return result;\n" +
                         "        } else {\n" +
@@ -60,7 +66,11 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
         /* updateByPrimaryKey */
         Method updateByPrimaryKey = serviceMethods.getUpdateByPrimaryKey(parentElement, false, false, true);
         updateByPrimaryKey.addAnnotation("@Override");
-        parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
+        if (versionCheck) {
+            Mb3GenUtil.addTransactionalAnnotation(parentElement, updateByPrimaryKey, "READ_COMMITTED");
+        } else {
+            parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
+        }
         addMutationCacheEviction(updateByPrimaryKey, parentElement);
         if (introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate)) {
             List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
@@ -74,6 +84,10 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
                 updateByPrimaryKey.addBodyLine("ServiceResult<{0}> result = super.{1}(record);"
                         , entityType.getShortName()
                         , introspectedTable.getUpdateByPrimaryKeyStatementId());
+                if (versionCheck) {
+                    addVersionConflictGuard(updateByPrimaryKey,
+                            "result.isSuccess() && result.getAffectedRows() <= 0", parentElement);
+                }
                 updateByPrimaryKey.addBodyLine("if (result.hasResult()) {\n" +
                         "            return result;\n" +
                         "        } else {\n" +
@@ -98,6 +112,9 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
             method.addBodyLine("}");
         }
         method.addBodyLine("int i = mapper.{0}(record);",methodName);
+        if (VersionCheckGenerationValidator.isEnabled(introspectedTable)) {
+            addVersionConflictGuard(method, "i <= 0", parentElement);
+        }
         if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name())) {
             method.addBodyLine("if (publisher != null) {");
             method.addBodyLine("    publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.UPDATED.name());
@@ -108,5 +125,14 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
         method.addBodyLine("throw new VgoException(ServiceCodeEnum.FAIL.code(), e.getMessage());");
         method.addBodyLine("}");
         parentElement.addImportedType("com.vgosoft.core.exception.VgoException");
+    }
+
+    private static void addVersionConflictGuard(Method method, String noRowsCondition, TopLevelClass parentElement) {
+        method.addBodyLine("if ({0}) '{'", noRowsCondition);
+        method.addBodyLine("TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();");
+        method.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.WARN, \"版本冲突，请刷新后重试\");");
+        method.addBodyLine("'}'");
+        parentElement.addImportedType("org.springframework.transaction.interceptor.TransactionAspectSupport");
+        parentElement.addImportedType(SERVICE_CODE_ENUM);
     }
 }

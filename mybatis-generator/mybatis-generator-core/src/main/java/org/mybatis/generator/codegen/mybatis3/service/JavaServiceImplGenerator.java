@@ -497,6 +497,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         if (introspectedTable.getRules().generateUpdateByPrimaryKeySelective()
                 && (hasMutationCacheTargets()
                 || org.mybatis.generator.codegen.mybatis3.SensitiveFieldResolver.isEnabled(introspectedTable)
+                || org.mybatis.generator.codegen.mybatis3.VersionCheckGenerationValidator.isEnabled(introspectedTable)
                 || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate)
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name()))) {

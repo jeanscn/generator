@@ -5,6 +5,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
+import org.mybatis.generator.codegen.mybatis3.VersionCheckGenerationValidator;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
@@ -31,11 +32,14 @@ public class UpdateBatchElement extends AbstractServiceElementGenerator {
         parentElement.addImportedType(new FullyQualifiedJavaType(SERVICE_CODE_ENUM));
         boolean containsPreUpdateEvent = this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name());
         boolean containsUpdatedEvent = this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name());
+        boolean versionCheck = VersionCheckGenerationValidator.isEnabled(introspectedTable);
 
         Method method = serviceMethods.getUpdateBatchMethod(parentElement, false,true);
         method.addAnnotation("@Override");
-        if (containsPreUpdateEvent || containsUpdatedEvent) {
+        if (containsPreUpdateEvent || containsUpdatedEvent || (versionCheck && configsEmpty())) {
             Mb3GenUtil.addTransactionalAnnotation(parentElement,method,"READ_COMMITTED");
+        }
+        if (containsPreUpdateEvent || containsUpdatedEvent) {
             parentElement.addImportedType(new FullyQualifiedJavaType(EntityEventEnum.class.getCanonicalName()));
         }
         addMutationCacheEviction(method, parentElement);
@@ -56,6 +60,13 @@ public class UpdateBatchElement extends AbstractServiceElementGenerator {
             method.addBodyLine("}");
         }
         method.addBodyLine("int i = mapper.{0}({1});", introspectedTable.getUpdateBatchStatementId(), entityType.getShortNameFirstLowCase() + "s");
+        if (versionCheck) {
+            method.addBodyLine("if (i != {0}.size()) '{'", entityType.getShortNameFirstLowCase() + "s");
+            method.addBodyLine("TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();");
+            method.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.WARN, \"批量更新存在版本冲突，请刷新后重试\");");
+            method.addBodyLine("'}'");
+            parentElement.addImportedType("org.springframework.transaction.interceptor.TransactionAspectSupport");
+        }
         //增加update事件发布
         if (containsUpdatedEvent) {
             method.addBodyLine("if (publisher != null) {");
@@ -68,5 +79,10 @@ public class UpdateBatchElement extends AbstractServiceElementGenerator {
         method.addBodyLine("}");
         parentElement.addMethod(method);
         parentElement.addImportedType("com.vgosoft.core.exception.VgoException");
+    }
+
+    private boolean configsEmpty() {
+        return introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
+                .noneMatch(RelationGeneratorConfiguration::isEnableUpdate);
     }
 }

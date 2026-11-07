@@ -75,6 +75,7 @@ public class UpdateByPrimaryKeySelectiveElementGenerator extends AbstractXmlElem
         }
 
         buildPrimaryKeyWhereClause().forEach(answer::addElement);
+        addVersionCheckWhereClause(answer);
 
         if (context.getPlugins().sqlMapUpdateByPrimaryKeySelectiveElementGenerated(answer, introspectedTable)) {
             parentElement.addElement(answer);

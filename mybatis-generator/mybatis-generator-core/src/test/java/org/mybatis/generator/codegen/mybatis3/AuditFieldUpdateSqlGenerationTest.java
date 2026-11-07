@@ -81,6 +81,27 @@ class AuditFieldUpdateSqlGenerationTest {
                 .contains("version_ = version_ + 1");
     }
 
+    @Test
+    void auditFieldRecognitionHandlesUppercaseDatabaseMetadata() {
+        List<IntrospectedColumn> columns = List.of(
+                column("ID_", "id"),
+                column("CREATED_", "created"),
+                column("CREATED_ID", "createdId"),
+                column("MODIFIED_", "modified"),
+                column("MODIFIED_ID", "modifiedId"),
+                column("TENANT_ID", "tenantId"),
+                column("VERSION_", "version"),
+                column("DELETE_FLAG", "deleteFlag"),
+                column("STATE_", "state"));
+
+        assertThat(ListUtilities.removeImmutableAuditColumns(columns))
+                .extracting(IntrospectedColumn::getActualColumnName)
+                .containsExactly("MODIFIED_", "MODIFIED_ID", "VERSION_", "DELETE_FLAG", "STATE_");
+        assertThat(ListUtilities.isModifiedAuditColumn(columns.get(3))).isTrue();
+        assertThat(ListUtilities.isModifiedAuditColumn(columns.get(4))).isTrue();
+        assertThat(ListUtilities.isVersionColumn(columns.get(6))).isTrue();
+    }
+
     @ParameterizedTest
     @MethodSource("supportedUpsertDialectGroups")
     void upsertDialectSnapshotsProtectUpdateFieldsAndKeepInsertFields(
