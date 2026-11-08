@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.*;
  * @author vgosoft
  */
 class CasWriteGenerationTest {
-    private static Configuration parse(String value, boolean customize) throws Exception {
+    static Configuration parse(String value, boolean customize) throws Exception {
         var parser = new ConfigurationParser(new ArrayList<>());
         String xml = customize ? CasConsumerBaselineTest.consumerSnapshotTestXml(value)
                 : CasConsumerBaselineTest.consumerSnapshotXml(value);
@@ -38,7 +38,7 @@ class CasWriteGenerationTest {
         if (customize) { parser.customConfig(config); }
         return config;
     }
-    private static Map<String, String> generate(Configuration config) throws Exception {
+    static Map<String, String> generate(Configuration config) throws Exception {
         var generator = new MyBatisGenerator(config, new DefaultShellCallback(true), new ArrayList<>());
         generator.generate(null, null, null, false);
         List<GeneratedFile> files = new ArrayList<>(generator.getGeneratedJavaFiles());
@@ -88,7 +88,10 @@ class CasWriteGenerationTest {
             }
         }
         assertThat(current).hasSize(80).containsOnlyKeys(before.keySet());
-        for (String name : before.keySet()) { assertThat(current.get(name)).as(name).isEqualTo(before.get(name)); }
+        List<String> differences = before.keySet().stream()
+                .filter(name -> !java.util.Objects.equals(current.get(name), before.get(name)))
+                .toList();
+        assertThat(differences).as("原始输出与 CAS 基线的差异文件").isEmpty();
         assertThat(generate(parse("false", false))).isEqualTo(current);
     }
 

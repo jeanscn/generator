@@ -66,6 +66,35 @@ mvn -q -o -pl mybatis-generator-core "-Denforcer.skip=true" "-Dtest=DisabledServ
 
 > 读法约定：**DTD 定义结构**，**源码定义真实行为**。当两者不一致时，以源码行为为准。
 
+## 审计字段输出（1.8.0）
+
+当前行为对应 `mybatis-generator-core:1.8.0-SNAPSHOT` 与 `mybatis-generator-config_1_8_0.dtd`。本节说明生成器输出，不表示消费项目已升级、再生成或完成运行时验收。
+
+**实体、VO 与映射：**
+
+- Entity、CreateVo、ExcelImportVo 不再为服务端审计字段生成当前用户 getter 回退或字段初始化；`deleteFlag` 等非受保护字段保留既有初始化。受管 CAS 表仍为 `version` 保留初始化值 1，以满足 CAS 写入契约。
+- 命中 `DbFiledDefaultValueEnum` 的字段由 Entity `@ColumnMeta.defaultValue` 暴露规范化约定值，不再以生成 getter 懒加载。
+- VO→Entity 映射忽略创建/修改审计字段、租户、删除标记等 A 类字段；CreateVo、ExcelImportVo 同时忽略 `version`，UpdateVo 保留 `version` 作为旧版本输入。仅对目标实体实际具有的属性生成忽略声明。
+
+**更新 SQL：**
+
+- 主键、Example、批量 CASE 与可区分插入/更新分支的 upsert 更新语句不写 `created_`、`created_id`、`tenant_id` 及受控主键；`modified_`、`modified_id` 无条件赋值，`version_` 在 SQL 中自增。`delete_flag` 仍是普通可写字段。列角色识别兼容大写数据库元数据列名。
+- upsert 插入列保持原有行为。Phoenix 的单一 `UPSERT INTO` 无法区分插入与更新赋值，因此 `insertOrUpdate` 明确生成失败，不会静默输出可能覆盖创建审计或租户字段的 SQL。
+
+**旧链乐观锁：**
+
+在 `<table>` 的 `<property>` 子项中显式配置：
+
+```xml
+<table tableName="example">
+    <property name="versionCheck" value="true"/>
+</table>
+```
+
+省略或设为 `false` 时保持未启用版本检查的既有输出；只接受小写字面量 `true`/`false`，空值、空白、大小写变体及其他字符串均在生成时失败。启用时要求 MyBatis3 `XMLMAPPER`、唯一非空可写且非生成列的 `Integer/INTEGER` 或 `Long/BIGINT` 版本列，以及主键更新；启用批量更新时仅支持单一 `id_` 主键。单条主键更新按主键与旧版本匹配，批量更新按每行主键与旧版本匹配；影响行数不足时 Service 返回 `WARN` 冲突结果并将事务标记回滚。此开关不为 Example、upsert 或原始 SQL 增加乐观锁条件。
+
+启用表的消费运行时必须配置 `vgosoft.mybatis.audit.mode=strict`；生成器不读取或校验消费项目的运行时配置，也不会自动安装审计拦截器。版本检查回归覆盖 `VersionCheckGenerationTest` 的 H2 Mapper SQL 执行、配置失败及生成输出检查；综合输出回归见 `AuditFieldGenerationTest`。完整生成基线与 CAS 输出边界分别由 `CasWriteGenerationTest`、`CasConsumerBaselineTest` 验证；这些隔离测试不替代业务再生成、目标数据库或宿主验收。
+
 ## 1. 根结构
 
 ### 1.1 生成器与配置 DTD 版本一致规则
@@ -613,6 +642,22 @@ for (Class<?> type = entityClass; type != null && type != Object.class; type = t
 | `defaultFilterExpr` | 默认过滤表达式 | 属于生成器/后端查询表达式，不是可信客户端权限条件；核验别名、列名、占位符及方言 |
 | `parentMenuId`、`viewMenuIcon`、`viewMenuElIcon`、`enableShortcut` | 默认视图菜单元数据 | 菜单只在完整菜单生成条件满足时追加；父节点必须已存在并纳入初始化链路 |
 | `editFormIn`、`detailFormIn` | 编辑和详情的打开方式元数据 | 按 DTD 的 `inner` / `dialog` / `drawer` 配置，并与宿主组件支持方式一致 |
+
+`queryColumns`、`fuzzyColumns`、`filterColumns` 是三个互相独立的字段集合，分别对应列表页的「精确/复合查询」「模糊检索」「过滤」三种输入，缺一不可、不能互相替代：
+
+- `queryColumns`：精确（等值）或复合查询字段，供前端按字段逐项构造查询条件。字段可选入 RequestVo 并由后端解析。
+- `fuzzyColumns`：**模糊检索字段**。生成器 `ViewMetaAnnotationPlugin` 会为 `fuzzyColumns` 中命中的 ViewVo 字段额外生成 `@ViewFuzzyColumnMeta` 注解（`comparator` 默认 `LA`，即 `LIKE '%值%'` 前后模糊匹配），前端搜索框据此把统一文本输入映射到这些字段做 `LIKE` 查询。**只应指定字符型业务字段（这类列在后端以 `LIKE` 匹配）**，如 `code_`、`name_`、标题/备注等 VARCHAR 列；对数值、日期、状态枚举等非字符列指定 `fuzzyColumns` 没有意义，会得到无效的 `LIKE` 条件。
+- `filterColumns`：过滤字段，供过滤面板按业务列组合精确条件；枚举/状态等离散取值列常另用 `<filterColumn>` 子节点补充控件与 `operators`，操作符和值域须与后端解析支持一致。
+
+一个列表同时需要「按名称模糊检索」和「按状态等值过滤」时，必须分别把名称列写入 `fuzzyColumns`、把状态列写入 `filterColumns`，二者不会互相推导。只配置 `queryColumns` 而未配置 `fuzzyColumns`，会导致前端统一搜索框的文本输入没有可映射的模糊字段、搜索条件为空（这是常见配置遗漏，例如敏感词分类 `sensitive_category` 曾只配 `queryColumns="code_,name_,state_"` 而漏配 `fuzzyColumns="code_,name_"`）。
+
+无特殊要求的新列表，三个集合的字段覆盖面建议按下列默认起点配置（最终以目标表真实列、ViewVo 实际字段及宿主消费能力为准）：
+
+1. `fuzzyColumns`（模糊查询）：**字符型的业务字段都可以配置**。把 `code_`、`name_`、标题、备注、描述等 VARCHAR/文本类业务列尽量纳入，让统一搜索框覆盖尽可能多的文本入口；主键、审计列（如 `created_id`、`modified_id`）、日期与数值/枚举列不纳入，它们不属于可用模糊检索的业务字段。
+2. `filterColumns`（过滤器字段）：**没有特殊说明的情况尽量包含所有业务字段**，使精确过滤面板可按任意业务列组合条件；确有不需要或宿主不支持过滤的列（如超长文本、二进制列）再按例外剔除。列名必须是 ViewVo 中真实存在的字段——不存在的 filter 字段会在生成阶段抛异常；需细配控件与操作符的字段另用 `<filterColumn>` 子节点补充 `operators` 等描述。
+3. `queryColumns`（复合查询）：**配置高频的过滤条件业务字段**，即列表最常用来定位记录的少数列（如编码、名称、状态、归属分类），避免把所有列都塞进复合查询使条件区臃肿；需细配的字段用 `<queryColumn>` 子节点补充类型、控件与顺序描述。
+
+上述是覆盖面建议，不改变前面的约束：三个集合仍须各自显式列出、互不推导；`fuzzyColumns` 仍只配字符型字段；`queryColumns` / `filterColumns` 的列名都须与 RequestVo 及后端列表查询实现一致。
 
 `toolbar="WF_IMPORT"` 可配置主列表两阶段 Excel 导入按钮（生成 ID：`top-custom-wf-import`）；内嵌列表可用 `vxeListButtons="INNER_WF_IMPORT"` 配置对应按钮（生成 ID：`inner-list-wf-import`）。两者沿用各自默认 handler，并标记为可配置操作。它们只提供操作元数据和快速配置入口，不实现前端预览/确认交互，也不会自动调用 `import/preview`、`import/confirm`；运行时须由宿主或业务前端实现对应交互。不要把新 ID 与旧 `IMPORT` / `INNER_IMPORT` 同时配置在同一列表并假定旧导入弹窗会处理新工作流。
 
