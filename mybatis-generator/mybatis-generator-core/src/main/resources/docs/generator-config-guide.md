@@ -1,5 +1,7 @@
 # generatorConfig.xml 配置指南
 
+AI 验收/测试所需的数据库、浏览器和 API 地址及用户名、密码/token 统一且仅从 `D:\java\achievable_connection_information.yml` 读取；文件缺项时停止相关验收并沟通，不得回退读取其他本机配置。本文描述的 `generatorConfig.xml`、properties/YAML 和 JDBC 属性仅属于生成器实际运行配置，不是 AI 验收凭据的其他读取入口。
+
 ## 受管 CAS 输出（1.8.0）
 
 - 当前 DTD 的 table 属性 `enableCasWriteContract="true"` 为显式 opt-in；省略或 false 保持旧输出。DTD 空白归一化前再按统一表规则严格校验，空字符串、纯空白、`TRUE`、` true ` 均拒绝。该开关与 context Plus 生成开关及宿主工厂无控制关系。
