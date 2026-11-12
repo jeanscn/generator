@@ -63,7 +63,8 @@ class ExportElementGeneratorTest {
                 "query.setAnyWhereCondition(null);", "query.setOrderByClause(null);")) {
             assertThat(body.indexOf(reset)).isGreaterThanOrEqualTo(0).isLessThan(body.indexOf("buildExample(query)"));
         }
-        assertThat(body).contains("ParameterUtil.parseFilterMap(filterParam, \"r\")",
+        assertThat(body).contains("ParameterUtil.parseFilterMap(filterParam, \"r\", Set.of(",
+                "criteria.andTrustedCondition(filterSql)",
                 "example.getOredCriteria().forEach(criteria -> criteria.andRecordKeyIn(ids))",
                 "ExportSupport.restoreOrder(records, ids, Record::getRecordKey)",
                 "records.size() != ids.size()", "5000 : 50000", "PageHelper.clearPage()")
@@ -208,7 +209,7 @@ class ExportElementGeneratorTest {
                 public Criteria createCriteria() { Criteria c = new Criteria(); ored.add(c); return c; }
                 public static class Criteria {
                 public Criteria andRecordKeyIn(List<String> ids) { return this; }
-                public Criteria andAnyCondition(String sql) { return this; }
+                public Criteria andTrustedCondition(String sql) { return this; }
                 }
                 }
                 public static class Service {
@@ -247,7 +248,8 @@ class ExportElementGeneratorTest {
         sources.put("com.vgosoft.web.utils.ParameterUtil", """
                 package com.vgosoft.web.utils;
                 public class ParameterUtil {
-                public static String parseFilterMap(com.vgosoft.core.adapter.web.FilterParam p, String alias) { return ""; }
+                public static String parseFilterMap(com.vgosoft.core.adapter.web.FilterParam p, String alias,
+                java.util.Set<String> allowedColumns) { return ""; }
                 }
                 """);
         sources.put("com.vgosoft.plugins.excel.pojo.vo.VgoExportRequestVo", """

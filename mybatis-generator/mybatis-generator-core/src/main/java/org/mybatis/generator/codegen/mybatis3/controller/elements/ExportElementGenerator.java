@@ -188,9 +188,10 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
             export.addBodyLine("if (filterParam != null) {");
             export.addBodyLine("String filterSql = ParameterUtil.parseFilterMap(filterParam, \""
                     + escapeStringForJava(introspectedTable.getTableConfiguration().getAlias() == null
-                    ? "" : introspectedTable.getTableConfiguration().getAlias()) + "\");");
+                    ? "" : introspectedTable.getTableConfiguration().getAlias()) + "\", "
+                    + allowedFilterColumnsLiteral() + ");");
             export.addBodyLine("if (VStringUtil.stringHasValue(filterSql)) {");
-            export.addBodyLine("example.getOredCriteria().forEach(criteria -> criteria.andAnyCondition(filterSql));");
+            export.addBodyLine("example.getOredCriteria().forEach(criteria -> criteria.andTrustedCondition(filterSql));");
             export.addBodyLine("}");
             export.addBodyLine("}");
         }

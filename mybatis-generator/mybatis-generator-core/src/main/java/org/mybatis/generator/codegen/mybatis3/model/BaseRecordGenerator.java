@@ -401,7 +401,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
     protected void addWhereConditionResult(TopLevelClass topLevelClass) {
         Field cascade = new Field("anyWhereCondition", FullyQualifiedJavaType.getStringInstance());
         cascade.setVisibility(JavaVisibility.PRIVATE);
-        cascade.setRemark("任意过滤条件");
+        cascade.setRemark("受限条件表达式，仅支持当前查询列及安全的比较条件");
         new SchemaPropertyDesc(cascade.getRemark(), "field = ‘condition’").addAnnotationToField(cascade, topLevelClass);
         topLevelClass.addField(cascade);
     }

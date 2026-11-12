@@ -103,6 +103,12 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
         entityCachePoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "po", entityType.getShortName() + "CachePo"));
     }
 
+    protected String allowedFilterColumnsLiteral() {
+        return introspectedTable.getNonBlobColumns().stream()
+                .map(column -> "\"" + StringUtility.escapeStringForJava(column.getActualColumnName()) + "\"")
+                .collect(Collectors.joining(", ", "Set.of(", ")"));
+    }
+
     protected Method createMethod(String methodPrefix) {
         Method method = new Method(methodPrefix + entityType.getShortName());
         method.setVisibility(JavaVisibility.PROTECTED);

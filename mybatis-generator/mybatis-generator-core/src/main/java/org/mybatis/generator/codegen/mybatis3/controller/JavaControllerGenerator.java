@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
+import static org.mybatis.generator.internal.util.StringUtility.escapeStringForJava;
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
@@ -353,7 +354,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                 } else {
                     if (column.isJdbcCharacterColumn()) {
                         buildExample.addBodyLine("if (VStringUtil.indexOf({0}.{1}(), SymbolConstants.COMMA.charAt(0)) > -1) '{'", type.getShortNameFirstLowCase(), getterMethodName);
-                        buildExample.addBodyLine("criteria.{0}AnyCondition(\"regexp ''(^|,)(\" + {1}.{2}().replace(SymbolConstants.COMMA, SymbolConstants.PIPE) + \")(,|$)''\" );"
+                        buildExample.addBodyLine("criteria.{0}Regexp(ParameterUtil.commaSeparatedValuesPattern({1}.{2}()));"
                                 , initializeAndMethodName(column)
                                 , type.getShortNameFirstLowCase()
                                 , getterMethodName);
@@ -365,6 +366,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                         buildExample.addBodyLine("}");
                         conTopClazz.addImportedType(V_STRING_UTIL);
                         conTopClazz.addImportedType("com.vgosoft.core.constant.SymbolConstants");
+                        conTopClazz.addImportedType("com.vgosoft.web.utils.ParameterUtil");
                     } else {
                         buildExample.addBodyLine("criteria.{0}({1}.{2}());"
                                 , methodName
@@ -388,8 +390,16 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
 
             //增加任意条件
             if (introspectedTable.getRules().isGenerateRequestVo()) {
-                buildExample.addBodyLine("if (!VStringUtil.isBlank({0}.getAnyWhereCondition())) '{'", type.getShortNameFirstLowCase());
-                buildExample.addBodyLine("criteria.andAnyCondition({0}.getAnyWhereCondition());", type.getShortNameFirstLowCase());
+                String alias = introspectedTable.getTableConfiguration().getAlias();
+                String allowedColumns = columns.stream()
+                        .map(column -> "\"" + escapeStringForJava(column.getActualColumnName()) + "\"")
+                        .collect(Collectors.joining(", "));
+                conTopClazz.addImportedType("com.vgosoft.web.utils.ParameterUtil");
+                conTopClazz.addImportedType("java.util.Set");
+                buildExample.addBodyLine("String safeCondition = ParameterUtil.parseCondition({0}.getAnyWhereCondition(), \"{1}\", Set.of({2}));",
+                        type.getShortNameFirstLowCase(), escapeStringForJava(alias == null ? "" : alias), allowedColumns);
+                buildExample.addBodyLine("if (!safeCondition.isEmpty()) {");
+                buildExample.addBodyLine("criteria.andTrustedCondition(safeCondition);");
                 buildExample.addBodyLine("}");
             }
 

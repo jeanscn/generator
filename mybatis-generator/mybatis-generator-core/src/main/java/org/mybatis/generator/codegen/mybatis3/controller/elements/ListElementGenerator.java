@@ -11,6 +11,8 @@ import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 
+import static org.mybatis.generator.internal.util.StringUtility.escapeStringForJava;
+
 /**
  * @author cen_c
  */
@@ -81,9 +83,11 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
         postMethod.addBodyLine(" FilterParam filterParam = {0}.getFilterParam();", introspectedTable.getRules().isGenerateRequestVo() ? entityRequestVoType.getShortNameFirstLowCase() :
                 introspectedTable.getRules().isGenerateVoModel() ? entityVoType.getShortNameFirstLowCase() : entityType.getShortNameFirstLowCase());
         postMethod.addBodyLine(" if (filterParam != null) {");
-        postMethod.addBodyLine("String filterSql = ParameterUtil.parseFilterMap(filterParam, \"{0}\");", introspectedTable.getTableConfiguration().getAlias());
+        String alias = introspectedTable.getTableConfiguration().getAlias();
+        postMethod.addBodyLine("String filterSql = ParameterUtil.parseFilterMap(filterParam, \"{0}\", {1});",
+                escapeStringForJava(alias == null ? "" : alias), allowedFilterColumnsLiteral());
         postMethod.addBodyLine("if (VStringUtil.stringHasValue(filterSql)) {");
-        postMethod.addBodyLine(" example.getOredCriteria().forEach(criteria -> criteria.andAnyCondition(filterSql));");
+        postMethod.addBodyLine(" example.getOredCriteria().forEach(criteria -> criteria.andTrustedCondition(filterSql));");
         postMethod.addBodyLine("}");
         postMethod.addBodyLine("}");
         addSelectByExampleWithPagehelper(parentElement, postMethod,entityRequestVoType.getShortNameFirstLowCase());
@@ -105,6 +109,7 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
         parentElement.addImportedType("com.vgosoft.web.utils.ParameterUtil");
         parentElement.addImportedType("com.vgosoft.core.adapter.web.FilterParam");
         parentElement.addImportedType("com.vgosoft.tool.core.VStringUtil");
+        parentElement.addImportedType("java.util.Set");
         parentElement.addImportedType("java.lang.Boolean");
         parentElement.addImportedType("org.springframework.validation.annotation.Validated");
         parentElement.addImportedType("org.springframework.web.bind.annotation.RequestParam");

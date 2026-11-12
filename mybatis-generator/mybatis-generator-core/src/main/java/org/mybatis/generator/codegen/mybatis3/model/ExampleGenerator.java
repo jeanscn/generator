@@ -619,9 +619,11 @@ public class ExampleGenerator extends AbstractJavaGenerator {
             answer.addMethod(getSetInOrNotInMethod(introspectedColumn, false));
             answer.addMethod(getSetBetweenOrNotBetweenMethod(introspectedColumn, true));
             answer.addMethod(getSetBetweenOrNotBetweenMethod(introspectedColumn, false));
-            answer.addMethod(getAnyConditionMethod(introspectedColumn));
+            if (introspectedColumn.isJdbcCharacterColumn()) {
+                answer.addMethod(getRegexpMethod(introspectedColumn));
+            }
         }
-        answer.addMethod(getAnyAnyConditionMethod());
+        answer.addMethod(getTrustedConditionMethod());
         return answer;
     }
 
@@ -884,32 +886,28 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         return method;
     }
 
-    private Method getAnyConditionMethod(IntrospectedColumn introspectedColumn) {
+    private Method getRegexpMethod(IntrospectedColumn introspectedColumn) {
         StringBuilder sb = new StringBuilder();
         sb.append(initializeAndMethodName(introspectedColumn));
-        sb.append("AnyCondition");
+        sb.append("Regexp");
         Method method = new Method(sb.toString());
         method.setVisibility(JavaVisibility.PUBLIC);
         method.setReturnType(FullyQualifiedJavaType.getCriteriaInstance());
-        method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "expression"));
-        method.setReturnType(FullyQualifiedJavaType.getCriteriaInstance());
-
-        sb.setLength(0);
-        sb.append(initializeAddLine(introspectedColumn,"AnyCondition"));
-        sb.append(' ');
-        sb.append("\"+expression);");
-        method.addBodyLine(sb.toString());
+        method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "pattern"));
+        String column = MyBatis3FormattingUtilities.getAliasedActualColumnName(introspectedColumn);
+        method.addBodyLine("addCriterion(\"" + org.mybatis.generator.internal.util.StringUtility.escapeStringForJava(column)
+                + " regexp\", pattern, \"" + org.mybatis.generator.internal.util.StringUtility.escapeStringForJava(
+                introspectedColumn.getJavaProperty()) + "\");");
         method.addBodyLine("return (Criteria) this;");
         return method;
     }
 
-    private Method getAnyAnyConditionMethod() {
-        Method method = new Method("andAnyCondition");
+    private Method getTrustedConditionMethod() {
+        Method method = new Method("andTrustedCondition");
         method.setVisibility(JavaVisibility.PUBLIC);
         method.setReturnType(FullyQualifiedJavaType.getCriteriaInstance());
-        method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "expression"));
-        method.setReturnType(FullyQualifiedJavaType.getCriteriaInstance());
-        method.addBodyLine("addCriterion(expression);");
+        method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "condition"));
+        method.addBodyLine("addCriterion(condition);");
         method.addBodyLine("return (Criteria) this;");
         return method;
     }

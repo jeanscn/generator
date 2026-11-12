@@ -658,6 +658,10 @@ class SelectForUpdateGenerationTest {
         var exampleGenerator = new org.mybatis.generator.codegen.mybatis3.model.ExampleGenerator("src");
         setup(exampleGenerator, table);
         CompilationUnit example = exampleGenerator.getCompilationUnits().get(0);
+        assertThat(format(example))
+                .contains("andTitleRegexp", "addCriterion(\"title_ regexp\", pattern, \"title\")",
+                        "andTrustedCondition")
+                .doesNotContain("andTitleAnyCondition", "andAnyCondition");
         TopLevelClass service = new TopLevelClass("sample.LockService");
         service.setVisibility(JavaVisibility.PUBLIC);
         Field mapperField = new Field("mapper", mapper.getType());

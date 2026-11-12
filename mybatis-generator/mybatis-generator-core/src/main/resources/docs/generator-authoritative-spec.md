@@ -359,6 +359,8 @@ SQL 语法核对分组：MySQL/MariaDB/PostgreSQL/Oracle/H2 使用 `FOR UPDATE`�
 
 **设计结论**：大多数“组合筛选 + 分页 + 排序 + 可选关系展开”场景，可先按配置落地，不必先假设要手写复杂 SQL。
 
+**过滤条件安全边界：** `filterParam` 由 `ParameterUtil` 按固定操作符解析，生成列表和导出端点同时传入当前表可查询列白名单；字符串值按 SQL 字符串字面量规则转义，数字值必须符合数值格式。`anyWhereCondition` 仅接受受限表达式：列必须来自当前查询白名单，只允许比较、`LIKE`、`IN`、`BETWEEN`、`IS [NOT] NULL` 及括号化的 `AND`/`OR`；函数、注释、子查询和未知列会失败，不再作为任意 SQL 执行。字符列的逗号分隔值通过 `andXxxRegexp` 参数绑定，且每个值均按正则字面量转义。Example 的 `andTrustedCondition` 仅供接收上述解析结果或其他可信服务端条件使用，禁止直接传入请求文本。
+
 ## 3.3 状态/字典中文显示（值转换链路）
 
 典型模式：`状态值列 -> 展示文本列`，通过 `overridePropertyValue`（如 `DictSys/DictData/DictEnum`）配置完成，前后端同时受益（VO 字段 + 页面渲染联动）。
