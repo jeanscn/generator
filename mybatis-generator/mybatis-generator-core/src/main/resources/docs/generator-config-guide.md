@@ -251,6 +251,8 @@ DTD 属性仍为 `#IMPLIED`，仅当前 `mybatis-generator-config_1_8_0.dtd` 增
 
 查询列必须存在且能映射到生成实体属性；当前 `OptionElementGenerator` 在找不到 `nameColumn` 时会跳过该方法，因此生成后须检查路由确实存在。该端点返回 `FormSelectOption` / `FormSelectTreeOption` 列表，包含 ID、显示名称及可选 `selected` 回显；平面选项在存在 `sort_` 时排序，树选项递归使用 `sort` 排序，须确保对应模型属性存在。分页响应取决于 RequestVo 的 `includePageParam` 和请求分页参数。控制器方法会生成独立的数据选项权限 action（权限键由模块、Controller Bean 名及小写化的方法前缀组成，如 `optionname`）；静态权限 SQL 生成不等于权限数据已部署或用户已获权。接口本身不意味着响应来自 `generateCachePo` 缓存。
 
+`generateController` 下所有已接入的 HTTP 路由、生成方法简称、用途和逐项生成条件，见[生成器权威说明 §2.1.2 Controller 可生成接口清单](generator-authoritative-spec.md#212-controller-可生成接口清单)。该清单覆盖基础 CRUD、按列/关系查询、树、统计、视图及 Excel 接口；未接入 Controller 装配流程的 Mapper 能力不算 Controller 路由。配置型路径可能冲突，生成后应以实际 Controller 的 Spring Mapping 注解核对最终路径。
+
 ### 表级歧义修正
 
 | DTD/注释 | 源码真实含义 |

@@ -138,6 +138,61 @@ MySQL、MariaDB、TiDB、PolarDB、TDSQL 的 JDBC 兜底也必须调用 core-db 
 
 同步 DDL 通过生成使用的 JDBC 连接直接执行。执行成功后更新本次生成使用的内存列元数据；`SQLException` 会记入 warning 而不会使生成调用失败，Maven Mojo 也仅输出 WARN 并继续。因此数据库结构同步失败时仍可能产出基于旧内省元数据的文件，消费验收必须检查 warning 并再次核实实际 schema。独立离线驱动可调用 `Context.setRootClassSchemaSynchronizationEnabled(false)` 禁止该同步；此开关没有 XML/DTD 配置。`generate(..., false)` 仅禁止文件写盘，不能作为数据库只读保证。Maven Mojo 的可选 `sqlScript` 是独立脚本执行路径，不能与本功能混为一谈。操作细节见[配置指南 §16.4](generator-config-guide.md#164-根实体字段与数据库物理结构同步)。
 
+### 2.1.2 Controller 可生成接口清单
+
+以下清单以当前 `mybatis-generator-core` 的 `JavaControllerGenerator` 和各 Controller element generator 为准，列出生成器接入的全部 HTTP 接口（不包含仅生成 Mapper/Service、但未接入 Controller 的查询能力）。接口只有在表级 Controller 已启用、表未处于 `modelOnly` 模式时才进入生成流程；插件仍可参与或否决 Controller 产物。
+
+完整路径由 Controller 类级路由和表级前缀拼接：
+
+```text
+<controllerBasePath> = <serviceApiBasePath>/<controllerBeanName-kebab>
+```
+
+`controllerBeanName` 为配置 `domainObjectName` 首字母小写后加 `Impl`；未配置时由表名转换为 lowerCamelCase 后加 `Impl`。`serviceApiBasePath` 默认取 `moduleKeyword`，缺省时回退到 HTML target package，再缺省为 `app`；配置解析时统一转为短横线格式。非空前缀时基础路径为 `<serviceApiBasePath>/<controllerBeanName-kebab>`，前缀为空时仅使用 Controller bean 名路径。表格中的“路径”是相对于该基础路径的后缀；`/` 表示基础路径本身，`{主键属性}` 表示按内省主键属性顺序生成的一个或多个路径段。所有行还受上述 Controller 总开关约束。
+
+| HTTP 方法 | 完整路径（基础路径 + 后缀） | 简称（生成方法名） | 功能说明 | 生成条件 |
+|---|---|---|---|---|
+| GET | `<controllerBasePath>/` | `list` | 按请求参数查询列表，支持配置的分页、查询条件及可选场景标识。 | 生成 `requestVo`。 |
+| POST | `<controllerBasePath>/list` | `listPost` | 以 JSON 请求体查询列表；支持 `filterParam` 及可选场景标识。 | 生成 `requestVo`。 |
+| GET | `<controllerBasePath>/new-instance` | `newInstance` | 创建用于前端新增表单的空对象，并应用生成器默认值。 | 生成 `createVo`。 |
+| GET | `<controllerBasePath>/{主键属性}` | `get` | 按主键查询单条记录。 | `generateSelectByPrimaryKey` 生效。 |
+| POST | `<controllerBasePath>/` | `create` | 新增记录；生成 CreateVo 时按其规则执行新增或更新及配置的兼容处理。 | 生成 `createVo`。 |
+| POST | `<controllerBasePath>/batch` | `createBatch` | 批量新增记录。 | 同时生成 `createVo` 且 `generateInsertBatch` 生效。 |
+| PUT | `<controllerBasePath>/` | `update` | 按主键更新单条记录。 | `generateUpdateByPrimaryKeySelective` 生效。 |
+| PUT | `<controllerBasePath>/batch` | `updateBatch` | 批量更新记录。 | `generateUpdateBatch` 生效。 |
+| DELETE | `<controllerBasePath>/{主键属性}` | `delete` | 按主键删除单条记录。 | `generateDeleteByPrimaryKey` 生效。 |
+| DELETE | `<controllerBasePath>/` | `deleteBatch` | 按 JSON 请求体中的主键集合批量删除。 | `generateDeleteByExample` 生效。 |
+| POST | `<controllerBasePath>/recycle` | `recycleBatch` | 将选定记录移入回收站，并写入回收记录后删除原记录。 | 生成 `viewVo`，且工具栏启用回收站。 |
+| POST | `<controllerBasePath>/hide` | `hideListBatch` | 批量隐藏选定列表记录。 | 生成 `viewVo`，且工具栏启用隐藏列表。 |
+| GET | `<controllerBasePath>/view` | `view` | 按视图参数加载记录或空对象并返回 HTML 页面视图。 | 至少一个 HTML 配置同时启用生成且配置非空 `viewPath`。 |
+| POST | `<controllerBasePath>/upload` | `upload` | 上传文件并按记录标识新增或更新文件记录。 | `generateFileUpload` 生效。 |
+| GET | `<controllerBasePath>/download/{type}/{id}` | `download` | 下载或预览单个文件记录对应的文件。 | `generateFileUpload` 生效。 |
+| GET | `<controllerBasePath>/import/template` | `template` | 下载 Excel 导入模板。 | 生成 `excelVo` 或启用两阶段 `excelImport`。 |
+| POST | `<controllerBasePath>/import` | `import` | 旧式 Excel 直接导入。 | 生成 `excelVo`，未启用两阶段 `excelImport`，且未启用 Sensitive 检测；不是事务性整批导入契约。 |
+| GET | `<controllerBasePath>/export` | `export` | 按主键集合下载旧式 Excel 导出。 | 生成 `excelVo`，且主键必须恰为一个 `String` 列；否则该生成器跳过所有导出端点并记录警告。 |
+| GET | `<controllerBasePath>/export/options` | `exportOptions` | 返回个性化导出的列、排序、格式、范围及行数限制元数据。 | 与旧式导出相同；单列 `String` 主键。 |
+| POST | `<controllerBasePath>/export` | `exportPost` | 按查询条件、范围、列和白名单排序执行个性化导出。 | 与旧式导出相同；单列 `String` 主键。 |
+| POST | `<controllerBasePath>/import/preview` | `importPreview` | 解析并校验两阶段 Excel 导入文件，返回预览结果。 | 启用 `excelImport` 两阶段工作流。 |
+| POST | `<controllerBasePath>/import/confirm` | `importConfirm` | 重新解析上传文件并提交预览确认凭证及导入行。 | 启用 `excelImport` 两阶段工作流。 |
+| GET | `<controllerBasePath>/option/{property-kebab}` | `option<Property>` | 按条件查询并转换为平面或树形表单选项，可回显选中值。 | Controller 下配置对应 `generateOptions`；`nameColumn` 必须能解析为内省列，否则不生成该接口。 |
+| GET | `<controllerBasePath>/dict` | `getDict` | 按键查询生成的缓存字典数据。 | 生成 CachePo。 |
+| GET 或 POST | `<controllerBasePath>/{methodName-kebab}` | `{methodName}`（配置值） | 按配置列查询匹配记录；单值参数使用 GET，多值参数集合使用 JSON POST。 | 对应 `selectByColumn` 启用 `genControllerMethod` 且配置列非空。 |
+| GET 或 POST | `<controllerBasePath>/{deleteMethodName-kebab}` | `{deleteMethodName}`（配置值） | 按配置列删除匹配记录；普通删除按单值/多值配置选择 GET/POST，逻辑删除固定 POST。 | 对应 `selectByColumn` 同时满足 `genControllerMethod`、列非空及 `enableDelete`。 |
+| GET | `<controllerBasePath>/select/{methodSuffix-kebab}` | `selectByTable{Suffix}` | 按关系配置查询当前实体或主键集合。 | 对应 `selectByTable` 至少启用 `enableSplit` 或 `enableUnion`。 |
+| POST | `<controllerBasePath>/split/{methodSuffix-kebab}` | `deleteByTable{Suffix}` | 删除中间关系，解除关联。 | 对应关系配置启用 `enableSplit`。 |
+| POST | `<controllerBasePath>/union/{methodSuffix-kebab}` | `insertByTable{Suffix}` | 写入中间关系，建立关联。 | 对应关系配置启用 `enableUnion`。 |
+| GET | `<controllerBasePath>/tree` | `fetchTreeData` | 查询记录并转换为树形数据。 | 表包含 `parent_id`、`id_`、`name_` 三列。 |
+| GET | `<controllerBasePath>/async-tree` | `asyncFetchTreeData` | 按根/父级标识查询异步树数据，可选返回路径。 | 与 `/tree` 相同。 |
+| GET | `<controllerBasePath>/{pathKeyWord-kebab}` | `fetchTreeCate{PathKeyWord}` | 按配置生成的分类树查询接口。 | 与 `/tree` 相同，且配置对应的 `generateTreeViewCate`。 |
+| GET | `<controllerBasePath>/dt/view-default/show` | `getDefaultView` | 返回默认 DataTables 视图页面。 | 生成 `viewVo`。 |
+| POST | `<controllerBasePath>/dt/view-default` | `getDefaultViewConfig` | 查询默认 DataTables 视图配置。 | 生成 `viewVo`。 |
+| GET | `<controllerBasePath>/lay-table-config` | `getLayuiTable` | 返回内嵌 Layui 表格配置。 | 生成 `viewVo` 且存在内嵌列表视图配置。 |
+| GET | `<controllerBasePath>/vxe-table-config` | `getVexTable` | 返回内嵌 VXE 表格配置。 | 与 Layui 表格配置接口相同。 |
+| GET | `<controllerBasePath>/{statisticsMethod-kebab}` | `{statisticsMethod}`（配置值） | 按时间范围与时间维度查询总量统计。 | 启用 TOTAL 统计；对应配置启用 Controller 方法生成，且统计列和日期维度列有效。 |
+| GET | `<controllerBasePath>/{statisticsMethod-kebab}` | `{statisticsMethod}`（配置值） | 按配置统计列及日期维度查询自定义统计。 | 启用自定义统计；对应配置启用 Controller 方法生成，且统计列和日期维度列有效。 |
+
+`selectBySqlMethod` 当前只接入 XML Mapper 生成，`SelectBySqlMethodElementGenerator` 没有由 `JavaControllerGenerator` 装配，因此不属于当前可生成的 Controller 接口。配置型路由可能由消费者配置出相同 HTTP 方法和路径；配置时须自行避免路由冲突。生成后应以 Controller 上的 Spring Mapping 注解核实最终路径，尤其是配置方法名、树分类关键字、选项列名及表级路由前缀。
+
 ## 2.2 Vue3 前端可生成能力
 
 | 能力域 | 可直接生成内容 | 设计含义 |
