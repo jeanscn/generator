@@ -3,7 +3,7 @@
 > 所属项目：`generator/mybatis-generator`
 > 模块/范围：`mybatis-generator-core`
 > 规范：[非主线问题登记与后续处理规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\deferred-issue-management-standard.md)
-> 更新时间：2026-11-07
+> 更新时间：2026-11-12
 
 ## 1. 问题总览
 
@@ -18,6 +18,7 @@
 | generator-core-ISSUE-0007 | 低 | 测试与基线 | SensitiveGenerationTest 的 FreeMarker include 缺少模板加载器 | 已定位根因并修复（2026-11-07） | 已处理（render 补 ClassTemplateLoader） | — | 2026-10-28 | 无（同批生成器回归中的非主线问题） |
 | generator-core-ISSUE-0008 | 中 | 数据一致性 | 根实体结构同步 DDL 失败仅告警且生成继续 | 已复现 | 待处理（2026-11-07 确认保持登记，不实现 fail-fast） | — | 2026-10-29 | [根实体结构同步检查任务书](task/root-class-schema-sync-task.md) |
 | generator-core-ISSUE-0009 | 中 | 依赖兼容 | `vgosoft-tool:7.0.0-SNAPSHOT` 的 `VArrayUtil.merge` 新增受检异常导致生成器无法全量编译 | 已复现 | 已解决（生成器适配异常契约） | 复核通过 | 2026-11-07 | [审计字段自动填充任务书](task/audit-field-filling-task.md) T08 |
+| generator-core-ISSUE-0010 | 中 | 权限 | `generateController` 缺少按接口简称排除 `@PreAuthorize` 的配置 | 源码已定位 | 待处理（需求登记） | — | 2026-11-12 | 无（用户提出的生成器配置需求） |
 
 ## 2. 问题详情
 
@@ -124,3 +125,14 @@
 - 建议后续处理：无需后续处理。若 `VArrayUtil.merge` 的异常签名再次变化，按编译器诊断更新调用边界和上下文错误信息。
 - 责任与关联：生成器维护方；关联 basic `vgosoft-tool` 模块。
 - 更新与关闭记录：2026-11-07 首次登记，中/已复现/待处理；同日需求负责人批准纳入 T08，Copilot 独立检查五处调用与异常包装并确认通过；使用 JDK 17 执行 T08 `clean test`，`AuditFieldInitGenerationTest` 3 项通过且生成器模块完整编译通过，问题关闭。异常分支未通过故障注入做运行期复现，关闭依据为编译器契约验证与调用边界源码复核。
+
+### generator-core-ISSUE-0010 `generateController` 缺少按接口简称排除 `@PreAuthorize` 的配置
+
+- 发现来源：用户于 2026-11-12 提出，在生成器的 `generateController` 中增加 property 配置，按逗号分隔的接口简称（生成方法名）指定不生成权限过滤注解。
+- 位置与证据：`mybatis-generator-core\src\main\java\org\mybatis\generator\config\xml\MyBatisGeneratorConfigurationParser.java:2461-2490` 解析 `generateController` 并处理通用 property；`mybatis-generator-core\src\main\java\org\mybatis\generator\codegen\mybatis3\controller\AbstractControllerElementGenerator.java:271-285` 的 `addSecurityPreAuthorize` 在启用 Spring Security 时按调用方提供的方法前缀生成 `@PreAuthorize("@uss.hasPermission(...)")`，当前没有按接口名称排除注解的配置。
+- 问题现象与触发条件：启用 `integrateSpringSecurity` 时，调用 `addSecurityPreAuthorize` 的生成接口都会按既有规则添加权限注解；目前不能通过 `generateController` property 按“Controller 可生成接口清单”中的简称选择性省略该注解。
+- 影响与分级依据：中。缺少按接口粒度配置权限注解的能力，消费者无法通过生成配置表达指定接口不使用该权限过滤；该配置会影响生成路由上的授权过滤边界，实际宿主访问策略仍须单独评估，因此登记为后续需求，不作为已确认的安全漏洞。
+- 与当前任务的关系：本次只将用户提出的能力需求登记到台账，不修改解析器、DTD、Controller 生成逻辑或接口清单。
+- 建议后续处理：在 `generateController` 下增加 property，值为逗号分隔的 Controller 生成方法简称；生成时将其与接口清单中的简称一致匹配，对命中接口省略 `@PreAuthorize`，未命中接口继续保持现有行为。后续实施时同步评估 DTD/property 解析、生成配置指南、权限 key 清单及覆盖默认行为的生成回归。
+- 责任与关联：`mybatis-generator-core` 配置解析及 Controller 生成能力维护方；需求来源为用户，本次未获授权实施功能。
+- 更新与关闭记录：2026-11-12 首次登记，中/源码已定位/待处理；当前仅记录需求，未实现或验证该能力。
