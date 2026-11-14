@@ -4,7 +4,7 @@
 
 设计与编码共同入口：[设计规范 §6.3](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\project-design-standard.md#63-适度设计校验责任与主流程可读性)规定适度设计、校验责任、函数抽取与主流程可读性；[全局过程规范 §1.6](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\ai-assisted-development-standard.md#16-复杂度范围与工具流程变更控制)规定额外复杂度、范围及工具流程变更的确认要求。唯一正文均归属 `vgosoft-doc-spec`。
 
-1. [生成器权威说明](..\mybatis-generator-core\src\main\resources\docs\generator-authoritative-spec.md)  
+1. [生成器权威说明](..\mybatis-generator-core\src\main\resources\docs\generator-authoritative-spec.md)
    用途：生成器能力、输入输出、扩展点与限制；§2.1.1 说明 Entity 的 `@TableMeta`/`@ColumnMeta` 元数据契约及适用边界。
 2. [生成器配置指南](..\mybatis-generator-core\src\main\resources\docs\generator-config-guide.md)  
    用途：配置、DTD 版本与生成行为说明；§5.0 指引设计/开发阶段由生成 Entity 类和字段注解读取表列映射；第 20 章为约定驱动实践索引，§7.2.3 为容器、顺序及多列布局建议，§7.3.1 为文本控件阈值与设计影响，§13.5.1 为分类/业务字典引用选项及中文展示转换实践。
@@ -36,3 +36,5 @@
     用途：生成器模块项目问题台账；登记可变消费配置造成的历史测试基线漂移，不代表已批准修复。
 16. [根实体字段数据库结构同步检查任务书](..\mybatis-generator-core\src\main\resources\docs\task\root-class-schema-sync-task.md)
     用途：记录默认结构同步触发范围、DDL 执行/失败语义、既有隔离回归及生成器权威说明与配置指南更新结果。
+17. [业务表单数据链路与响应式优化任务书](D:\vscode\tmri-ui4\packages\framework\docs\task\form-data-reactivity-optimization-task.md)
+    用途：tmri-ui4 主体维护的跨仓任务进度、Edit 模板 1.0.9 分支/竞态回归、批准单文件离线生成及验证边界；模板契约见生成器权威说明 §2.2。

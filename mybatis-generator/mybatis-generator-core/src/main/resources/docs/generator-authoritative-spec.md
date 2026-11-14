@@ -205,6 +205,14 @@ MySQL、MariaDB、TiDB、PolarDB、TDSQL 的 JDBC 兜底也必须调用 core-db 
 | 复杂部件 | 内嵌列表相关接入、附件/审批相关模板能力 | 可生成主干或提供接入位置，不表示任意业务交互均自动完成 |
 | 类型与扩展 | TypeScript 类型、共享变量、Hooks 和列表列插槽文件 | 部分文件是扩展入口；其生成条件与覆盖策略并不相同，见下文 |
 
+### 编辑模板初始化与响应更新（1.0.9）
+
+`vue_module_edit.vue.ftl` 先取得有效表单配置，再初始化模型；配置到达、父级配置或模型对象替换触发初始化，普通字段输入不重复执行 `perOnload`。现有模型在初始化时归一化；新实例由宿主 `loadNewInstance` 归一化，模板不重复转换。配置为空、配置获取异常或新实例获取失败不标记表单就绪；错误使用宿主语言与 Framework `showError`，不新增静默成功回退。
+
+模板显式转发根 `vgoForm` 的 `update:modelValue`，共享对象的字段更新也可通知父级；父级回显刚发出的同一对象不会再次初始化。配置、新实例和工作流异步结果受 watcher 生命周期保护，已失效结果不写入当前模型。工作流按记录对象、ID 和 `workflowEnabled` 更新，切换/卸载按实际业务键清理任务上下文，不使用字符串 `undefined` 作为缓存键；底层任务 Store 的 `null` 语义仍沿用既有契约。
+
+工作流开启/关闭与内嵌列表有/无四分支均通过无数据库的 `GeneratedVueFile` 渲染回归（`VueEditTemplateTest`）。已有组件不会因模板变更自动更新；必须确认精确输出范围后再生成，保留覆盖标记，不手改生成产物。本次仅批准并更新 tmri-ui4 的 `TmriGenericApplyEdit.vue`；消费者初始化/竞态回归及真实业务验收边界见[主体任务书](D:\vscode\tmri-ui4\packages\framework\docs\task\form-data-reactivity-optimization-task.md)，不表示其他宿主或存量 Edit 已更新。
+
 ### 2.2.1 `viewVo` 视图元数据
 
 当前 1.8.0 配置解析中，`viewVo` 默认 `generate=false`，并且需要父级 `generateVo` 启用才会参与生成。启用后生成 ViewVo Java 类及 `ViewMetaAnnotationPlugin` 添加的字段/类视图元数据；列表模板将其作为运行时视图信息来源之一。它不是 Vue 页面布局描述，也不自动实现自定义查询、服务端业务操作或权限控制。

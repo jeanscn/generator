@@ -10,6 +10,7 @@
 | 字典预取排序与共用查询 | [任务书](..\mybatis-generator-core\src\main\resources\docs\task\dict-prefetch-order-contract-task.md) | `mybatis-generator-core` | 跨仓过程与验收资产 | 批准范围、G01/W01/V01 进度及离线验证证据；规则正文仍归配置指南 §13.5 |
 | 根实体字段数据库结构同步 | [检查任务书](..\mybatis-generator-core\src\main\resources\docs\task\root-class-schema-sync-task.md) | `mybatis-generator-core` | 过程与验收资产 | 记录默认 DDL 同步触发/失败边界及回归证据；能力正文见生成器权威说明 §2.1.1 与配置指南 §16.4 |
 | 生成器能力 | `mybatis-generator-core\src\main\resources\docs\generator-authoritative-spec.md` | `mybatis-generator-core` | 权威正文 | 生成器能力、输入输出、扩展点与限制；§2.1.1 定义 Entity `@TableMeta`/`@ColumnMeta` 的元数据契约及边界 |
+| Vue Edit 初始化与响应式优化 | [主体任务书](D:\vscode\tmri-ui4\packages\framework\docs\task\form-data-reactivity-optimization-task.md) | `tmri-ui4 / @vgosoft/framework`；协作 `mybatis-generator-core` | 跨仓过程与验证资产 | Edit 模板 1.0.9、四分支无数据库渲染、初始化/竞态回归及单文件输出授权；不表示其他存量组件已更新 |
 | 生成器配置 | `mybatis-generator-core\src\main\resources\docs\generator-config-guide.md` | `mybatis-generator-core` | 使用手册 | 配置、DTD 版本与生成行为；§5.0 提供从 Entity 类/字段注解读取物理表列映射的设计/开发指引 |
 | 生成配置实践 | [配置指南第 20 章](..\mybatis-generator-core\src\main\resources\docs\generator-config-guide.md#20-约定驱动配置与实践建议) | `mybatis-generator-core` | 实践决策索引 | 具体操作在主题章节维护；§7.2.3 布局、§7.3.1 文本输入、§13.5.1 分类/业务字典引用 |
 | 实践指导持续沉淀 | [全局过程 §1.5](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\ai-assisted-development-standard.md#15-实践指导的持续发现确认与沉淀) | `vgosoft-doc-spec` | 外部跨项目过程规范 | 发现、提案、许可与唯一正文归属 |
