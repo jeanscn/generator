@@ -33,3 +33,4 @@
 - Framework：`node --test packages/framework/src/components/vgoForm/items/RenderFormItem.test.mjs` 通过（19/19）；`packages/framework` 的 Vite 生产构建通过。
 - 类型检查：Framework 全量 `vue-tsc --noEmit` 仍失败，诊断分布于既有 BPMN、表单及工具文件（包含 `LayoutItems.vue` 未标注回调参数）；新增导航辅助逻辑、VgoForm 新属性及 VgoPageNav 变更未出现诊断。未修复与本需求无关的既有类型错误。
 - 构建/生成均使用本地或只读元数据替身；未连接业务数据库、未运行消费者模块生成、未安装或发布工件。
+- 浏览器验收修复（2026-11-16）：用户反馈弹窗内导航按视口定位且点击不滚动。Framework 改为由 `VgoForm` 自动解析表单实际滚动容器，`VgoPageNav` 对齐局部容器可视区并兼容拖拽弹窗 transform。本地开发服务（sysadmin）中“其他会议纪要”编辑弹窗与详情抽屉已验证：导航位于内容区内，点击后目标滚动至容器顶部或底部兜底，激活项同步；拖拽后位置仍正确。定向测试 20/20 通过，Vite 构建通过。
