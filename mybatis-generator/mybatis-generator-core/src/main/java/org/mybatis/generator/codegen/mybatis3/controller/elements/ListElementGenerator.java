@@ -80,6 +80,7 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
                 exampleType.getShortName(),
                 introspectedTable.getRules().isGenerateRequestVo() ? entityRequestVoType.getShortNameFirstLowCase() :
                         introspectedTable.getRules().isGenerateVoModel() ? entityVoType.getShortNameFirstLowCase() : entityType.getShortNameFirstLowCase());
+        postMethod.addBodyLine("if (example.getOredCriteria().isEmpty()) { example.createCriteria(); }");
         postMethod.addBodyLine(" FilterParam filterParam = {0}.getFilterParam();", introspectedTable.getRules().isGenerateRequestVo() ? entityRequestVoType.getShortNameFirstLowCase() :
                 introspectedTable.getRules().isGenerateVoModel() ? entityVoType.getShortNameFirstLowCase() : entityType.getShortNameFirstLowCase());
         postMethod.addBodyLine(" if (filterParam != null) {");
@@ -89,6 +90,22 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
         postMethod.addBodyLine("if (VStringUtil.stringHasValue(filterSql)) {");
         postMethod.addBodyLine(" example.getOredCriteria().forEach(criteria -> criteria.andTrustedCondition(filterSql));");
         postMethod.addBodyLine("}");
+        if (introspectedTable.getRules().isGenerateViewVo()
+                && introspectedTable.getTableConfiguration().hasQueryConditions()) {
+            parentElement.addImportedType(entityViewVoType);
+            parentElement.addImportedType("com.vgosoft.web.utils.QueryConditionResolver");
+            parentElement.addImportedType("com.vgosoft.web.utils.BoundCondition");
+            postMethod.addBodyLine("List<BoundCondition> conditions = QueryConditionResolver.resolve({0}.class, filterParam.getConditions(), \"{1}\");",
+                    entityViewVoType.getShortName(), escapeStringForJava(alias == null ? "" : alias));
+            postMethod.addBodyLine("example.getOredCriteria().forEach(criteria -> conditions.forEach(bound -> {");
+            postMethod.addBodyLine("switch (bound.kind()) {");
+            postMethod.addBodyLine("case VALUE -> criteria.andBoundCondition(bound.condition(), bound.value());");
+            postMethod.addBodyLine("case LITERAL_LIKE -> criteria.andLiteralLike(bound.condition(), (String) bound.value(), bound.sqlServerValue());");
+            postMethod.addBodyLine("case TOKEN_LIKE -> criteria.andTokenLike(bound.condition(), (String) bound.value(), bound.sqlServerValue());");
+            postMethod.addBodyLine("default -> throw new IllegalStateException(\"不支持的查询条件类型: \" + bound.kind());");
+            postMethod.addBodyLine("}");
+            postMethod.addBodyLine("}));");
+        }
         postMethod.addBodyLine("}");
         addSelectByExampleWithPagehelper(parentElement, postMethod,entityRequestVoType.getShortNameFirstLowCase());
         resultPartBodyLines(parentElement, postMethod);

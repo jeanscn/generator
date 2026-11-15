@@ -243,6 +243,18 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         answer.addField(field);
         answer.addMethod(getGetter(field));
 
+        if (introspectedTable.getTableConfiguration().hasQueryConditions()) {
+            field = new Field("literalLikeValue", FullyQualifiedJavaType.getBooleanPrimitiveInstance());
+            field.setVisibility(JavaVisibility.PRIVATE);
+            answer.addField(field);
+            answer.addMethod(getGetter(field));
+
+            field = new Field("tokenLikeValue", FullyQualifiedJavaType.getBooleanPrimitiveInstance());
+            field.setVisibility(JavaVisibility.PRIVATE);
+            answer.addField(field);
+            answer.addMethod(getGetter(field));
+        }
+
         field = new Field("typeHandler", FullyQualifiedJavaType.getStringInstance());
         field.setVisibility(JavaVisibility.PRIVATE);
         answer.addField(field);
@@ -294,6 +306,28 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         method.addParameter(new Parameter(FullyQualifiedJavaType.getObjectInstance(), "secondValue"));
         method.addBodyLine("this(condition, value, secondValue, null);");
         answer.addMethod(method);
+
+        if (introspectedTable.getTableConfiguration().hasQueryConditions()) {
+            // LIKE 字面量条件专用构造器：只设置 LIKE 标志，value 存标准转义模式，secondValue 存 SQL Server 转义模式
+            method = new Method("Criterion");
+            method.setVisibility(JavaVisibility.PROTECTED);
+            method.setConstructor(true);
+            method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "condition"));
+            method.addParameter(new Parameter(FullyQualifiedJavaType.getObjectInstance(), "value"));
+            method.addParameter(new Parameter(FullyQualifiedJavaType.getObjectInstance(), "secondValue"));
+            method.addParameter(new Parameter(FullyQualifiedJavaType.getBooleanPrimitiveInstance(), "tokenLike"));
+            method.addBodyLine("super();");
+            method.addBodyLine("this.condition = condition;");
+            method.addBodyLine("this.value = value;");
+            method.addBodyLine("this.secondValue = secondValue;");
+            method.addBodyLine("this.typeHandler = null;");
+            method.addBodyLine("if (tokenLike) {");
+            method.addBodyLine("this.tokenLikeValue = true;");
+            method.addBodyLine("} else {");
+            method.addBodyLine("this.literalLikeValue = true;");
+            method.addBodyLine("}");
+            answer.addMethod(method);
+        }
 
         return answer;
     }
@@ -483,6 +517,24 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         }
         answer.addMethod(method);
 
+        if (introspectedTable.getTableConfiguration().hasQueryConditions()) {
+            // LIKE 字面量条件入口：tokenLike 区分字面子串与逗号分隔逐值匹配，value/secondValue 存两套转义模式
+            method = new Method("addLikeCriterion");
+            method.setVisibility(JavaVisibility.PROTECTED);
+            method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "condition"));
+            method.addParameter(new Parameter(FullyQualifiedJavaType.getObjectInstance(), "value"));
+            method.addParameter(new Parameter(FullyQualifiedJavaType.getObjectInstance(), "secondValue"));
+            method.addParameter(new Parameter(FullyQualifiedJavaType.getBooleanPrimitiveInstance(), "tokenLike"));
+            method.addBodyLine("if (value == null) {");
+            method.addBodyLine("throw new RuntimeException(\"Value for like criterion cannot be null\");");
+            method.addBodyLine("}");
+            method.addBodyLine("criteria.add(new Criterion(condition, value, secondValue, tokenLike));");
+            if (criteriaLists.size() > 1) {
+                method.addBodyLine("allCriteria = null;");
+            }
+            answer.addMethod(method);
+        }
+
         FullyQualifiedJavaType listOfDates =
                 new FullyQualifiedJavaType("java.util.List<java.util.Date>");
 
@@ -624,6 +676,11 @@ public class ExampleGenerator extends AbstractJavaGenerator {
             }
         }
         answer.addMethod(getTrustedConditionMethod());
+        if (introspectedTable.getTableConfiguration().hasQueryConditions()) {
+            answer.addMethod(getBoundConditionMethod());
+            answer.addMethod(getLiteralLikeMethod());
+            answer.addMethod(getTokenLikeMethod());
+        }
         return answer;
     }
 
@@ -908,6 +965,50 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         method.setReturnType(FullyQualifiedJavaType.getCriteriaInstance());
         method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "condition"));
         method.addBodyLine("addCriterion(condition);");
+        method.addBodyLine("return (Criteria) this;");
+        return method;
+    }
+
+    /**
+     * 组合条件绑定入口：受信条件前缀 + 单值或 List 绑定值，走现有 singleValue/listValue 分支。
+     */
+    private Method getBoundConditionMethod() {
+        Method method = new Method("andBoundCondition");
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.setReturnType(FullyQualifiedJavaType.getCriteriaInstance());
+        method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "condition"));
+        method.addParameter(new Parameter(FullyQualifiedJavaType.getObjectInstance(), "value"));
+        method.addBodyLine("addCriterion(condition, value, \"boundCondition\");");
+        method.addBodyLine("return (Criteria) this;");
+        return method;
+    }
+
+    /**
+     * 字面子串 LIKE 条件入口：value 为标准转义模式，secondValue 为 SQL Server 转义模式。
+     */
+    private Method getLiteralLikeMethod() {
+        Method method = new Method("andLiteralLike");
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.setReturnType(FullyQualifiedJavaType.getCriteriaInstance());
+        method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "condition"));
+        method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "value"));
+        method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "secondValue"));
+        method.addBodyLine("addLikeCriterion(condition, value, secondValue, false);");
+        method.addBodyLine("return (Criteria) this;");
+        return method;
+    }
+
+    /**
+     * 逗号分隔逐值精确 LIKE 条件入口：value 为标准转义模式，secondValue 为 SQL Server 转义模式。
+     */
+    private Method getTokenLikeMethod() {
+        Method method = new Method("andTokenLike");
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.setReturnType(FullyQualifiedJavaType.getCriteriaInstance());
+        method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "condition"));
+        method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "value"));
+        method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "secondValue"));
+        method.addBodyLine("addLikeCriterion(condition, value, secondValue, true);");
         method.addBodyLine("return (Criteria) this;");
         return method;
     }

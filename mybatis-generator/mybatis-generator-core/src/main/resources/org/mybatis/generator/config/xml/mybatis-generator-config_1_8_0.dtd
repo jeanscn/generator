@@ -2027,21 +2027,28 @@
         <!--
             用于描述查询列配置信息
             属性信息：
-            1、column 必须，列名
-            2、remark 可选，列中文描述
-            3、tagName 可选，列的html标签名，如：select、input、dropdownlist等
-            4、queryMode 可选，比较方式
-            5、fieldType 可选，字段类型
-            6、order 可选，排序
-            7、dataFormat 可选，数据格式
-            8、dataSource 可选，数据来源
-            9、enumClassFullName 可选，枚举类的全类名
-            10、dictCode 可选，字典编码
-            11、dataUrl 可选，数据来源url
+            1、column queryType=field 时必须，列名；queryType=condition 时不配置
+            2、queryType 可选，查询项类型：field 普通单字段精确查询（默认）、condition 自定义组合条件
+            3、key queryType=condition 时必须，条件唯一标识，视图内唯一且不得与真实列名冲突，写入 queryColumns
+            4、remark 可选，列中文描述
+            5、tagName 可选，列的html标签名，如：select、input、dropdownlist等
+            6、queryMode 可选，比较方式
+            7、fieldType 可选，字段类型
+            8、order 可选，排序
+            9、dataFormat 可选，数据格式
+            10、dataSource 可选，数据来源
+            11、enumClassFullName 可选，枚举类的全类名
+            12、dictCode 可选，字典编码
+            13、dataUrl 可选，数据来源url
+            queryType=condition 时通过 conditionParam 声明参数、conditionTerm 声明原子条件；
+            组合条件生成 @QueryCondition 注解并由 @ViewTableMeta.queryConditions 暴露，
+            前端只提交 key 与参数值，字段与操作符只来自配置。
         -->
-        <!ELEMENT queryColumn (property*)>
+        <!ELEMENT queryColumn (property*,conditionParam*,conditionTerm*)>
         <!ATTLIST queryColumn
-                column CDATA #REQUIRED
+                column CDATA #IMPLIED
+                queryType (field|condition) #IMPLIED
+                key CDATA #IMPLIED
                 tagType %tagType; #IMPLIED
                 remark CDATA #IMPLIED
                 queryMode %queryExpression; #IMPLIED
@@ -2053,6 +2060,48 @@
                 enumClassFullName CDATA #IMPLIED
                 dictCode CDATA #IMPLIED
                 dataUrl CDATA #IMPLIED>
+
+        <!--
+            组合条件参数声明（queryType=condition 的子节点）。
+            属性信息：
+            1、name 必须，参数名，条件内唯一，供 conditionTerm 引用
+            2、remark 可选，参数显示名称
+            3、column 可选，借用该列在表单配置中的表单项（字典、选项等）
+            4、tagType 可选，输入控件类型；未知时由字段类型推断
+            5、fieldType 可选，参数值类型，服务端按该类型严格转换
+            6、dataUrl 可选，选项数据来源url
+            7、multiple 可选，是否多值；In 与 ContainsAll 引用的参数必须为 true，其余必须为 false
+            8、required 可选，是否必填，默认 true；非必填且未填写时跳过引用该参数的 term
+        -->
+        <!ELEMENT conditionParam EMPTY>
+        <!ATTLIST conditionParam
+                name CDATA #REQUIRED
+                remark CDATA #IMPLIED
+                column CDATA #IMPLIED
+                tagType %tagType; #IMPLIED
+                fieldType %valueType; #IMPLIED
+                dataUrl CDATA #IMPLIED
+                multiple (true|false) #IMPLIED
+                required (true|false) #IMPLIED>
+
+        <!--
+            组合条件原子条件（queryType=condition 的子节点），同一条件内各 term 以 AND 合取。
+            属性信息：
+            1、column 必须，当前表的真实列名
+            2、operator 必须，操作符；In 与 ContainsAll 引用多值参数，其余引用单值参数或常量
+            3、param 可选，引用的参数名，与 value 二选一
+            4、value 可选，常量值，仅单值操作符可用，必须同时声明 valueType
+            5、valueType 可选，常量值类型：string、number、boolean；param 引用时禁止配置
+            6、containsMode 可选，ContainsAll 的匹配方式：Token 逗号分隔逐值精确匹配（默认）、Text 文本子串全部包含
+        -->
+        <!ELEMENT conditionTerm EMPTY>
+        <!ATTLIST conditionTerm
+                column CDATA #REQUIRED
+                operator (EqualTo|NotEqualTo|GreaterThan|GreaterThanOrEqualTo|LessThan|LessThanOrEqualTo|LikeAny|In|ContainsAll) #REQUIRED
+                param CDATA #IMPLIED
+                value CDATA #IMPLIED
+                valueType (string|number|boolean) #IMPLIED
+                containsMode (Token|Text) #IMPLIED>
 
         <!--
             用于描述过滤器列配置信息

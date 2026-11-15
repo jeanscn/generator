@@ -2,6 +2,7 @@ package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.core.annotation.CompositeQuery;
 import com.vgosoft.core.annotation.HtmlButton;
+import com.vgosoft.core.annotation.QueryCondition;
 import com.vgosoft.core.annotation.ViewColumnMeta;
 import com.vgosoft.core.annotation.ViewTableMeta;
 import com.vgosoft.core.constant.GlobalConstant;
@@ -67,6 +68,8 @@ public class ViewTableMetaDesc extends AbstractAnnotation {
     private String[] columns = new String[0];
 
     private String[] querys = new String[0];
+
+    private String[] queryConditions = new String[0];
 
     private String[] filters = new String[0];
 
@@ -185,6 +188,10 @@ public class ViewTableMetaDesc extends AbstractAnnotation {
         if (this.querys.length > 0) {
             items.add(VStringUtil.format("querys = '{'{0}'}'", String.join("\n        , ", this.querys)));
             this.addImports(CompositeQuery.class.getCanonicalName());
+        }
+        if (this.queryConditions.length > 0) {
+            items.add(VStringUtil.format("queryConditions = '{'{0}'}'", String.join("\n        , ", this.queryConditions)));
+            this.addImports(QueryCondition.class.getCanonicalName());
         }
         if (this.filters.length > 0) {
             items.add(VStringUtil.format("filters = '{'{0}'}'", String.join("\n        , ", this.filters)));

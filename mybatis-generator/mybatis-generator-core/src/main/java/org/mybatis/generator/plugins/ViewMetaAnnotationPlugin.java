@@ -198,32 +198,55 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         }
         //querys
         if (!voViewGeneratorConfiguration.getQueryColumns().isEmpty()) {
-            //按列名分组
-            Map<String, List<QueryColumnConfiguration>> listMap = voViewGeneratorConfiguration.getQueryColumnConfigurations().stream().collect(Collectors.groupingBy(QueryColumnConfiguration::getColumn));
-            //去重,转换为CompositeQueryDesc
-            List<CompositeQueryDesc> queryDesc = voViewGeneratorConfiguration.getQueryColumns().stream()
-                    .distinct()
-                    .map(columnName -> {
-                        if (listMap.containsKey(columnName)) {
-                            return CompositeQueryDesc.create(listMap.get(columnName).get(0), introspectedTable);
-                        } else {
-                            // 原来这里使用 orElseThrow，改为列不存在则忽略
-                            return introspectedTable.getColumn(columnName)
-                                    .map(CompositeQueryDesc::create)
-                                    .orElse(null);
-                        }
-                    })
-                    .filter(Objects::nonNull)
-                    .toList();
-            //更新顺序号，order
-            for (int i = 0; i < queryDesc.size(); i++) {
-                queryDesc.get(i).setOrder(i + 1);
+            //组合条件配置按key分组，普通项按列名分组
+            List<QueryColumnConfiguration> queryColumnConfigurations = voViewGeneratorConfiguration.getQueryColumnConfigurations();
+            Map<String, QueryColumnConfiguration> conditionMap = new LinkedHashMap<>();
+            for (QueryColumnConfiguration configuration : queryColumnConfigurations) {
+                if (configuration.isCondition() && conditionMap.put(configuration.getKey(), configuration) != null) {
+                    throw new IllegalStateException("视图组合条件标识重复: " + configuration.getKey());
+                }
+            }
+            Map<String, List<QueryColumnConfiguration>> listMap = queryColumnConfigurations.stream()
+                    .filter(configuration -> !configuration.isCondition())
+                    .collect(Collectors.groupingBy(QueryColumnConfiguration::getColumn));
+            //去重,先按condition.key匹配转换为QueryConditionDesc，再按列名转换为CompositeQueryDesc
+            List<CompositeQueryDesc> queryDesc = new ArrayList<>();
+            List<QueryConditionDesc> conditionDescs = new ArrayList<>();
+            int order = 0;
+            for (String columnName : voViewGeneratorConfiguration.getQueryColumns().stream().distinct().toList()) {
+                QueryColumnConfiguration conditionConfiguration = conditionMap.get(columnName);
+                if (conditionConfiguration != null) {
+                    QueryConditionDesc queryConditionDesc = QueryConditionDesc.create(conditionConfiguration, introspectedTable);
+                    queryConditionDesc.setOrder(++order);
+                    conditionDescs.add(queryConditionDesc);
+                    continue;
+                }
+                CompositeQueryDesc compositeQueryDesc;
+                if (listMap.containsKey(columnName)) {
+                    compositeQueryDesc = CompositeQueryDesc.create(listMap.get(columnName).get(0), introspectedTable);
+                } else {
+                    // 原来这里使用 orElseThrow，改为列不存在则忽略
+                    compositeQueryDesc = introspectedTable.getColumn(columnName)
+                            .map(CompositeQueryDesc::create)
+                            .orElse(null);
+                }
+                if (compositeQueryDesc != null) {
+                    compositeQueryDesc.setOrder(++order);
+                    queryDesc.add(compositeQueryDesc);
+                }
             }
             //转换为注解
-            String[] array = queryDesc.stream().map(CompositeQueryDesc::toAnnotation).toArray(String[]::new);
-            viewTableMetaDesc.setQuerys(array);
+            if (!queryDesc.isEmpty()) {
+                viewTableMetaDesc.setQuerys(queryDesc.stream().map(CompositeQueryDesc::toAnnotation).toArray(String[]::new));
+            }
+            if (!conditionDescs.isEmpty()) {
+                viewTableMetaDesc.setQueryConditions(conditionDescs.stream().map(QueryConditionDesc::toAnnotation).toArray(String[]::new));
+            }
             //导入类型
-            viewVoClass.addImportedTypes(queryDesc.stream().flatMap(q -> q.getImportedTypes().stream()).collect(Collectors.toSet()));
+            Set<FullyQualifiedJavaType> importedTypes = new HashSet<>();
+            queryDesc.forEach(q -> importedTypes.addAll(q.getImportedTypes()));
+            conditionDescs.forEach(q -> importedTypes.addAll(q.getImportedTypes()));
+            viewVoClass.addImportedTypes(importedTypes);
         }
 
          //filters

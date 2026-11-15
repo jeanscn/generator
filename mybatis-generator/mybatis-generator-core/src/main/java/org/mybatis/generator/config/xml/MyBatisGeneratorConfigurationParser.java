@@ -2,6 +2,9 @@ package org.mybatis.generator.config.xml;
 
 import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.core.constant.SymbolConstants;
+import com.vgosoft.core.constant.enums.core.QueryConditionContainsModeEnum;
+import com.vgosoft.core.constant.enums.core.QueryConditionOperatorEnum;
+import com.vgosoft.core.constant.enums.core.QueryConditionValueTypeEnum;
 import com.vgosoft.core.constant.enums.core.QueryModesEnum;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.core.constant.enums.db.FieldTypeEnum;
@@ -3560,7 +3563,7 @@ public class MyBatisGeneratorConfigurationParser {
         return viewFieldOverrideConfiguration;
     }
 
-    private QueryColumnConfiguration parseQueryColumn(TableConfiguration tc, Node childNode) {
+    QueryColumnConfiguration parseQueryColumn(TableConfiguration tc, Node childNode) {
         QueryColumnConfiguration queryColumnConfiguration = new QueryColumnConfiguration(tc);
         Properties attributes = parseAttributes(childNode);
         String column = attributes.getProperty("column");
@@ -3615,7 +3618,227 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(multiple)) {
             queryColumnConfiguration.setMultiple(Boolean.parseBoolean(multiple));
         }
+        String queryType = attributes.getProperty("queryType");
+        if (stringHasValue(queryType)) {
+            if (!"field".equals(queryType) && !"condition".equals(queryType)) {
+                throw new IllegalArgumentException("queryColumn 的 queryType 仅允许 field 或 condition: " + queryType);
+            }
+            queryColumnConfiguration.setQueryType(queryType);
+        }
+        String key = attributes.getProperty("key");
+        if (stringHasValue(key)) {
+            queryColumnConfiguration.setKey(key);
+        }
+        NodeList queryColumnChildren = childNode.getChildNodes();
+        for (int i = 0; i < queryColumnChildren.getLength(); i++) {
+            Node conditionChild = queryColumnChildren.item(i);
+            if (conditionChild.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
+            switch (conditionChild.getNodeName()) {
+                case "conditionParam":
+                    queryColumnConfiguration.getConditionParamConfigurations().add(parseConditionParam(conditionChild));
+                    break;
+                case "conditionTerm":
+                    queryColumnConfiguration.getConditionTermConfigurations().add(parseConditionTerm(conditionChild));
+                    break;
+                case "property":
+                    parseProperty(queryColumnConfiguration, conditionChild);
+                    break;
+                default:
+                    warnings.add(getString("Warning.21", conditionChild.getNodeName()));
+                    log.warn(getString("Warning.21", conditionChild.getNodeName()));
+                    break;
+            }
+        }
+        validateQueryColumn(tc, queryColumnConfiguration);
         return queryColumnConfiguration;
+    }
+
+    /**
+     * 解析 {@code <conditionParam>} 组合条件参数声明。
+     */
+    private ConditionParamConfiguration parseConditionParam(Node childNode) {
+        ConditionParamConfiguration configuration = new ConditionParamConfiguration();
+        Properties attributes = parseAttributes(childNode);
+        String name = attributes.getProperty("name");
+        if (stringHasValue(name)) {
+            configuration.setName(name);
+        }
+        String remark = attributes.getProperty("remark");
+        if (stringHasValue(remark)) {
+            configuration.setRemark(remark);
+        }
+        String column = attributes.getProperty("column");
+        if (stringHasValue(column)) {
+            configuration.setColumn(column);
+        }
+        String tagName = attributes.getProperty("tagType");
+        if (stringHasValue(tagName)) {
+            configuration.setTagName(HtmlElementTagTypeEnum.ofCodeName(tagName));
+        }
+        String fieldType = attributes.getProperty("fieldType");
+        if (stringHasValue(fieldType)) {
+            configuration.setFieldType(FieldTypeEnum.of(fieldType));
+        }
+        String dataUrl = attributes.getProperty("dataUrl");
+        if (stringHasValue(dataUrl)) {
+            configuration.setDataUrl(dataUrl);
+        }
+        String multiple = attributes.getProperty("multiple");
+        if (stringHasValue(multiple)) {
+            configuration.setMultiple(Boolean.parseBoolean(multiple));
+        }
+        String required = attributes.getProperty("required");
+        if (stringHasValue(required)) {
+            configuration.setRequired(Boolean.parseBoolean(required));
+        }
+        return configuration;
+    }
+
+    /**
+     * 解析 {@code <conditionTerm>} 原子条件；操作符命名沿用 DTD 的查询表达式风格，
+     * 映射为 {@link QueryConditionOperatorEnum}。
+     */
+    private ConditionTermConfiguration parseConditionTerm(Node childNode) {
+        ConditionTermConfiguration configuration = new ConditionTermConfiguration();
+        Properties attributes = parseAttributes(childNode);
+        String column = attributes.getProperty("column");
+        if (stringHasValue(column)) {
+            configuration.setColumn(column);
+        }
+        String operator = attributes.getProperty("operator");
+        if (stringHasValue(operator)) {
+            configuration.setOperator(ConditionTermConfiguration.operatorOf(operator));
+        }
+        String param = attributes.getProperty("param");
+        if (stringHasValue(param)) {
+            configuration.setParam(param);
+        }
+        String value = attributes.getProperty("value");
+        if (stringHasValue(value)) {
+            configuration.setValue(value);
+        }
+        String valueType = attributes.getProperty("valueType");
+        if (stringHasValue(valueType)) {
+            configuration.setValueType(switch (valueType) {
+                case "string" -> QueryConditionValueTypeEnum.STRING;
+                case "number" -> QueryConditionValueTypeEnum.NUMBER;
+                case "boolean" -> QueryConditionValueTypeEnum.BOOLEAN;
+                default -> throw new IllegalArgumentException("conditionTerm 不支持的 valueType: " + valueType);
+            });
+        }
+        String containsMode = attributes.getProperty("containsMode");
+        if (stringHasValue(containsMode)) {
+            configuration.setContainsMode(switch (containsMode) {
+                case "Token" -> QueryConditionContainsModeEnum.TOKEN;
+                case "Text" -> QueryConditionContainsModeEnum.TEXT;
+                default -> throw new IllegalArgumentException("conditionTerm 不支持的 containsMode: " + containsMode);
+            });
+        }
+        return configuration;
+    }
+
+    /**
+     * 校验 {@code <queryColumn>} 结构约束（生成时失败即报错，不生成残缺注解）；
+     * 涉及真实列存在性、列名冲突与 typeHandler 的校验由 ViewMetaAnnotationPlugin 在生成阶段执行。
+     */
+    private void validateQueryColumn(TableConfiguration tc, QueryColumnConfiguration configuration) {
+        String location = "表 " + tc.getTableName() + " 的 queryColumn";
+        if (configuration.isCondition()) {
+            if (!stringHasValue(configuration.getKey())) {
+                throw new IllegalArgumentException(location + "：queryType=condition 时 key 必填");
+            }
+            if (stringHasValue(configuration.getColumn())) {
+                throw new IllegalArgumentException(location + "[" + configuration.getKey() + "]：condition 项不配置 column");
+            }
+            List<ConditionTermConfiguration> terms = configuration.getConditionTermConfigurations();
+            if (terms.isEmpty()) {
+                throw new IllegalArgumentException(location + "[" + configuration.getKey() + "]：至少需要一个 conditionTerm");
+            }
+            Map<String, ConditionParamConfiguration> params = new HashMap<>();
+            for (ConditionParamConfiguration param : configuration.getConditionParamConfigurations()) {
+                if (!stringHasValue(param.getName()) || params.put(param.getName(), param) != null) {
+                    throw new IllegalArgumentException(location + "[" + configuration.getKey() + "]：conditionParam 的 name 为空或重复: "
+                            + param.getName());
+                }
+            }
+            for (ConditionTermConfiguration term : terms) {
+                validateConditionTerm(location + "[" + configuration.getKey() + "]", term, params);
+            }
+        } else {
+            if (!stringHasValue(configuration.getColumn())) {
+                throw new IllegalArgumentException(location + "：queryType=field 时 column 必填");
+            }
+            if (!configuration.getConditionParamConfigurations().isEmpty()
+                    || !configuration.getConditionTermConfigurations().isEmpty()) {
+                throw new IllegalArgumentException(location + "[" + configuration.getColumn() + "]：field 项不支持 conditionParam/conditionTerm 子节点");
+            }
+            if (stringHasValue(configuration.getKey())) {
+                throw new IllegalArgumentException(location + "[" + configuration.getColumn() + "]：key 仅 queryType=condition 有效");
+            }
+        }
+    }
+
+    private void validateConditionTerm(String location, ConditionTermConfiguration term,
+                                       Map<String, ConditionParamConfiguration> params) {
+        if (!stringHasValue(term.getColumn())) {
+            throw new IllegalArgumentException(location + "：conditionTerm 的 column 必填");
+        }
+        if (term.getOperator() == null) {
+            throw new IllegalArgumentException(location + "：conditionTerm 的 operator 必填");
+        }
+        boolean multipleOperator = term.getOperator() == QueryConditionOperatorEnum.IN
+                || term.getOperator() == QueryConditionOperatorEnum.CONTAINS_ALL;
+        if (term.hasParam() == term.hasValue()) {
+            throw new IllegalArgumentException(location + "：conditionTerm[" + term.getColumn() + "] 的 param 与 value 必须且只能配置一个");
+        }
+        if (term.getContainsMode() != QueryConditionContainsModeEnum.TOKEN
+                && term.getOperator() != QueryConditionOperatorEnum.CONTAINS_ALL) {
+            throw new IllegalArgumentException(location + "：containsMode 仅 operator=ContainsAll 有效");
+        }
+        if (term.hasValue()) {
+            if (multipleOperator) {
+                throw new IllegalArgumentException(location + "：常量值不支持多值操作符 " + term.getOperator());
+            }
+            if (!term.hasValueType()) {
+                throw new IllegalArgumentException(location + "：常量值必须声明 valueType: " + term.getColumn());
+            }
+            switch (term.getValueType()) {
+                case NUMBER -> {
+                    try {
+                        new java.math.BigDecimal(term.getValue());
+                    } catch (NumberFormatException e) {
+                        throw new IllegalArgumentException(location + "：常量不是合法数值: " + term.getValue());
+                    }
+                }
+                case BOOLEAN -> {
+                    if (!"true".equals(term.getValue()) && !"false".equals(term.getValue())) {
+                        throw new IllegalArgumentException(location + "：常量不是合法布尔值: " + term.getValue());
+                    }
+                }
+                default -> {
+                }
+            }
+            return;
+        }
+        if (term.hasValueType()) {
+            throw new IllegalArgumentException(location + "：引用参数时不得配置 valueType: " + term.getParam());
+        }
+        ConditionParamConfiguration param = params.get(term.getParam());
+        if (param == null) {
+            throw new IllegalArgumentException(location + "：conditionTerm 引用了未声明的参数: " + term.getParam());
+        }
+        if (param.isMultiple() != multipleOperator) {
+            throw new IllegalArgumentException(location + "：参数多值设置与操作符不匹配: " + term.getParam() + " " + term.getOperator());
+        }
+        boolean likeOperator = term.getOperator() == QueryConditionOperatorEnum.LA
+                || term.getOperator() == QueryConditionOperatorEnum.CONTAINS_ALL;
+        if (likeOperator && param.getFieldType() != null && Set.of(
+                FieldTypeEnum.NUMBER, FieldTypeEnum.DATE, FieldTypeEnum.DATETIME, FieldTypeEnum.TIME)
+                .contains(param.getFieldType())) {
+            throw new IllegalArgumentException(location + "：包含类操作符只允许文本参数: " + term.getParam());
+        }
     }
 
     private FilterColumnConfiguration parseFilterColumn(TableConfiguration tc, Node childNode) {

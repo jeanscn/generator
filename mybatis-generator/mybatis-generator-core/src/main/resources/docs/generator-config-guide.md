@@ -649,7 +649,7 @@ for (Class<?> type = entityClass; type != null && type != Object.class; type = t
 
 `queryColumns`、`fuzzyColumns`、`filterColumns` 是三个互相独立的字段集合，分别对应列表页的「精确/复合查询」「模糊检索」「过滤」三种输入，缺一不可、不能互相替代：
 
-- `queryColumns`：精确（等值）或复合查询字段，供前端按字段逐项构造查询条件。字段可选入 RequestVo 并由后端解析。
+- `queryColumns`：精确（等值）或复合查询字段，供前端按字段逐项构造查询条件；也可列入组合条件的 `key`（见下文 `queryType="condition"`）。字段可选入 RequestVo 并由后端解析。
 - `fuzzyColumns`：**模糊检索字段**。生成器 `ViewMetaAnnotationPlugin` 会为 `fuzzyColumns` 中命中的 ViewVo 字段额外生成 `@ViewFuzzyColumnMeta` 注解（`comparator` 默认 `LA`，即 `LIKE '%值%'` 前后模糊匹配），前端搜索框据此把统一文本输入映射到这些字段做 `LIKE` 查询。**只应指定字符型业务字段（这类列在后端以 `LIKE` 匹配）**，如 `code_`、`name_`、标题/备注等 VARCHAR 列；对数值、日期、状态枚举等非字符列指定 `fuzzyColumns` 没有意义，会得到无效的 `LIKE` 条件。
 - `filterColumns`：过滤字段，供过滤面板按业务列组合精确条件；枚举/状态等离散取值列常另用 `<filterColumn>` 子节点补充控件与 `operators`，操作符和值域须与后端解析支持一致。
 
@@ -676,7 +676,9 @@ for (Class<?> type = entityClass; type != null && type != Object.class; type = t
 | 子节点 | 作用 | 关键约束 |
 |---|---|---|
 | `fieldOverrides` | 覆盖指定 ViewVo 字段的标签、宽度、对齐、固定、排序、隐藏及编辑标记 | `fields` 必填，按 VO 属性名匹配；优先核对生成的 `ViewColumnMeta` |
-| `queryColumn` | 补充查询字段描述 | `column` 必填；可配置 tag/query mode、类型、顺序、格式、数据源、枚举/字典或 dataUrl。该描述不自动添加 RequestVo 字段或服务端筛选 |
+| `queryColumn` | 补充查询字段描述；`queryType="condition"` 时声明自定义组合条件 | `queryType="field"`（默认）时 `column` 必填；可配置 tag/query mode、类型、顺序、格式、数据源、枚举/字典或 dataUrl。`queryType="condition"` 时 `key` 必填（视图内唯一、不得与真实列名冲突、同时列入 `queryColumns`），不配置 `column`，用 `conditionParam`/`conditionTerm` 子节点描述。该描述不自动添加 RequestVo 字段 |
+| `conditionParam` | 组合条件的参数声明 | `name` 必填且条件内唯一；可选 `remark`、`column`（借用真实列的表单项，须存在）、`tagType`、`fieldType`、`dataUrl`、`multiple`、`required`（默认 true）。`In`/`ContainsAll` 引用的参数必须 `multiple="true"`，其余操作符引用单值参数 |
+| `conditionTerm` | 组合条件的原子条件，同条件内各 term 以 AND 合取（不支持 OR/嵌套） | `column` 必填且须为真实列（配置了自定义 `typeHandler` 的列第一期不支持）；`operator` 必填；`param` 与 `value` 恰配一个，常量值必须声明 `valueType`（string/number/boolean）且不支持 `In`/`ContainsAll`；`containsMode` 仅 `ContainsAll` 有效，Token（默认）为逗号分隔字段逐值精确匹配，Text 为文本子串全部包含 |
 | `filterColumn` | 补充过滤字段描述 | `column` 必填；可配置控件、query mode、顺序、重复/多选/范围及 `operators`；操作符和值域必须与后端解析支持一致 |
 | `htmlButton` | 描述自定义工具栏/行操作按钮 | 用 `toolbar` / `actionColumn` 引用相应按钮 ID；描述按钮不等于实现 handler、服务端动作或授权 |
 | `overridePropertyValue` / `columnRenderFun` | 配置显示值转换/列表渲染 | 核对来源字段、目标 ViewVo 属性、值来源及实际前端渲染支持 |
@@ -684,6 +686,25 @@ for (Class<?> type = entityClass; type != null && type != Object.class; type = t
 | `innerListView` | 配置关联/内嵌列表视图 | 需单独设计关系键、数据来源及保存行为；具体生成行为按内嵌列表配置规则检查 |
 
 DTD 允许 `viewVo` 含上述及相关子节点；当前 Parser 对 `queryColumn`、`filterColumn`、`fieldOverrides` 等分别解析。`queryColumn` / `filterColumn` 描述只有同时列入 `queryColumns` / `filterColumns` 时才参与对应元数据；无显式 `queryColumn` 描述时，不存在的 query 字段会被忽略，显式描述须匹配真实列；不存在的 filter 字段会抛出异常。子节点合法仅表示可被配置解析，不表示宿主页面一定消费或服务端已有对应行为。
+
+#### 5.3.2.1 组合条件（`queryType="condition"`）
+
+`queryType="condition"` 的 `queryColumn` 生成 `@QueryCondition`（含 `@QueryConditionParam`、`@QueryConditionTerm` 子注解），写入 `@ViewTableMeta.queryConditions`；普通项仍生成 `querys = {@CompositeQuery}`，输出与既有行为一致。`queryColumns` 列表中 `key` 的位置决定组合条件在查询项中的顺序（与普通字段混合排序），`key` 优先于同名列名匹配。
+
+```xml
+<viewVo queryColumns="code_,score_pass" ...>
+    <queryColumn column="code_" remark="编码"/>
+    <queryColumn queryType="condition" key="score_pass" remark="成绩达标">
+        <conditionParam name="minA" remark="A 下限" fieldType="number" tagType="number" required="true"/>
+        <conditionParam name="tags" column="tags_" multiple="true" required="false"/>
+        <conditionTerm column="score_a" operator="GreaterThan" param="minA"/>
+        <conditionTerm column="tags_" operator="ContainsAll" param="tags" containsMode="Text"/>
+        <conditionTerm column="score_b" operator="GreaterThanOrEqualTo" value="0" valueType="number"/>
+    </queryColumn>
+</viewVo>
+```
+
+服务端契约：前端只提交 `filterParam.conditions` 中的 `key` 与参数值；字段名与操作符只来自注解模板，用户值一律经 `#{}` 绑定，不拼接 SQL，也不使用 `anyWhereCondition`。`ContainsAll` 的 Token 值不得为空或含逗号（逐值匹配依赖逗号定界）。LIKE 类谓词按执行语句所属 `Configuration` 的 `_databaseId` 选择：mysql/mariadb 用 `concat`，postgresql/h2/oracle/db2/dm 用 `||`，sqlserver/sqlserver2005 用 `+` 并绑定 `secondValue`；未支持方言在 SQL 构建阶段由 `vgosoft-mybatis` 的 `QueryDialectGuard` 显式报错，不静默降级。上述方言分支已通过渲染层测试断言，除本机实库验收过的方言外均属“已渲染验证、未实库验证”。
 
 #### 5.3.3 最小视图配置示例
 

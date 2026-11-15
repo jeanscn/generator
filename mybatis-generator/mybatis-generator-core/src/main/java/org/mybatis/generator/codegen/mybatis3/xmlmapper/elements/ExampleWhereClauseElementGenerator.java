@@ -109,6 +109,17 @@ public class ExampleWhereClauseElementGenerator extends AbstractXmlElementGenera
         when.addElement(new TextElement("and ${criterion.condition}"));
         chooseElement.addElement(when);
 
+        if (!typeHandled && introspectedTable.getTableConfiguration().hasQueryConditions()) {
+            // 组合条件 LIKE 分支：方言由执行语句所属 Configuration 的 _databaseId 选择，
+            // 未支持方言经 otherwise 中的守卫在 SQL 构建时显式失败
+            chooseElement.addElement(getLikeWhenElement("criterion.literalLikeValue",
+                    "and ${criterion.condition} like #{criterion.value} escape '!'",
+                    "and ${criterion.condition} like #{criterion.secondValue} escape '!'",
+                    "LITERAL_LIKE"));
+            chooseElement.addElement(getLikeWhenElement("criterion.tokenLikeValue",
+                    null, null, "TOKEN_LIKE"));
+        }
+
         when = new XmlElement("when");
         when.addAttribute(new Attribute("test", "criterion.singleValue"));
         sb.setLength(0);
@@ -155,5 +166,46 @@ public class ExampleWhereClauseElementGenerator extends AbstractXmlElementGenera
         chooseElement.addElement(when);
 
         return middleForEachElement;
+    }
+
+    /**
+     * 组合条件 LIKE 类分支：按 _databaseId 选择谓词，固定输出 escape '!'，否则调用方言守卫。
+     * literalSql 为空时表示 Token 模式，按方言分组输出定界拼接表达式。
+     */
+    private XmlElement getLikeWhenElement(String criterionFlag, String literalSql, String literalSqlServerSql, String kind) {
+        XmlElement when = new XmlElement("when");
+        when.addAttribute(new Attribute("test", criterionFlag));
+        XmlElement choose = new XmlElement("choose");
+        when.addElement(choose);
+        boolean tokenLike = "TOKEN_LIKE".equals(kind);
+        if (tokenLike) {
+            choose.addElement(dialectWhen("_databaseId == 'mysql' or _databaseId == 'mariadb'",
+                    "and concat(',', ${criterion.condition}, ',') like #{criterion.value} escape '!'"));
+            choose.addElement(dialectWhen(
+                    "_databaseId == 'postgresql' or _databaseId == 'h2' or _databaseId == 'oracle' or _databaseId == 'db2' or _databaseId == 'dm'",
+                    "and (',' || ${criterion.condition} || ',') like #{criterion.value} escape '!'"));
+        } else {
+            choose.addElement(dialectWhen(
+                    "_databaseId == 'mysql' or _databaseId == 'mariadb' or _databaseId == 'postgresql' or _databaseId == 'h2' or _databaseId == 'oracle' or _databaseId == 'db2' or _databaseId == 'dm'",
+                    literalSql));
+        }
+        choose.addElement(dialectWhen("_databaseId == 'sqlserver' or _databaseId == 'sqlserver2005'",
+                tokenLike ? "and (',' + ${criterion.condition} + ',') like #{criterion.secondValue} escape '!'"
+                        : literalSqlServerSql));
+        XmlElement otherwise = new XmlElement("otherwise");
+        XmlElement bind = new XmlElement("bind");
+        bind.addAttribute(new Attribute("name", "unsupportedDialect"));
+        bind.addAttribute(new Attribute("value",
+                "@com.vgosoft.mybatis.query.QueryDialectGuard@unsupported(_databaseId, '" + kind + "')"));
+        otherwise.addElement(bind);
+        choose.addElement(otherwise);
+        return when;
+    }
+
+    private XmlElement dialectWhen(String test, String sql) {
+        XmlElement when = new XmlElement("when");
+        when.addAttribute(new Attribute("test", test));
+        when.addElement(new TextElement(sql));
+        return when;
     }
 }

@@ -136,3 +136,14 @@
 - 建议后续处理：在 `generateController` 下增加 property，值为逗号分隔的 Controller 生成方法简称；生成时将其与接口清单中的简称一致匹配，对命中接口省略 `@PreAuthorize`，未命中接口继续保持现有行为。后续实施时同步评估 DTD/property 解析、生成配置指南、权限 key 清单及覆盖默认行为的生成回归。
 - 责任与关联：`mybatis-generator-core` 配置解析及 Controller 生成能力维护方；需求来源为用户，本次未获授权实施功能。
 - 更新与关闭记录：2026-11-12 首次登记，中/源码已定位/待处理；当前仅记录需求，未实现或验证该能力。
+
+### generator-core-ISSUE-0011 全量测试中既有基线漂移与 Excel 导入夹具失败
+
+- 发现来源：2026-11-15 VgoTable 查询表单 W2（生成器组合条件）收尾时执行 `mvn -pl mybatis-generator-core test` 全量回归。
+- 位置与证据：679 项中 8 项失败：`CasWriteGenerationTest.retainsCompleteVersionedRawBaseline`（原始输出与 CAS 基线差异）、`SensitiveGenerationTest.offlineOutputBaseline`（场景 0 层 0 模型输出摘要不符）、`ImportScopeAuditTest.keepsEveryGeneratedImportReferencedWithoutGlobalFallback`（`SensitiveWordExcelVo.java` 存在未使用 import `com.vgosoft.core.annotation.Dict`/`DictEnum`）、`ExcelImportWorkflowGenerationTest` 1 失败 4 错误（`keepsOnlyExplicitWorkflowImportForSensitiveTables` 断言缺 `import/preview`、`import/confirm`；4 项报 `Sensitive word legacy Excel VO configuration was not found`）。对照证据：用 `git stash` 暂存本轮全部改动后单独重跑这 4 个测试类，失败项与数量完全一致（77 项中 4 失败 4 错误），确认与本任务改动无关。
+- 问题现象与触发条件：直接执行上述测试类即失败；输出基线/导入审计/Excel 夹具的期望与当前生成输出不一致，非本次 queryColumn 组合条件改动引入。
+- 影响与分级依据：中。属于既有回归漂移或夹具配置缺陷；不阻塞 W2 交付，但全量回归无法整体通过。生成 Example 新增的 `andBoundCondition`/`andLiteralLike`/`andTokenLike` 方法会使既有输出基线进一步漂移，后续修复基线时应一并重录。
+- 与当前任务的关系：W2 新增 25 项测试全部通过，未修改这些失败路径；按非主线问题登记，不重录基线、不改断言、不修复 Excel 夹具。
+- 建议后续处理：独立排查各基线漂移来源（可能是工作区其他未提交改动或上游未同步的生成逻辑变更）与 `SensitiveWordExcelVo` 无效 import、legacy Excel VO 夹具缺失配置；说明真实差异后再决定修复生成逻辑或更新快照。
+- 责任与关联：`mybatis-generator-core` 测试维护方；关联 CAS/敏感信息/Excel 导入工作流相关生成能力。
+- 更新与关闭记录：2026-11-15 首次登记，中/已复现/待处理；本轮仅登记。

@@ -193,6 +193,24 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
             export.addBodyLine("if (VStringUtil.stringHasValue(filterSql)) {");
             export.addBodyLine("example.getOredCriteria().forEach(criteria -> criteria.andTrustedCondition(filterSql));");
             export.addBodyLine("}");
+            if (introspectedTable.getRules().isGenerateViewVo()
+                    && introspectedTable.getTableConfiguration().hasQueryConditions()) {
+                parent.addImportedType(entityViewVoType);
+                parent.addImportedType("com.vgosoft.web.utils.QueryConditionResolver");
+                parent.addImportedType("com.vgosoft.web.utils.BoundCondition");
+                export.addBodyLine("List<BoundCondition> conditions = QueryConditionResolver.resolve("
+                        + entityViewVoType.getShortName() + ".class, filterParam.getConditions(), \""
+                        + escapeStringForJava(introspectedTable.getTableConfiguration().getAlias() == null
+                        ? "" : introspectedTable.getTableConfiguration().getAlias()) + "\");");
+                export.addBodyLine("example.getOredCriteria().forEach(criteria -> conditions.forEach(bound -> {");
+                export.addBodyLine("switch (bound.kind()) {");
+                export.addBodyLine("case VALUE -> criteria.andBoundCondition(bound.condition(), bound.value());");
+                export.addBodyLine("case LITERAL_LIKE -> criteria.andLiteralLike(bound.condition(), (String) bound.value(), bound.sqlServerValue());");
+                export.addBodyLine("case TOKEN_LIKE -> criteria.andTokenLike(bound.condition(), (String) bound.value(), bound.sqlServerValue());");
+                export.addBodyLine("default -> throw new IllegalStateException(\"不支持的查询条件类型: \" + bound.kind());");
+                export.addBodyLine("}");
+                export.addBodyLine("}));");
+            }
             export.addBodyLine("}");
         }
         export.addBodyLine("if (idScope) {");
