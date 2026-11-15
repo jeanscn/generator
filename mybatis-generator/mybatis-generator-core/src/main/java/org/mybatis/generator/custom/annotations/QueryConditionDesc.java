@@ -93,12 +93,12 @@ public class QueryConditionDesc extends AbstractAnnotation {
             this.items.add(VStringUtil.format("order = {0}", this.order));
         }
         if (!this.params.isEmpty()) {
-            this.items.add(VStringUtil.format("params = '{'\n                {0}\n        '}'}'",
-                    this.params.stream().map(this::paramToAnnotation).collect(Collectors.joining(",\n                "))));
+            String params = this.params.stream().map(this::paramToAnnotation).collect(Collectors.joining(",\n                "));
+            this.items.add("params = {\n                " + params + "\n        }");
             this.addImports(QueryConditionParam.class.getCanonicalName());
         }
-        this.items.add(VStringUtil.format("terms = '{'\n                {0}\n        '}'}'",
-                this.terms.stream().map(this::termToAnnotation).collect(Collectors.joining(",\n                "))));
+        String terms = this.terms.stream().map(this::termToAnnotation).collect(Collectors.joining(",\n                "));
+        this.items.add("terms = {\n                " + terms + "\n        }");
         this.addImports(QueryConditionTerm.class.getCanonicalName());
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }

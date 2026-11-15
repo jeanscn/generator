@@ -704,7 +704,7 @@ DTD 允许 `viewVo` 含上述及相关子节点；当前 Parser 对 `queryColumn
 </viewVo>
 ```
 
-服务端契约：前端只提交 `filterParam.conditions` 中的 `key` 与参数值；字段名与操作符只来自注解模板，用户值一律经 `#{}` 绑定，不拼接 SQL，也不使用 `anyWhereCondition`。`ContainsAll` 的 Token 值不得为空或含逗号（逐值匹配依赖逗号定界）。LIKE 类谓词按执行语句所属 `Configuration` 的 `_databaseId` 选择：mysql/mariadb 用 `concat`，postgresql/h2/oracle/db2/dm 用 `||`，sqlserver/sqlserver2005 用 `+` 并绑定 `secondValue`；未支持方言在 SQL 构建阶段由 `vgosoft-mybatis` 的 `QueryDialectGuard` 显式报错，不静默降级。上述方言分支已通过渲染层测试断言，除本机实库验收过的方言外均属“已渲染验证、未实库验证”。
+服务端契约：前端只提交 `filterParam.conditions` 中的 `key` 与参数值；字段名与操作符只来自注解模板，用户值一律经 `#{}` 绑定，不拼接 SQL，也不使用 `anyWhereCondition`。`ContainsAll` 的 Token 值不得为空或含逗号（逐值匹配依赖逗号定界）。LIKE 类谓词按执行语句所属 `Configuration` 的 `_databaseId` 选择：mysql/mariadb 用 `concat`，postgresql/h2/oracle/db2/dm 用 `||`，sqlserver/sqlserver2005 用 `+` 并绑定 `secondValue`；未支持方言在 SQL 构建阶段由 `vgosoft-mybatis` 的 `QueryDialectGuard` 显式报错，不静默降级。上述方言分支已通过渲染层测试断言；2026-11-15，mpmm 本机 `local-mysql` profile 已实测 Token/Text `ContainsAll`、日期查询及 `%`、`_`、`!` 字面语义。其余方言为“已渲染验证、未实库验证”，不代表实库支持已验证。
 
 #### 5.3.3 最小视图配置示例
 

@@ -36,6 +36,8 @@ class QueryConditionDescTest {
         desc.setOrder(3);
         String annotation = desc.toAnnotation();
         assertThat(annotation).contains("@QueryCondition(", "key = \"score_pass\"", "remark = \"成绩达标\"", "order = 3");
+        assertThat(annotation).contains("\n        }, terms = {").endsWith("\n        })");
+        assertThat(annotation).doesNotContain("}}, terms = {", "}})");
         assertThat(annotation).contains("@QueryConditionParam(name = \"minA\"",
                 "fieldType = FieldTypeEnum.NUMBER", "tagName = HtmlElementTagTypeEnum.NUMBER");
         assertThat(annotation).contains("@QueryConditionParam(name = \"tags\"",
