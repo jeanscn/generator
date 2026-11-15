@@ -1,7 +1,7 @@
 /**
 * ${ OVERRIDABLE_FLAG }
 * @description ${ tableRemark }类型定义
-* @version: types template version 1.0.2
+* @version: types template version 1.0.3
 */
 <#include "vue_module_type_imports.ts.ftl">
 export type ${ typeName } = {
