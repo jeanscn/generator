@@ -212,8 +212,10 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
             //去重,先按condition.key匹配转换为QueryConditionDesc，再按列名转换为CompositeQueryDesc
             List<CompositeQueryDesc> queryDesc = new ArrayList<>();
             List<QueryConditionDesc> conditionDescs = new ArrayList<>();
+            List<String> selectedQueryColumns = voViewGeneratorConfiguration.getQueryColumns().stream().distinct().toList();
+            boolean hasConditionQueries = selectedQueryColumns.stream().anyMatch(conditionMap::containsKey);
             int order = 0;
-            for (String columnName : voViewGeneratorConfiguration.getQueryColumns().stream().distinct().toList()) {
+            for (String columnName : selectedQueryColumns) {
                 QueryColumnConfiguration conditionConfiguration = conditionMap.get(columnName);
                 if (conditionConfiguration != null) {
                     QueryConditionDesc queryConditionDesc = QueryConditionDesc.create(conditionConfiguration, introspectedTable);
@@ -231,7 +233,9 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
                             .orElse(null);
                 }
                 if (compositeQueryDesc != null) {
-                    compositeQueryDesc.setOrder(++order);
+                    if (hasConditionQueries) {
+                        compositeQueryDesc.setOrder(++order);
+                    }
                     queryDesc.add(compositeQueryDesc);
                 }
             }
