@@ -866,6 +866,39 @@ src/main/resources/sql/init/data-menu-<moduleKeyword小写>.sql
 | `name="htmlReadonlyFields"` 的 `value` | 只读列 | 空；合并 Context、Table 及本页面集合 | vue3和html | Vue 写入表单级 readonlyFields；并非后端禁止更新。 |
 | `name="htmlDisplayOnlyFields"` 的 `value` | 仅展示列 | 空；合并 Context、Table 及本页面集合 | vue3和html | 不等于隐藏或只读；需核对宿主表单提交行为。 |
 
+#### 7.1.3 `pageNavigator`
+
+`generateHtml` 可包含一个空元素 `pageNavigator`，由 Vue3 编辑/详情模板生成 `VgoPageNav` 配置。该元素仅在当前 1.8.0 DTD 中提供。
+
+| 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
+|---|---|---|---|---|
+| `columns` | 导航字段列名 | 必填，无默认值 | vue3 | 数据库列名逗号分隔，按配置顺序生成；拒绝空项、重复项及未知列。 |
+| `title` | 导航器标题 | 空字符串 | vue3 | 空标题仍传递给组件；是否显示标题栏由 `showTitle` 控制。 |
+| `trigger` | 展开方式 | `auto` | vue3 | `auto` / `hover` / `click`。 |
+| `placement` | 导航位置 | `right` | vue3 | `left` / `right`。 |
+| `offset` | 锚点顶部偏移 | `0` | vue3 | 整数；可为负数。 |
+| `width` / `railWidth` / `tickGap` / `maxHeight` | 展开宽度、收缩轨宽、刻度间距、最大高度 | `220` / `36` / `14` / `640` | vue3 | 正整数；按 `VgoPageNav` 的组件契约解释。 |
+| `edge` | 距定位侧边缘距离 | `14` | vue3 | 非负整数。 |
+| `theme` | 主题 | `auto` | vue3 | `auto` / `light` / `dark`。 |
+| `showTitle` | 是否显示标题栏 | `true` | vue3 | `true` / `false`。 |
+| `scrollContainer` | 滚动容器 CSS 选择器 | 未设置（组件使用整页滚动容器） | vue3 | 非空选择器字符串；弹窗或抽屉需按实际滚动节点配置。 |
+| `zIndex` | 层级 | `60` | vue3 | 非负整数。 |
+
+```xml
+<generateHtml generate="true" type="editable" default="true">
+    <pageNavigator columns="code_,name_,notes_" title="" trigger="auto" placement="right"/>
+</generateHtml>
+```
+
+列标题取数据库列注释，注释为空时回退为列名；每项固定 `level=1`，锚点 id 为 `nav-<实际列名>`。Framework 将 id 设置到对应字段外层 `el-form-item`，并按字段名将锚点映射传给表单。字段或所属布局的运行时条件隐藏时，导航项同步移除。
+
+以下约束在生成阶段明确校验：
+
+1. 仅支持 `generate="true"` 的 `editable` / `viewOnly` 页面；`print` 页面不支持。
+2. 列必须对应非 BLOB、未静态隐藏、实际进入 VO 表单元数据且包含在静态页面布局中的字段。
+3. 一个表存在多个 `generateHtml` 时，`pageNavigator` 必须配置在 Vue 表单元数据实际采用的页面配置上：第一个 `default="true"` 配置，若没有则为第一个配置。`VueHtmMetaAnnotationPlugin` 使用同一选择规则，因此不允许导航项与表单字段布局/隐藏配置脱节。
+4. `items` 由 `columns` 生成，`activeId` 由组件根据滚动位置维护，不单独提供 XML 配置。
+
 ### 7.2 页面布局
 
 #### 7.2.1 `layout`

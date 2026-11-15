@@ -613,7 +613,7 @@
             3、htmlReadonlyFields 页面文件中只读的列，多个”,“分隔。
             4、htmlDisplayOnlyFields 页面文件中只显示的列，多个”,“分隔。
         -->
-        <!ELEMENT generateHtml (property*,layout?,htmlElementDescriptor*,htmlFormExtendDescriptor*,htmlSwitchDescriptor*,htmlTableSelectDescriptor*,htmlFileAttachment*,approvalComment*,htmlElementInnerList*,htmlButton*)>
+        <!ELEMENT generateHtml (property*,layout?,htmlElementDescriptor*,htmlFormExtendDescriptor*,htmlSwitchDescriptor*,htmlTableSelectDescriptor*,htmlFileAttachment*,approvalComment*,htmlElementInnerList*,htmlButton*,pageNavigator?)>
         <!ATTLIST generateHtml
                 key CDATA #IMPLIED
                 generate (true|false) #REQUIRED
@@ -626,6 +626,39 @@
                 targetPackage  CDATA #IMPLIED
                 targetProject CDATA #IMPLIED
                 default (true|false) #IMPLIED>
+
+        <!--
+         页面导航器配置；所有未显式设置的默认值由生成器配置对象提供。
+            属性信息：
+                1、columns 必填，数据库列名列表，使用逗号分隔；按配置顺序生成导航项。
+                   导航项 id 为 nav-<实际列名>，title 为列注释（无注释时回退为列名），level 固定为 1。
+                2、title 导航器标题，默认空字符串；showTitle 控制是否显示标题文字。
+                3、trigger 展开方式：auto-自动，hover-悬停，click-点击；默认 auto。
+                4、placement 位置：left-左侧，right-右侧；默认 right。
+                5、offset、width、railWidth、tickGap、maxHeight、edge、zIndex 为像素或层级数值；
+                   theme 可选 auto、light、dark；showTitle 可选 true、false。
+                6、scrollContainer 为可选滚动容器 CSS 选择器；省略时使用整页滚动容器。
+                7、items 由 columns 生成，activeId 由组件按滚动位置管理，不在 XML 中配置。
+                8、仅支持配置了 Context.vueEndProjectPath 且 generate=true 的 editable/viewOnly 页面；print 页面明确不支持。
+                9、多 generateHtml 时应配置在 Vue 表单元数据采用的 default 页面；目标列必须进入 VO 表单且静态布局可见。
+         -->
+        <!ELEMENT pageNavigator EMPTY>
+        <!ATTLIST pageNavigator
+                columns CDATA #REQUIRED
+                title CDATA #IMPLIED
+                trigger (auto | hover | click) #IMPLIED
+                placement (left | right) #IMPLIED
+                offset CDATA #IMPLIED
+                width CDATA #IMPLIED
+                railWidth CDATA #IMPLIED
+                tickGap CDATA #IMPLIED
+                maxHeight CDATA #IMPLIED
+                edge CDATA #IMPLIED
+                theme (auto | light | dark) #IMPLIED
+                showTitle (true | false) #IMPLIED
+                scrollContainer CDATA #IMPLIED
+                zIndex CDATA #IMPLIED>
+
         <!--
             页面布局生成描述
             属性信息：

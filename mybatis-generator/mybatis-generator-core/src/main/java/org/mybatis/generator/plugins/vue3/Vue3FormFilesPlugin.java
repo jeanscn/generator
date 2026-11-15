@@ -13,7 +13,11 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.freemaker.vue3.GeneratedVueFile;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
+import org.mybatis.generator.config.HtmlGroupContainerConfiguration;
+import org.mybatis.generator.config.PageNavigatorConfiguration;
+import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.TypeScriptTypeDescriptor;
+import org.mybatis.generator.config.VoModelGeneratorConfiguration;
 import org.mybatis.generator.config.VoViewGeneratorConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
 import org.mybatis.generator.custom.FieldItem;
@@ -108,9 +112,139 @@ public class Vue3FormFilesPlugin extends PluginAdapter {
         // innerList
         freeMakerContext.put("hasInnerList", htmlGeneratorConfiguration != null && !htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().isEmpty());
 
+        addPageNavigatorProps(freeMakerContext, introspectedTable, htmlGeneratorConfiguration);
+
         freeMakerContext.put("OVERRIDABLE_FLAG", ConstantsUtil.OVERRIDABLE_FLAG);
 
         return freeMakerContext;
+    }
+
+    private void addPageNavigatorProps(
+            Map<String, Object> freeMakerContext,
+            AbstractIntrospectedTable introspectedTable,
+            HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+        if (htmlGeneratorConfiguration == null || htmlGeneratorConfiguration.getPageNavigator() == null) {
+            return;
+        }
+
+        PageNavigatorConfiguration pageNavigator = htmlGeneratorConfiguration.getPageNavigator();
+        HtmlGeneratorConfiguration formConfiguration = getFormHtmlConfiguration(introspectedTable);
+        if (htmlGeneratorConfiguration != formConfiguration) {
+            throw new IllegalArgumentException(
+                    "generateHtml.pageNavigator 必须配置在 Vue 表单元数据使用的 default 页面配置上");
+        }
+        if (!introspectedTable.getRules().isGenerateVoModel()) {
+            throw new IllegalArgumentException("generateHtml.pageNavigator 要求 generateVo.model=\"true\"");
+        }
+
+        List<Map<String, Object>> items = new ArrayList<>();
+        Set<String> selectedColumns = new HashSet<>();
+        Set<String> selectedProperties = new HashSet<>();
+        for (String configuredColumn : pageNavigator.getColumns()) {
+            IntrospectedColumn column = introspectedTable.getColumn(configuredColumn)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "generateHtml.pageNavigator.columns 指定了未知数据库列：" + configuredColumn));
+            String actualColumnName = column.getActualColumnName();
+            if (!selectedColumns.add(actualColumnName.toLowerCase(Locale.ROOT))) {
+                throw new IllegalArgumentException(
+                        "generateHtml.pageNavigator.columns 重复指向数据库列：" + actualColumnName);
+            }
+            if (introspectedTable.getNonBlobColumns().stream()
+                    .noneMatch(nonBlobColumn -> nonBlobColumn.getActualColumnName().equals(actualColumnName))) {
+                throw new IllegalArgumentException(
+                        "generateHtml.pageNavigator.columns 指定的列未生成表单字段：" + actualColumnName);
+            }
+            if (GenerateUtils.isHiddenColumn(introspectedTable, column, htmlGeneratorConfiguration)) {
+                throw new IllegalArgumentException(
+                        "generateHtml.pageNavigator.columns 指定了静态隐藏字段：" + actualColumnName);
+            }
+            if (isIgnoredVoField(introspectedTable, column)) {
+                throw new IllegalArgumentException(
+                        "generateHtml.pageNavigator.columns 指定了未生成到表单元数据的 VO 字段：" + actualColumnName);
+            }
+            if (!isIncludedInLayout(formConfiguration, column)) {
+                throw new IllegalArgumentException(
+                        "generateHtml.pageNavigator.columns 指定的列未包含在静态页面布局中：" + actualColumnName);
+            }
+
+            String fieldName = column.getJavaProperty();
+            if (!selectedProperties.add(fieldName)) {
+                throw new IllegalArgumentException(
+                        "generateHtml.pageNavigator.columns 映射到重复表单属性：" + fieldName);
+            }
+            String id = "nav-" + actualColumnName;
+            String title = column.getRemarks(true);
+            if (!stringHasValue(title)) {
+                title = actualColumnName;
+            }
+
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("id", id);
+            item.put("title", title);
+            item.put("level", 1);
+            item.put("fieldName", fieldName);
+            items.add(item);
+        }
+
+        Map<String, Object> pageNavigatorProps = new LinkedHashMap<>();
+        pageNavigatorProps.put("title", pageNavigator.getTitle());
+        pageNavigatorProps.put("trigger", pageNavigator.getTrigger());
+        pageNavigatorProps.put("placement", pageNavigator.getPlacement());
+        pageNavigatorProps.put("offset", pageNavigator.getOffset());
+        pageNavigatorProps.put("width", pageNavigator.getWidth());
+        pageNavigatorProps.put("railWidth", pageNavigator.getRailWidth());
+        pageNavigatorProps.put("tickGap", pageNavigator.getTickGap());
+        pageNavigatorProps.put("maxHeight", pageNavigator.getMaxHeight());
+        pageNavigatorProps.put("edge", pageNavigator.getEdge());
+        pageNavigatorProps.put("theme", pageNavigator.getTheme());
+        pageNavigatorProps.put("showTitle", pageNavigator.isShowTitle());
+        if (pageNavigator.getScrollContainer() != null) {
+            pageNavigatorProps.put("scrollContainer", pageNavigator.getScrollContainer());
+        }
+        pageNavigatorProps.put("zIndex", pageNavigator.getZIndex());
+        freeMakerContext.put("pageNavigator", pageNavigatorProps);
+        freeMakerContext.put("pageNavItems", items);
+    }
+
+    private HtmlGeneratorConfiguration getFormHtmlConfiguration(AbstractIntrospectedTable introspectedTable) {
+        List<HtmlGeneratorConfiguration> configurations =
+                introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations();
+        return configurations.stream()
+                .filter(HtmlGeneratorConfiguration::isDefaultConfig)
+                .findFirst()
+                .orElse(configurations.get(0));
+    }
+
+    private boolean isIgnoredVoField(AbstractIntrospectedTable introspectedTable, IntrospectedColumn column) {
+        VoModelGeneratorConfiguration configuration = introspectedTable.getTableConfiguration()
+                .getVoGeneratorConfiguration().getVoModelConfiguration();
+        String ignoredColumns = configuration.getProperty(PropertyRegistry.ELEMENT_IGNORE_COLUMNS);
+        boolean ignored = stringHasValue(ignoredColumns)
+                && Arrays.stream(ignoredColumns.split(",")).map(String::trim)
+                .anyMatch(column.getActualColumnName()::equals);
+        boolean inherited = EntityAbstractParentEnum.ABSTRACT_PERSISTENCE_LOCK_ENTITY.fields()
+                .contains(column.getJavaProperty());
+        return (ignored || inherited) && !column.isPrimaryKey()
+                && !"version_".equalsIgnoreCase(column.getActualColumnName());
+    }
+
+    private boolean isIncludedInLayout(HtmlGeneratorConfiguration configuration, IntrospectedColumn column) {
+        List<HtmlGroupContainerConfiguration> containers =
+                configuration.getLayoutDescriptor().getGroupContainerConfigurations();
+        return containers.isEmpty()
+                || containers.stream().anyMatch(container -> isIncludedInContainer(container, column));
+    }
+
+    private boolean isIncludedInContainer(HtmlGroupContainerConfiguration container, IntrospectedColumn column) {
+        List<String> includeElements = container.getIncludeElements();
+        if (includeElements.isEmpty()
+                || includeElements.contains(column.getActualColumnName())
+                || includeElements.contains(column.getJavaProperty())) {
+            return true;
+        }
+        return container.getGroupContainerConfigurations().stream()
+                .filter(child -> includeElements.contains(child.getElementKey()))
+                .anyMatch(child -> isIncludedInContainer(child, column));
     }
 
     private void addVoViewProps(Map<String, Object> freeMakerContext, VoViewGeneratorConfiguration viewConfiguration, AbstractIntrospectedTable introspectedTable) {

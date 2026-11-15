@@ -1361,6 +1361,12 @@ public class MyBatisGeneratorConfigurationParser {
                     HtmlButtonGeneratorConfiguration htmlButton = parseHtmlButton(childNode);
                     htmlGeneratorConfiguration.getHtmlButtons().add(htmlButton);
                     break;
+                case "pageNavigator":
+                    if (htmlGeneratorConfiguration.getPageNavigator() != null) {
+                        throw new IllegalArgumentException("generateHtml 不允许重复声明 pageNavigator");
+                    }
+                    htmlGeneratorConfiguration.setPageNavigator(parsePageNavigator(context, htmlGeneratorConfiguration, childNode));
+                    break;
                 default:
                     warnings.add(getString("Warning.21", childNode.getNodeName(), context.getId()));
                     log.warn(getString("Warning.21", childNode.getNodeName(), context.getId()));
@@ -1371,6 +1377,110 @@ public class MyBatisGeneratorConfigurationParser {
             htmlGeneratorConfiguration.setLayoutDescriptor(new HtmlLayoutDescriptor());
         }
         tc.addHtmlMapGeneratorConfigurations(htmlGeneratorConfiguration);
+    }
+
+    private PageNavigatorConfiguration parsePageNavigator(
+            Context context,
+            HtmlGeneratorConfiguration htmlConfiguration,
+            Node node) {
+        if (!htmlConfiguration.isGenerate()) {
+            throw new IllegalArgumentException("generateHtml.pageNavigator 要求 generate=\"true\"");
+        }
+        if (!stringHasValue(context.getVueEndProjectPath())) {
+            throw new IllegalArgumentException("generateHtml.pageNavigator 要求 Context 配置 vueEndProjectPath");
+        }
+        if (HtmlDocumentTypeEnum.PRINT.equals(htmlConfiguration.getType())) {
+            throw new IllegalArgumentException("generateHtml.type=\"print\" 不支持 pageNavigator");
+        }
+
+        Properties attributes = parseAttributes(node);
+        String columns = attributes.getProperty("columns");
+        if (!stringHasValue(columns)) {
+            throw new IllegalArgumentException("generateHtml.pageNavigator 的 columns 不能为空");
+        }
+
+        List<String> columnNames = new ArrayList<>();
+        Set<String> uniqueColumns = new HashSet<>();
+        for (String value : columns.split(",", -1)) {
+            String column = value.trim();
+            if (!stringHasValue(column)) {
+                throw new IllegalArgumentException("generateHtml.pageNavigator.columns 含有空列名");
+            }
+            if (!uniqueColumns.add(column)) {
+                throw new IllegalArgumentException("generateHtml.pageNavigator.columns 不允许重复列：" + column);
+            }
+            columnNames.add(column);
+        }
+
+        PageNavigatorConfiguration configuration = new PageNavigatorConfiguration();
+        configuration.setColumns(columnNames);
+
+        String title = attributes.getProperty("title");
+        if (title != null) {
+            configuration.setTitle(title);
+        }
+
+        String trigger = attributes.getProperty("trigger", configuration.getTrigger());
+        if (!Set.of("auto", "hover", "click").contains(trigger)) {
+            throw new IllegalArgumentException("generateHtml.pageNavigator.trigger 仅支持 auto、hover、click");
+        }
+        configuration.setTrigger(trigger);
+
+        String placement = attributes.getProperty("placement", configuration.getPlacement());
+        if (!Set.of("left", "right").contains(placement)) {
+            throw new IllegalArgumentException("generateHtml.pageNavigator.placement 仅支持 left、right");
+        }
+        configuration.setPlacement(placement);
+
+        String theme = attributes.getProperty("theme", configuration.getTheme());
+        if (!Set.of("auto", "light", "dark").contains(theme)) {
+            throw new IllegalArgumentException("generateHtml.pageNavigator.theme 仅支持 auto、light、dark");
+        }
+        configuration.setTheme(theme);
+
+        configuration.setOffset(parsePageNavigatorInteger(attributes, "offset", configuration.getOffset()));
+        configuration.setWidth(parsePageNavigatorInteger(attributes, "width", configuration.getWidth()));
+        configuration.setRailWidth(parsePageNavigatorInteger(attributes, "railWidth", configuration.getRailWidth()));
+        configuration.setTickGap(parsePageNavigatorInteger(attributes, "tickGap", configuration.getTickGap()));
+        configuration.setMaxHeight(parsePageNavigatorInteger(attributes, "maxHeight", configuration.getMaxHeight()));
+        configuration.setEdge(parsePageNavigatorInteger(attributes, "edge", configuration.getEdge()));
+        configuration.setZIndex(parsePageNavigatorInteger(attributes, "zIndex", configuration.getZIndex()));
+
+        if (configuration.getWidth() <= 0 || configuration.getRailWidth() <= 0
+                || configuration.getTickGap() <= 0 || configuration.getMaxHeight() <= 0
+                || configuration.getEdge() < 0 || configuration.getZIndex() < 0) {
+            throw new IllegalArgumentException("generateHtml.pageNavigator 的宽度、高度和间距必须为正数，edge 与 zIndex 不得小于零");
+        }
+
+        String showTitle = attributes.getProperty("showTitle");
+        if (showTitle != null) {
+            if (!"true".equals(showTitle) && !"false".equals(showTitle)) {
+                throw new IllegalArgumentException("generateHtml.pageNavigator.showTitle 仅支持 true 或 false");
+            }
+            configuration.setShowTitle(Boolean.parseBoolean(showTitle));
+        }
+
+        String scrollContainer = attributes.getProperty("scrollContainer");
+        if (scrollContainer != null) {
+            if (!stringHasValue(scrollContainer)) {
+                throw new IllegalArgumentException("generateHtml.pageNavigator.scrollContainer 不能为空白");
+            }
+            configuration.setScrollContainer(scrollContainer.trim());
+        }
+
+        return configuration;
+    }
+
+    private int parsePageNavigatorInteger(Properties attributes, String name, int defaultValue) {
+        String value = attributes.getProperty(name);
+        if (value == null) {
+            return defaultValue;
+        }
+        try {
+            return Integer.parseInt(value.trim());
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException("generateHtml.pageNavigator." + name + " 必须是整数", exception);
+        }
     }
 
     private void parseHtmlApprovalComment(HtmlGeneratorConfiguration htmlGeneratorConfiguration, Node childNode) {

@@ -38,3 +38,5 @@
     用途：记录默认结构同步触发范围、DDL 执行/失败语义、既有隔离回归及生成器权威说明与配置指南更新结果。
 17. [业务表单数据链路与响应式优化任务书](D:\vscode\tmri-ui4\packages\framework\docs\task\form-data-reactivity-optimization-task.md)
     用途：tmri-ui4 主体维护的跨仓任务进度、Edit 模板 1.0.9 分支/竞态回归、批准单文件离线生成及验证边界；模板契约见生成器权威说明 §2.2。
+18. [页面导航器生成任务书](..\mybatis-generator-core\src\main\resources\docs\task\page-navigator-generation-task.md)
+    用途：记录 `generateHtml/pageNavigator` 跨生成器与 Framework 的确认范围、子任务依赖、进度及隔离验证证据。

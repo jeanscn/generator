@@ -202,6 +202,7 @@ MySQL、MariaDB、TiDB、PolarDB、TDSQL 的 JDBC 兜底也必须调用 core-db 
 | 页面骨架 | 列表页、编辑页、详情页、弹窗页 | Vue3 模板使用 Framework 的 `VgoTableView` / `vgoForm`；结构化业务页可先生成骨架 |
 | 列表视图元数据 | `viewVo` 生成的 Java VO 与视图注解元数据：列表标识、查询/过滤字段、默认排序、列显示及工具栏等 | Vue3 列表依赖 ViewVo 配置和宿主运行时；元数据生成不等同于页面布局、服务端过滤或按钮权限实现 |
 | 表单视图元数据 | 新增/编辑/只读表单的 VO 类型与配置化表单装配 | 编辑/详情模板通过 Framework 表单配置能力装配；复杂联动仍须评估扩展点 |
+| 页面导航 | `generateHtml/pageNavigator` 按列生成 `PageNavItem` 及表单锚点映射 | 仅支持 editable/viewOnly；列必须实际进入静态可见的 VO 表单，配置及默认值见[配置指南 §7.1.3](generator-config-guide.md#713-pagenavigator) |
 | 复杂部件 | 内嵌列表相关接入、附件/审批相关模板能力 | 可生成主干或提供接入位置，不表示任意业务交互均自动完成 |
 | 类型与扩展 | TypeScript 类型、共享变量、Hooks 和列表列插槽文件 | 部分文件是扩展入口；其生成条件与覆盖策略并不相同，见下文 |
 
@@ -261,6 +262,7 @@ Vue3 产物由 `Vue3OtherFilesPlugin` 与 `Vue3FormFilesPlugin` 输出。共同�
 | 设计问题 | 配置入口 | 能力与边界 |
 |---|---|---|
 | 启用哪类页面、选哪个共用表单配置、输出到哪里 | [7.1 通用配置](generator-config-guide.md#71-通用配置) | 文件门控检查整表启用的 editable/viewOnly；表单注解却取第一个 default=true 的配置（全为 false 时取第一个），不按 generate/type 过滤。default 实际省略为 true，不能把 generate=false 当元数据总开关。 |
+| 页面导航与字段锚点 | [7.1.3 `pageNavigator`](generator-config-guide.md#713-pagenavigator) | 按数据库列生成导航项；仅允许有效的 editable/viewOnly 表单配置，并要求目标列在静态布局中可见。 |
 | 字段列数、独占行、容器、标签及弹窗 | [7.2 页面布局](generator-config-guide.md#72-页面布局) | 字段 span 通常为 24/pageColumnsNum，独占列为 24，长文本/编辑器还可调整；容器由嵌套 XML 计算父键。groupContainer.columnNum 当前默认 1；HTML uiFrameType 当前默认 layui，并非选择 Vue3 技术栈的开关。 |
 | 控件、字典、引用选择、联动与自定义表单 | [7.3 输入组件配置](generator-config-guide.md#73-输入组件配置) | 普通描述器、TableSelect、FormExtend 可参与 Vue 字段注解；快捷格式/默认列规则会计算数据来源。页面直接子节点 htmlSwitchDescriptor 当前未解析，应使用普通 descriptor 的 tagType=switch。 |
 | 校验、字段链接与动作 | [7.4 校验、链接与按钮](generator-config-guide.md#74-校验链接与按钮) | Vue validator 与 HTML verify/hrefElement 不等效；动作元数据不自动实现业务 handler。当前 validator.max/enum 等存在传值偏差，设计不能依赖声明即生效。 |

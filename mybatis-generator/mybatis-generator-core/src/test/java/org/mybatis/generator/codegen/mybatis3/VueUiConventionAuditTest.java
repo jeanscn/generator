@@ -18,6 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * 生成前端产物的 UI 约定审计。
@@ -72,6 +73,121 @@ public class VueUiConventionAuditTest {
                     .contains("margin: calc(var(--vgo-space-base, 15px) / 2) 0 -1px 0;")
                     .doesNotContain("margin: 7.5px");
         }
+    }
+
+    @Test
+    void pageNavigatorGeneratesMatchingEditAndDetailAnchorsWithComponentDefaults() throws Exception {
+        Map<String, String> contents = generateVueFiles(withPageNavigator(
+                CasConsumerBaselineTest.consumerXml(null), "word_"));
+
+        for (String fileName : List.of("SensitiveWordEdit.vue", "SensitiveWordDetail.vue")) {
+            String generated = contents.entrySet().stream()
+                    .filter(entry -> entry.getKey().endsWith(fileName))
+                    .map(Map.Entry::getValue)
+                    .findFirst()
+                    .orElseThrow();
+            assertThat(generated)
+                    .contains(":pageNavigator=\"pageNavigator\"")
+                    .contains("id: \"nav-word_\"")
+                    .contains("title: \"敏感词\"")
+                    .contains("level: 1")
+                    .contains("\"word\": \"nav-word_\"")
+                    .contains("title: \"\"")
+                    .contains("trigger: \"auto\"")
+                    .contains("placement: \"right\"")
+                    .contains("offset: 0")
+                    .contains("width: 220")
+                    .contains("railWidth: 36")
+                    .contains("tickGap: 14")
+                    .contains("maxHeight: 640")
+                    .contains("edge: 14")
+                    .contains("theme: \"auto\"")
+                    .contains("showTitle: true")
+                    .contains("zIndex: 60");
+        }
+    }
+
+    @Test
+    void pageNavigatorMapsConfiguredComponentProperties() throws Exception {
+        String attributes = "title=\"基本信息\" trigger=\"click\" placement=\"left\" offset=\"12\" "
+                + "width=\"300\" railWidth=\"42\" tickGap=\"18\" maxHeight=\"500\" edge=\"20\" "
+                + "theme=\"dark\" showTitle=\"false\" scrollContainer=\".drawer-body\" zIndex=\"80\"";
+        Map<String, String> contents = generateVueFiles(withPageNavigator(
+                CasConsumerBaselineTest.consumerXml(null), "word_", attributes));
+        String generated = contents.entrySet().stream()
+                .filter(entry -> entry.getKey().endsWith("SensitiveWordEdit.vue"))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElseThrow();
+
+        assertThat(generated)
+                .contains("title: \"基本信息\"")
+                .contains("trigger: \"click\"")
+                .contains("placement: \"left\"")
+                .contains("offset: 12")
+                .contains("width: 300")
+                .contains("railWidth: 42")
+                .contains("tickGap: 18")
+                .contains("maxHeight: 500")
+                .contains("edge: 20")
+                .contains("theme: \"dark\"")
+                .contains("showTitle: false")
+                .contains("scrollContainer: \".drawer-body\"")
+                .contains("zIndex: 80");
+    }
+
+    @Test
+    void pageNavigatorRejectsInvalidPageTypeColumnsAndLayoutTargets() throws Exception {
+        String baseXml = CasConsumerBaselineTest.consumerXml(null);
+        assertThatThrownBy(() -> new ConfigurationParser(new ArrayList<>())
+                .parseConfiguration(new StringReader(withPageNavigator(baseXml, "word_")
+                        .replace("type=\"editable\" viewPath=\"sensitive_word\"",
+                                "type=\"print\" viewPath=\"sensitive_word\""))))
+                .satisfies(error -> assertThat(allExceptionMessages(error)).contains("不支持 pageNavigator"));
+
+        assertThatThrownBy(() -> new ConfigurationParser(new ArrayList<>())
+                .parseConfiguration(new StringReader(withPageNavigator(baseXml, "word_,word_"))))
+                .satisfies(error -> assertThat(allExceptionMessages(error)).contains("不允许重复列"));
+
+        assertThatThrownBy(() -> new ConfigurationParser(new ArrayList<>())
+                .parseConfiguration(new StringReader(withPageNavigator(baseXml, "word_", "width=\"\""))))
+                .satisfies(error -> assertThat(allExceptionMessages(error)).contains("width 必须是整数"));
+
+        assertThatThrownBy(() -> generateVueFiles(withPageNavigator(baseXml, "missing_")))
+                .satisfies(error -> assertThat(allExceptionMessages(error)).contains("未知数据库列"));
+
+        assertThatThrownBy(() -> generateVueFiles(withPageNavigator(baseXml, "id_")))
+                .satisfies(error -> assertThat(allExceptionMessages(error)).contains("静态隐藏字段"));
+
+        String layoutWithoutWord = baseXml.replace(
+                "includeElements=\"word_,category_id,strategy_,state_,notes_\"",
+                "includeElements=\"category_id,strategy_,state_,notes_\"");
+        assertThatThrownBy(() -> generateVueFiles(withPageNavigator(layoutWithoutWord, "word_")))
+                .satisfies(error -> assertThat(allExceptionMessages(error)).contains("未包含在静态页面布局中"));
+    }
+
+    private static String withPageNavigator(String xml, String columns) {
+        return withPageNavigator(xml, columns, "");
+    }
+
+    private static String withPageNavigator(String xml, String columns, String attributes) {
+        int tableStart = xml.indexOf("<table ignore=\"false\" tableName=\"sensitive_word\"");
+        int htmlStart = xml.indexOf("<generateHtml", tableStart);
+        int htmlEnd = xml.indexOf("</generateHtml>", htmlStart);
+        if (tableStart < 0 || htmlStart < 0 || htmlEnd < 0) {
+            throw new IllegalStateException("consumer test configuration is missing the sensitive_word HTML page");
+        }
+        return xml.substring(0, htmlEnd)
+                + "<pageNavigator columns=\"" + columns + "\" " + attributes + "/>"
+                + xml.substring(htmlEnd);
+    }
+
+    private static String allExceptionMessages(Throwable error) {
+        StringBuilder messages = new StringBuilder();
+        for (Throwable current = error; current != null; current = current.getCause()) {
+            messages.append(current.getMessage()).append('\n');
+        }
+        return messages.toString();
     }
 
     /** 生成并汇总每个 .vue 产物的 UI 约定违例，键为 文件名。 */

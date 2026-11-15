@@ -12,6 +12,9 @@
             :formConfig="_formConfig"
             :viewStatus="viewStatus"
             :showBlankRow="showBlankRow"
+            <#if pageNavigator??>
+            :pageNavigator="pageNavigator"
+            </#if>
             @form-submit="onSubmit"
             @item-call-back="callHookByName"
             <#if hasInnerList>
@@ -74,6 +77,37 @@
     const moduleKey = "${ modelPath }";
     </#if>
     const _restBasePath = '${ restBasePath }';
+    <#if pageNavigator??>
+    const pageNavigator = {
+        items: [
+            <#list pageNavItems as item>
+            { id: "${item.id?js_string}", title: "${item.title?js_string}", level: ${item.level} }<#if item_has_next>,</#if>
+            </#list>
+        ],
+        anchors: {
+            <#list pageNavItems as item>
+            "${item.fieldName?js_string}": "${item.id?js_string}"<#if item_has_next>,</#if>
+            </#list>
+        },
+        options: {
+            title: "${pageNavigator.title?js_string}",
+            trigger: "${pageNavigator.trigger?js_string}",
+            placement: "${pageNavigator.placement?js_string}",
+            offset: ${pageNavigator.offset},
+            width: ${pageNavigator.width},
+            railWidth: ${pageNavigator.railWidth},
+            tickGap: ${pageNavigator.tickGap},
+            maxHeight: ${pageNavigator.maxHeight},
+            edge: ${pageNavigator.edge},
+            theme: "${pageNavigator.theme?js_string}",
+            showTitle: ${pageNavigator.showTitle?c},
+            <#if pageNavigator.scrollContainer??>
+            scrollContainer: "${pageNavigator.scrollContainer?js_string}",
+            </#if>
+            zIndex: ${pageNavigator.zIndex}
+        }
+    };
+    </#if>
 
     const vgoFormRef = ref();
     const service = shallowRef(new ServiceApi<T${ modelName }>(_restBasePath));

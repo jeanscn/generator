@@ -55,6 +55,8 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     private HtmlLayoutDescriptor layoutDescriptor;
 
+    private PageNavigatorConfiguration pageNavigator;
+
     private List<HtmlElementInnerListConfiguration> htmlElementInnerListConfiguration = new ArrayList<>();
 
     private String htmlBaseTargetPackage;
