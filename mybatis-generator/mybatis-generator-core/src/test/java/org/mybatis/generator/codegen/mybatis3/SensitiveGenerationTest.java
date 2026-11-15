@@ -224,19 +224,20 @@ class SensitiveGenerationTest {
     @Test
     void offlineOutputBaseline() throws Exception {
         // 摘要来自本轮重构前完整输出，固定日期配置并仅统一换行；顺序为实体、服务实现和 TS。
+        // 实体与 TS 摘要随 query-condition 组合条件（anyWhereCondition 受限条件描述）与 vue3 类型模板升级而更新。
         String[][] expected = {
-                {"74026c280c266dd956676cef0e76761a423fdb053085bff10f2b1191df84fd01",
+                {"62b907620c85f26f6d241048800c46edb59397e53b71aa76e39fe7d09aced9fd",
                  "b6a017c133b4cadc93aa1220bb754d19fdaf1fbbac294b1018f560ab3686a381",
-                 "a6eb9e4ebc39bd2853cc2dca923ff10f4466417c2dbb88d7d6d9ecf06ee24fd8"},
-                {"97d151e5249fb343d492d86a912667a6f206467a46220ffb7c8c9763ff2203a4",
+                 "0477a00c992498b8b2aaf849dba3f064672a4716c922836d807f21fe5a271f76"},
+                {"2c068069c2faa2db34d7e2e52ee4d811bd8eac8a139acb8d16956f5d9b96e16c",
                  "e441b42a3619cea63333e9b733cbf43df61ed643c2d733a629533c00a9a6c98c",
-                 "e452649e1a626f3f81460b3b036799ee647430c544f34225f0126dbd60788b75"},
-                {"97d151e5249fb343d492d86a912667a6f206467a46220ffb7c8c9763ff2203a4",
+                 "2e92f4ea524d661056bc47754ae0f513ab012c3204a9a58bb7cdfad985680ad1"},
+                {"2c068069c2faa2db34d7e2e52ee4d811bd8eac8a139acb8d16956f5d9b96e16c",
                  "e441b42a3619cea63333e9b733cbf43df61ed643c2d733a629533c00a9a6c98c",
-                 "e452649e1a626f3f81460b3b036799ee647430c544f34225f0126dbd60788b75"},
-                {"8a597a12b151f57431500184f0bf5cc0f589b6f60b91185f3943cfdc57638a90",
+                 "2e92f4ea524d661056bc47754ae0f513ab012c3204a9a58bb7cdfad985680ad1"},
+                {"6f7c611fd162cc59eedaf8257cd458990017f6dcb1e357d095ebf124874934c4",
                  "b6a017c133b4cadc93aa1220bb754d19fdaf1fbbac294b1018f560ab3686a381",
-                 "682ebf7f150cf5789d132804e39ea70626d5a510971bbbf28a5ad0e87a7349b7"}
+                 "994c4d17c94eda72d8382d30e70f91ded8bcb767dc142777f3eec52c331b9ad3"}
         };
         List<String> configurations = List.of(CHECK, "",
                 "<sensitiveCheck columns=\"content_\" enable=\"false\" strategy=\"WARN\"/>",

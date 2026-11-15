@@ -19,7 +19,7 @@
 | generator-core-ISSUE-0008 | 中 | 数据一致性 | 根实体结构同步 DDL 失败仅告警且生成继续 | 已复现 | 待处理（2026-11-07 确认保持登记，不实现 fail-fast） | — | 2026-10-29 | [根实体结构同步检查任务书](task/root-class-schema-sync-task.md) |
 | generator-core-ISSUE-0009 | 中 | 依赖兼容 | `vgosoft-tool:7.0.0-SNAPSHOT` 的 `VArrayUtil.merge` 新增受检异常导致生成器无法全量编译 | 已复现 | 已解决（生成器适配异常契约） | 复核通过 | 2026-11-07 | [审计字段自动填充任务书](task/audit-field-filling-task.md) T08 |
 | generator-core-ISSUE-0010 | 中 | 权限 | `generateController` 缺少按接口简称排除 `@PreAuthorize` 的配置 | 源码已定位 | 待处理（需求登记） | — | 2026-11-12 | 无（用户提出的生成器配置需求） |
-| generator-core-ISSUE-0011 | 中 | 测试与基线 | 全量测试中既有基线漂移与 Excel 导入夹具失败 | 已复现 | 待处理 | — | 2026-11-15 | VgoTable 查询表单 W2 |
+| generator-core-ISSUE-0011 | 中 | 测试与基线 | 全量测试中既有基线漂移与 Excel 导入夹具失败 | 已定位根因并修复（2026-11-15） | 已处理（基线重录 + 夹具固定快照 + 孤儿 import 生成逻辑修复） | — | 2026-11-15 | VgoTable 查询表单 W2 |
 
 ## 2. 问题详情
 
@@ -147,4 +147,6 @@
 - 与当前任务的关系：W2 组合条件及普通查询兼容定向测试 28 项全部通过；全量失败集中在既有 CAS/Sensitive 基线与 Excel 导入 fixture 路径。本轮不重录基线、不改断言、不修复 Excel 夹具。
 - 建议后续处理：独立排查各基线漂移来源（可能是工作区其他未提交改动或上游未同步的生成逻辑变更）与 `SensitiveWordExcelVo` 无效 import、legacy Excel VO 夹具缺失配置；说明真实差异后再决定修复生成逻辑或更新快照。
 - 责任与关联：`mybatis-generator-core` 测试维护方；关联 CAS/敏感信息/Excel 导入工作流相关生成能力。
-- 更新与关闭记录：2026-11-15 首次登记，中/已复现/待处理；同日全量复跑 681 项，8 项失败仍为原失败集合，新增兼容测试及组合条件定向测试 28 项全部通过。本轮仅登记。
+- 根因与修复（2026-11-15 关闭）：8 项失败分三类。①基线漂移（2 项）：已提交的 query-condition 组合条件特性将 Example 的 `andXxxAnyCondition` 改为 `andXxxRegexp`、实体 `anyWhereCondition` 描述由「任意过滤条件」改为「受限条件表达式…」、Controller `andAnyCondition` 改为 `andRegexp`/`andTrustedCondition` 并引入 `parseCondition`/`parseFilterMap` 列白名单，属合法变更，按批准方案重录 `consumer-current-v1-parser-baseline.zip`（16 个文件逐项核对均属上述变更）与 `SensitiveGenerationTest.offlineOutputBaseline` 四个场景×三层摘要（实体层与 TS 层变化，服务实现层不变）。②Excel 夹具（6 项）：`ExcelImportWorkflowGenerationTest` 与 `ImportScopeAuditTest` 通过 `consumerXml` 读取漂移的实时消费配置（`sensitive_word` 的 `excelVo` 由 `generate="false"` 改为 `generate="true" includeFields="…"`），改为固定快照 `consumerSnapshotXml` 消除配置漂移。③孤儿 import（生成逻辑缺陷）：`VoExcelGenerator` 经 `buildOverrideColumn` 为派生转换字段（如 `categoryText`/`strategyText`）登记 `@Dict`/`@DictEnum` 导入后，字段又被 `exportIncludeFields` 过滤掉，遗留孤儿 import；修复为仅在 include 过滤下构建会被导出的转换属性。全量复跑 684 项 0 失败 5 跳过通过。
+- 后续约束：`DisabledServiceEntryGenerationTest` 与 `VueUiConventionAuditTest` 仍通过 `consumerXml` 读取实时消费配置，当前不失败但存在后续漂移风险，宜在后续统一固定到快照；`VoExcelGenerator` 孤儿 import 修复的确定性回归建议由既有 `ImportScopeAuditTest`（revision 场景含 `excelVo` 路径）覆盖，若消费配置再次关闭 `excelVo` 需另立固定夹具。
+- 更新与关闭记录：2026-11-15 首次登记，中/已复现/待处理；同日全量复跑 681 项，8 项失败仍为原失败集合，新增兼容测试及组合条件定向测试 28 项全部通过。2026-11-15 定位根因并按批准方案修复：重录 CAS 原始输出基线、更新敏感离线基线摘要、将 Excel/Import 审计夹具固定到快照配置、修复 `VoExcelGenerator` 孤儿 import；全量 684 项 0 失败 5 跳过通过，问题关闭。

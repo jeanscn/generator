@@ -5,6 +5,7 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.config.ConfigUtil;
 import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
 import org.mybatis.generator.config.VoExcelGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
@@ -50,6 +51,13 @@ public class VoExcelGenerator extends AbstractVoGenerator {
         }
         //增加映射
         List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = voExcelGeneratorConfiguration.getOverridePropertyConfigurations();
+        // 显式 include 过滤下，仅构建会被导出的转换属性，避免为被过滤字段在登记侧留下孤儿 import（如 @Dict/@DictEnum）。
+        if (!voExcelGeneratorConfiguration.getExportIncludeFields().isEmpty()) {
+            overridePropertyConfigurations = overridePropertyConfigurations.stream()
+                    .filter(configuration -> voExcelGeneratorConfiguration.getExportIncludeFields()
+                            .contains(overrideFieldName(configuration)))
+                    .collect(Collectors.toList());
+        }
         List<Field> fields = voGenService.buildOverrideColumn(overridePropertyConfigurations, excelVoClass, ModelClassTypeEnum.excelVoClass);
         VCollectionUtil.addAllIfNotContains(allFields, fields);
         //附加属性
@@ -86,5 +94,18 @@ public class VoExcelGenerator extends AbstractVoGenerator {
         mappingsInterface.addMethod(addMappingMethod(excelVoClass.getType(), entityType, false));
         mappingsInterface.addMethod(addMappingMethod(excelVoClass.getType(), entityType, true));
         return excelVoClass;
+    }
+
+    /**
+     * 计算转换属性最终落地的字段名，与 {@link VoGenService#buildOverrideColumn} 保持一致：
+     * 优先使用 targetPropertyName，缺失时按源列 Java 属性推导（Id 结尾转 Text，否则追加 Text）。
+     */
+    private String overrideFieldName(OverridePropertyValueGeneratorConfiguration configuration) {
+        if (configuration.getTargetPropertyName() != null) {
+            return configuration.getTargetPropertyName();
+        }
+        return introspectedTable.getColumn(configuration.getSourceColumnName())
+                .map(column -> ConfigUtil.getOverrideJavaProperty(column.getJavaProperty(), null))
+                .orElse(null);
     }
 }

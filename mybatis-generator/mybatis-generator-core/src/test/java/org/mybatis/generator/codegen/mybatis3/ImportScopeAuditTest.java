@@ -36,11 +36,11 @@ public class ImportScopeAuditTest {
     void keepsEveryGeneratedImportReferencedWithoutGlobalFallback() throws Exception {
         System.setProperty("vgosoft.audit.skipReconciler", "true");
         try {
-            assertThat(audit("baseline-no-disabled", CasConsumerBaselineTest.consumerXml(null)))
+            assertThat(audit("baseline-no-disabled", CasConsumerBaselineTest.consumerSnapshotXml(null)))
                     .as("无停用基线的全部生成类不得存在无效 import").isEmpty();
             System.setProperty("sc03.disabled", "true");
             try {
-                assertThat(audit("consumer-with-disabled", CasConsumerBaselineTest.consumerXml("true")))
+                assertThat(audit("consumer-with-disabled", CasConsumerBaselineTest.consumerSnapshotXml("true")))
                         .as("真实停用配置（含 CAS）的全部生成类不得存在无效 import").isEmpty();
             } finally {
                 System.clearProperty("sc03.disabled");
