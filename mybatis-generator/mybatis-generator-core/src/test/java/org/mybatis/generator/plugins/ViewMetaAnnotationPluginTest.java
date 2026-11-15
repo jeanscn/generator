@@ -44,13 +44,13 @@ class ViewMetaAnnotationPluginTest {
         JavaModelGeneratorConfiguration modelConfiguration = new JavaModelGeneratorConfiguration(context);
         modelConfiguration.setTargetPackage("sample.pojo");
         modelConfiguration.setTargetProject("target/test-project");
+        modelConfiguration.getProperties().setProperty("rootClass", "sample.AbstractRecord");
         context.setJavaModelGeneratorConfiguration(modelConfiguration);
 
         TableConfiguration tableConfiguration = new TableConfiguration(context, new ArrayList<>());
         tableConfiguration.setTableName("record_");
         tableConfiguration.setDomainObjectName("Record");
         tableConfiguration.setAlias("r");
-        tableConfiguration.setRootClass("sample.AbstractRecord");
         VoGeneratorConfiguration voGenerator = new VoGeneratorConfiguration(context, tableConfiguration);
         VoViewGeneratorConfiguration viewConfiguration =
                 new VoViewGeneratorConfiguration(context, tableConfiguration);
