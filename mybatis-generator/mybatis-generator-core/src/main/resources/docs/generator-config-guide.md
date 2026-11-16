@@ -1,5 +1,7 @@
 # generatorConfig.xml 配置指南
 
+> 本文档是生成配置的**详细操作参考**：逐项说明配置参数含义、配置方法、适用场景与示例，供编写或评审 `generatorConfig.xml` 时查阅。需求/设计阶段快速了解配置可生成的能力全貌，先读[《generatorConfig.xml 配置能力概要》](generator-config-overview.md)；对外能力契约见[《生成器权威说明》](generator-authoritative-spec.md)。
+
 AI 验收/测试所需的数据库、浏览器和 API 地址及用户名、密码/token 统一且仅从 `D:\java\achievable_connection_information.yml` 读取；文件缺项时停止相关验收并沟通，不得回退读取其他本机配置。本文描述的 `generatorConfig.xml`、properties/YAML 和 JDBC 属性仅属于生成器实际运行配置，不是 AI 验收凭据的其他读取入口。
 
 ## 受管 CAS 输出（1.8.0）
@@ -676,7 +678,7 @@ for (Class<?> type = entityClass; type != null && type != Object.class; type = t
 | 子节点 | 作用 | 关键约束 |
 |---|---|---|
 | `fieldOverrides` | 覆盖指定 ViewVo 字段的标签、宽度、对齐、固定、排序、隐藏及编辑标记 | `fields` 必填，按 VO 属性名匹配；优先核对生成的 `ViewColumnMeta` |
-| `queryColumn` | 补充查询字段描述；`queryType="condition"` 时声明自定义组合条件 | `queryType="field"`（默认）时 `column` 必填；可配置 tag/query mode、类型、顺序、格式、数据源、枚举/字典或 dataUrl。`queryType="condition"` 时 `key` 必填（视图内唯一、不得与真实列名冲突、同时列入 `queryColumns`），不配置 `column`，用 `conditionParam`/`conditionTerm` 子节点描述。该描述不自动添加 RequestVo 字段 |
+| `queryColumn` | 补充查询字段描述；`queryType="condition"` 时声明自定义组合条件 | `queryType="field"`（默认）时 `column` 必填；可配置 tag/query mode、类型、顺序、格式、数据源、枚举/字典或 dataUrl。`queryType="condition"` 时 `key` 必填（视图内唯一、不得与真实列名冲突、同时列入 `queryColumns`），不配置 `column`，用 `conditionParam`/`conditionTerm` 子节点描述，完整配置方法与链路见 §5.3.2.1。该描述不自动添加 RequestVo 字段 |
 | `conditionParam` | 组合条件的参数声明 | `name` 必填且条件内唯一；可选 `remark`、`column`（借用真实列的表单项，须存在）、`tagType`、`fieldType`、`dataUrl`、`multiple`、`required`（默认 true）。`In`/`ContainsAll` 引用的参数必须 `multiple="true"`，其余操作符引用单值参数 |
 | `conditionTerm` | 组合条件的原子条件，同条件内各 term 以 AND 合取（不支持 OR/嵌套） | `column` 必填且须为真实列（配置了自定义 `typeHandler` 的列第一期不支持）；`operator` 必填；`param` 与 `value` 恰配一个，常量值必须声明 `valueType`（string/number/boolean）且不支持 `In`/`ContainsAll`；`containsMode` 仅 `ContainsAll` 有效，Token（默认）为逗号分隔字段逐值精确匹配，Text 为文本子串全部包含 |
 | `filterColumn` | 补充过滤字段描述 | `column` 必填；可配置控件、query mode、顺序、重复/多选/范围及 `operators`；操作符和值域必须与后端解析支持一致 |
@@ -689,10 +691,12 @@ DTD 允许 `viewVo` 含上述及相关子节点；当前 Parser 对 `queryColumn
 
 #### 5.3.2.1 组合条件（`queryType="condition"`）
 
-`queryType="condition"` 的 `queryColumn` 生成 `@QueryCondition`（含 `@QueryConditionParam`、`@QueryConditionTerm` 子注解），写入 `@ViewTableMeta.queryConditions`；普通项仍生成 `querys = {@CompositeQuery}`，输出与既有行为一致。`queryColumns` 列表中 `key` 的位置决定组合条件在查询项中的顺序（与普通字段混合排序），`key` 优先于同名列名匹配。
+`queryType="condition"` 把一个查询项定义为「一组按服务端固定模板展开的原子谓词」：前端只提交条件 `key` 和参数值，作用的列、操作符与组合方式全部来自 `@ViewTableMeta.queryConditions` 注解，用户输入一律经 `#{}` 绑定或转义字面量，不拼接 SQL。它适合表达单字段项无法表达的谓词形态——多列合取、值集合 `IN`、固定阈值组——以及需要把多个物理列收敛成一个业务查询项的场景（例如「项目进度」一项展开为某列的一组状态值）。仅需单字段等值/模糊/范围查询时仍使用普通 `queryColumn` 字段项或 `filterColumn`；同列多值取并集也不必用组合条件，字段项 `multiple="true"` 即可生成多选 `IN`。
+
+##### 配置与生成链路
 
 ```xml
-<viewVo queryColumns="code_,score_pass" ...>
+<viewVo generate="true" queryColumns="code_,score_pass" ...>
     <queryColumn column="code_" remark="编码"/>
     <queryColumn queryType="condition" key="score_pass" remark="成绩达标">
         <conditionParam name="minA" remark="A 下限" fieldType="number" tagType="number" required="true"/>
@@ -704,7 +708,77 @@ DTD 允许 `viewVo` 含上述及相关子节点；当前 Parser 对 `queryColumn
 </viewVo>
 ```
 
-服务端契约：前端只提交 `filterParam.conditions` 中的 `key` 与参数值；字段名与操作符只来自注解模板，用户值一律经 `#{}` 绑定，不拼接 SQL，也不使用 `anyWhereCondition`。`ContainsAll` 的 Token 值不得为空或含逗号（逐值匹配依赖逗号定界）。LIKE 类谓词按执行语句所属 `Configuration` 的 `_databaseId` 选择：mysql/mariadb 用 `concat`，postgresql/h2/oracle/db2/dm 用 `||`，sqlserver/sqlserver2005 用 `+` 并绑定 `secondValue`；未支持方言在 SQL 构建阶段由 `vgosoft-mybatis` 的 `QueryDialectGuard` 显式报错，不静默降级。上述方言分支已通过渲染层测试断言；2026-11-15，mpmm 本机 `local-mysql` profile 已实测 Token/Text `ContainsAll`、日期查询及 `%`、`_`、`!` 字面语义。其余方言为“已渲染验证、未实库验证”，不代表实库支持已验证。
+完整链路如下，任一环节缺失都会使配置无效：
+
+1. 在 `queryColumns` 中列入条件 `key`，与普通字段混合排序，该位置决定条件项在查询项中的顺序；`key` 优先于同名列名匹配。`hasQueryConditions()` 仅当「存在 condition 配置且其 `key` 列入 `queryColumns`」时为真——只写 `<queryColumn>` 子节点而不把 `key` 列入 `queryColumns`，既不生成条件元数据也不会接入后端解析。
+2. `ViewMetaAnnotationPlugin` 为 ViewVo 生成 `@ViewTableMeta.queryConditions = {@QueryCondition(key, remark, order, params={@QueryConditionParam}, terms={@QueryConditionTerm})}`；普通项仍生成 `querys = {@CompositeQuery}`。视图内存在条件项时，`querys` 与 `queryConditions` 各项 `order` 统一按 `queryColumns` 位置重新编号，`queryColumn` 上的 `order` 属性不保证生效。
+3. `hasQueryConditions()` 为真时，生成 Controller 的 `list` 与 `export` 方法自动接入 `QueryConditionResolver.resolve(XxxViewVo.class, filterParam.getConditions(), "表别名")`，把返回的 `BoundCondition` 按 `VALUE`/`LITERAL_LIKE`/`TOKEN_LIKE` 写入 Example criteria。**该接线由重新生成产出**：在组合条件能力合入之前生成的 Controller 不含此调用，配置组合条件后必须重新生成对应表才会补齐；判断依据以生成产物中是否出现 `QueryConditionResolver` 调用为准。
+4. 前端按视图元数据呈现查询项，提交 `filterParam.conditions = [{key, params:{参数名: 值或数组}}]`；无 `conditionParam` 的条件没有参数区，通常呈现为可勾选的固定谓词项，勾选即以 `key` 提交。
+
+边界：`innerListView` 虽然也接受 `queryColumn` 子节点，但其视图元数据只按列名生成 `@CompositeQuery`，`queryType="condition"` 在其中配置会被静默忽略——组合条件当前只支持 `viewVo` 主视图。
+
+##### 元素属性速查
+
+`queryColumn`（`queryType="condition"`）：
+
+| 属性 | 说明 |
+|---|---|
+| `key` | 必填。视图内唯一，不得与真实列名冲突，必须同时列入 `queryColumns`；前端凭 `key` 提交 |
+| `remark` | 可选。查询项显示名，生成 `@QueryCondition.remark` |
+| `queryType` | 固定 `condition`。此时不得配置 `column`；`tagType`/`queryMode`/`fieldType`/`multiple`/`dataFormat`/`dataSource`/`enumClassFullName`/`dictCode`/`dataUrl` 等字段项属性对条件项无意义（输入控件由 `conditionParam` 各自声明），`key` 也不允许出现在字段项上 |
+
+`conditionParam`（可多个，声明前端可提交的参数）：
+
+| 属性 | 说明 |
+|---|---|
+| `name` | 必填。条件内唯一，供 `conditionTerm.param` 引用 |
+| `remark` | 可选。参数显示名 |
+| `column` | 可选。借用该真实列的表单项（字典/选项/控件描述），列必须存在；不借则按 `tagType`/`fieldType` 生成默认控件 |
+| `tagType` | 可选。输入控件类型，未配置时由字段类型推断 |
+| `fieldType` | 可选。参数值类型，服务端按此严格转换：`number`→BigDecimal、`date`→`uuuu-MM-dd`、`datetime`→`uuuu-MM-dd HH:mm:ss`、`time`→`HH:mm:ss`，其余按文本；默认文本 |
+| `dataUrl` | 可选。参数选项数据来源 |
+| `multiple` | 可选，默认 `false`。多值参数提交数组；`In`/`ContainsAll` 引用的参数必须为 `true`，其余操作符引用的参数必须为 `false` |
+| `required` | 可选，默认 `true`。为 `false` 且未提交时，引用该参数的 term 整个跳过 |
+
+`conditionTerm`（至少一个，同条件内各 term 以 AND 合取）：
+
+| 属性 | 说明 |
+|---|---|
+| `column` | 必填。当前表真实列名；配置了自定义 `typeHandler` 的列当前版本不支持 |
+| `operator` | 必填，见下表 |
+| `param` / `value` | 恰配一个：`param` 引用已声明参数名；`value` 为常量且必须同时声明 `valueType` |
+| `valueType` | 常量值类型 `string`/`number`/`boolean`；引用参数时禁止配置 |
+| `containsMode` | 仅 `ContainsAll` 有效：`Token`（默认）按逗号分隔字段逐值精确匹配，`Text` 按文本子串全部包含 |
+
+操作符语义（DTD 值 → 运行时谓词）：
+
+| `operator` | 生成谓词 | 参数与常量约束 |
+|---|---|---|
+| `EqualTo` | `列 = 值` | 单值参数或常量 |
+| `NotEqualTo` | `列 <> 值` | 单值参数或常量 |
+| `GreaterThan` / `GreaterThanOrEqualTo` | `列 > / >= 值` | 单值参数或常量 |
+| `LessThan` / `LessThanOrEqualTo` | `列 < / <= 值` | 单值参数或常量 |
+| `LikeAny` | `列 LIKE '%值%'`，`!`/`%`/`_` 以 `!` 转义，SQL Server 另转义 `[` | 单值文本参数或常量 |
+| `In` | `列 IN (v1,…,vn)` | 仅 `multiple="true"` 参数，不接受常量 |
+| `ContainsAll` | 每个候选值各产出一个谓词并以 AND 合取：`Token` → `concat(',',列,',') LIKE '%,v,%'`（候选值不得为空或含逗号，逐值匹配依赖逗号定界）；`Text` → `列 LIKE '%v%'` | 仅 `multiple="true"` 文本参数，不接受常量 |
+
+##### 组合语义与表达边界
+
+- 同一条件内各 `conditionTerm` 以 **AND** 合取；一次请求提交的多个条件实例之间也以 **AND** 合取，不支持 OR 与嵌套分组。
+- 可表达：「值集合 → 某列 `IN`」（`multiple` 参数 + `In`，由前端把选项映射为值数组，例如进度分组 → 阶段编码数组）、「多列合取谓词」（多个 term）、「固定阈值谓词组」（全常量 term 的无参条件）、「各自可选的区间上下限」（可选参数缺失即跳过）。
+- 不可表达：「若干谓词组取并集 OR」（如多选进度分组）、「列与列比较」（如 `数量 = 已采购数量`）、「同一列多个 LIKE 值取并集」（如多个编号年度前缀）。需要这些形态时改用同列多值 `IN` 已覆盖的字段项、宿主支持的 `anyWhereCondition` 或服务端扩展查询。不要为「任一组命中」的多选场景堆叠多个互斥条件 key——同时提交多个 key 会变成 AND 交集，通常得到空结果。
+- 可选参数：`required="false"` 的参数未提交时其 term 被跳过；所有参数均可选且均未提交时，该条件不产生谓词。
+- 无 `conditionParam` 的条件是固定谓词组（全部 term 用常量），适合「勾选即启用」的开关类条件项。
+
+##### 校验与运行约束
+
+三层校验，配置错误尽早失败：
+
+1. 配置解析期（Parser）：`key` 必填且 condition 项不得配置 `column`；至少一个 `conditionTerm`；`conditionParam` 的 `name` 非空且不重复；term 的 `column`/`operator` 必填、`param` 与 `value` 恰配一个；常量必须声明合法 `valueType`（`number` 须可解析为数值、`boolean` 仅 `true`/`false`）且不得用于 `In`/`ContainsAll`；引用的参数必须已声明、`param.multiple` 与操作符多重性一致；`LikeAny`/`ContainsAll` 参数不得为数值/日期/时间类 `fieldType`；`containsMode` 配为非默认值时仅允许 `ContainsAll`；`queryType="field"` 项必须配置 `column` 且不得含 condition 子节点和 `key`。
+2. 生成期（`QueryConditionDesc.create`）：`key` 不得与真实列名冲突、不得重复；term 的 `column` 必须在表中存在且未配置自定义 `typeHandler`；`conditionParam.column` 借用列必须在表中存在。`queryColumns` 中既未匹配 condition key 也未匹配真实列的条目被忽略（不报错）。
+3. 运行期（`QueryConditionResolver.resolve`）：提交的 `key` 必须已声明且不重复，条件实例数不得超过视图声明数；提交的参数名必须已声明；`required` 参数缺失报错；非多值参数收到数组报错；多值参数必须为数组、元素不超过 50 个、非空且非嵌套；标量值仅接受字符串/数值，文本不超过 200 字符并按 `fieldType` 严格转换。任一校验失败抛出 `IllegalArgumentException`，请求整体失败，不静默降级。
+
+LIKE 谓词按执行语句所属 `Configuration` 的 `_databaseId` 选择方言：mysql/mariadb 用 `concat`，postgresql/h2/oracle/db2/dm 用 `||`，sqlserver/sqlserver2005 用 `+` 并绑定 `secondValue`；未支持方言在 SQL 构建阶段由 `vgosoft-mybatis` 的 `QueryDialectGuard` 显式报错，不静默降级。上述方言分支已通过渲染层测试断言；2026-11-15，mpmm 本机 `local-mysql` profile 已实测 Token/Text `ContainsAll`、日期查询及 `%`、`_`、`!` 字面语义。其余方言为“已渲染验证、未实库验证”，不代表实库支持已验证。
 
 #### 5.3.3 最小视图配置示例
 
