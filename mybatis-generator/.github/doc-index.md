@@ -7,7 +7,7 @@
 1. [生成器权威说明](..\mybatis-generator-core\src\main\resources\docs\generator-authoritative-spec.md)
    用途：生成器能力、输入输出、扩展点与限制；§2.1.1 说明 Entity 的 `@TableMeta`/`@ColumnMeta` 元数据契约及适用边界。
 2. [生成器配置指南](..\mybatis-generator-core\src\main\resources\docs\generator-config-guide.md)  
-   用途：配置、DTD 版本与生成行为说明；§5.0 指引设计/开发阶段由生成 Entity 类和字段注解读取表列映射；第 20 章为约定驱动实践索引，§7.2.3 为容器、顺序及多列布局建议，§7.3.1 为文本控件阈值与设计影响，§13.5.1 为分类/业务字典引用选项及中文展示转换实践。
+   用途：配置、DTD 版本与生成行为说明；§5.0 指引设计/开发阶段由生成 Entity 类和字段注解读取表列映射；第 20 章为约定驱动实践索引，§20.4 以 tmri_v4 消费配置串联需求、配置、生成物、业务扩展与验收；§7.2.3 为容器、顺序及多列布局建议，§7.3.1 为文本控件阈值与设计影响，§13.5.1 为分类/业务字典引用选项及中文展示转换实践。
 3. [生成器再开发补充说明](generator-core-dev-spec.md)  
    用途：本仓库生成器实现补充约定；Service 签名工厂、接口/实现复用与元素装配遵守[主规范第 8.1 节](copilot-instructions.md#81-service-方法签名共用与实现装配规范)。
 4. [非主线问题登记与后续处理规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\deferred-issue-management-standard.md)  
@@ -40,3 +40,5 @@
     用途：tmri-ui4 主体维护的跨仓任务进度、Edit 模板 1.0.9 分支/竞态回归、批准单文件离线生成及验证边界；模板契约见生成器权威说明 §2.2。
 18. [页面导航器生成任务书](..\mybatis-generator-core\src\main\resources\docs\task\page-navigator-generation-task.md)
     用途：记录 `generateHtml/pageNavigator` 跨生成器与 Framework 的确认范围、子任务依赖、进度及隔离验证证据。
+19. [生成器配置指南业务契合度完善任务书](..\mybatis-generator-core\src\main\resources\docs\task\configuration-guide-business-fit-task.md)
+    用途：记录基于 tmri_v4 采购需求与真实生成配置完善配置指南的范围、进度和文档验收边界；不表示业务配置已生成或功能已验收。

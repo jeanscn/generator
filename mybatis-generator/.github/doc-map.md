@@ -12,7 +12,8 @@
 | 页面导航器生成 | [实施任务书](..\mybatis-generator-core\src\main\resources\docs\task\page-navigator-generation-task.md) | `mybatis-generator-core`；协作 `mpmm-ui / @vgosoft/framework` | 跨仓过程与验收资产 | `generateHtml/pageNavigator` 的已确认范围、实施依赖、进度与隔离验证 |
 | 生成器能力 | `mybatis-generator-core\src\main\resources\docs\generator-authoritative-spec.md` | `mybatis-generator-core` | 权威正文 | 生成器能力、输入输出、扩展点与限制；§2.1.1 定义 Entity `@TableMeta`/`@ColumnMeta` 的元数据契约及边界 |
 | Vue Edit 初始化与响应式优化 | [主体任务书](D:\vscode\tmri-ui4\packages\framework\docs\task\form-data-reactivity-optimization-task.md) | `tmri-ui4 / @vgosoft/framework`；协作 `mybatis-generator-core` | 跨仓过程与验证资产 | Edit 模板 1.0.9、四分支无数据库渲染、初始化/竞态回归及单文件输出授权；不表示其他存量组件已更新 |
-| 生成器配置 | `mybatis-generator-core\src\main\resources\docs\generator-config-guide.md` | `mybatis-generator-core` | 使用手册 | 配置、DTD 版本与生成行为；§5.0 提供从 Entity 类/字段注解读取物理表列映射的设计/开发指引 |
+| 生成器配置 | `mybatis-generator-core\src\main\resources\docs\generator-config-guide.md` | `mybatis-generator-core` | 使用手册 | 配置、DTD 版本与生成行为；§5.0 提供从 Entity 类/字段注解读取物理表列映射的设计/开发指引，§20.4 以 tmri_v4 消费配置示范需求—配置—生成物—业务扩展—验收闭环 |
+| 配置指南业务契合度完善 | [任务书](..\mybatis-generator-core\src\main\resources\docs\task\configuration-guide-business-fit-task.md) | `mybatis-generator-core`；消费实例 `tmri_v4 / tmri-core / tmri-serv` | 跨项目文档过程资产 | 记录采购需求与实际生成配置对照、指南完善范围及静态文档验收；不代表消费者重新生成或运行验收 |
 | 生成配置实践 | [配置指南第 20 章](..\mybatis-generator-core\src\main\resources\docs\generator-config-guide.md#20-约定驱动配置与实践建议) | `mybatis-generator-core` | 实践决策索引 | 具体操作在主题章节维护；§7.2.3 布局、§7.3.1 文本输入、§13.5.1 分类/业务字典引用 |
 | 实践指导持续沉淀 | [全局过程 §1.5](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\ai-assisted-development-standard.md#15-实践指导的持续发现确认与沉淀) | `vgosoft-doc-spec` | 外部跨项目过程规范 | 发现、提案、许可与唯一正文归属 |
 | 约定驱动设计 | [设计规范 §3.5.6](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\project-design-standard.md#356-约定驱动的字段与页面设计实践) | `vgosoft-doc-spec` | 外部跨项目设计规范 | 字段/页面取舍、配置与项目记录 |

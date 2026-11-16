@@ -2022,3 +2022,24 @@ spring:
 AI 与开发人员在配置评审时应主动指出适用的实践建议和重要连带影响，例如“字段加长将改变输入控件和占宽”“增加容器后须重新确认列数与长文本整行”，而非只报告 XML 可解析。检查至少覆盖新增与编辑、历史值保留、边界长度、条件隐藏、保存后重开及实际宿主布局。
 
 沟通交流或阅读代码时发现新的实践指导，按[全局过程 §1.5](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\ai-assisted-development-standard.md#15-实践指导的持续发现确认与沉淀)先说明候选内容、依据、价值和归属，获得许可后补充；当前清单不是封闭目录，也不是随时自动修改文档、代码或生成产物的授权。
+
+### 20.4 从业务需求到配置、实现与验收的闭环
+
+本节用 tmri_v4 采购系统作**消费配置对照实例**，说明如何把需求拆成字段、页面、生成配置和业务扩展。业务口径仍以 [tmri_v4 最新升级需求](D:\java\idea_projs10\tmri_v4\tmri-docs\doc\采购管理系统升级需求清单.md)、[功能需求整理](D:\java\idea_projs10\tmri_v4\tmri-docs\doc\procurement-system-functional-requirements.md)及[采购系统设计总览](D:\java\idea_projs10\tmri_v4\tmri-docs\doc\procurement-system-design-overview.md)为准；配置事实分别见 [tmri-core generatorConfig.xml](D:\java\idea_projs10\tmri_v4\tmri-core\src\main\resources\generatorConfig.xml) 和 [tmri-serv generatorConfig.xml](D:\java\idea_projs10\tmri_v4\tmri-serv\src\main\resources\generatorConfig.xml)。以下对照只记录静态配置证据，不表示消费项目已重新生成、运行或满足升级验收。
+
+两份配置当前均引用 `mybatis-generator-config_1_8_0.dtd`。开始设计时先将每项需求分解为**数据归属/字段、用户操作、读写及查询契约、页面配置、生成器输出、人工扩展、验收证据**；随后按此链逐层核对，不以“XML 可解析”或“按钮已配置”作为功能完成依据。
+
+| 需求/设计对象 | 对应配置入口与消费实例 | 生成器负责生成的部分 | 仍须由业务/宿主实现并单独验收 |
+|---|---|---|---|
+| 预算、计划、项目主数据字段与表单 | `table`、`generateVo` 下各 VO、`generateHtml`、`layout`；tmri-core 的 `tmri_main_budget`、`tmri_main_plan`、`tmri_main_project` 配置分别从约第 124、214、289 行起 | 依据实际内省字段、VO 规则及页面元数据生成基础模型、字段描述和页面骨架；`groupContainer/includeElements` 表达表单分组和字段顺序 | 核实物理列、VO 字段映射、默认值来源、历史数据和服务端写入规则；审批流间的数据回填、主表/明细一致性、阶段转换不是布局配置行为 |
+| 页面布局与字段组件 | Context `reusableElements`、Table `generateHtml/htmlElementDescriptor` 与 `layout/groupContainer`；按需再评估 `htmlTableSelectDescriptor`、`htmlFormExtendDescriptor`、`htmlFileAttachment`、`approvalComment`、`htmlElementInnerList` 等变种。当前直接子节点 `htmlSwitchDescriptor` 未被页面解析，开关使用普通 descriptor 的 `tagType="switch"`，见 §7.3.4。tmri-core 复用用户/部门/字典/金额描述，tmri-serv 另含 `plan_type` 的字典单选、数量/金额校验与回调描述 | 生成或传递已支持的控件类型、数据源/URL 参数、表单元数据和校验描述；布局按列名/`elementKey` 输出分组与顺序 | `callback` 只是回调标识，不生成回调业务；选择控件不自动保证关联 ID、显示名、部门权限或级联清理正确。需核对请求/响应字段、前后端校验及宿主组件消费；各变种的解析/消费差异按 §7.3–§7.6 分别核验 |
+| 采购计划类型与所属季度 | 升级需求 §2.12–2.13 要求字段、选项、默认值和可编辑性；tmri-serv `reusableElements` 静态配置了 `plan_type` 的 `DictData` 控件描述 | 当目标表确有列且该表配置了相应 VO/页面规则时，生成器可生成该列对应的模型和表单元数据；`htmlElementDescriptor` 本身不创建数据库列 | 区分审批单字段与采购计划主数据字段；核实目标表列、生成 VO、保存/更新映射、默认值时机及旧数据回填。两份配置中未检索到 `quarter_` 字符串，这只表示当前配置文本未显式引用该名称，不证明数据库列或生成类中不存在该字段 |
+| 列表查询、快速统计与筛选 | `generateVo/viewVo` 的 `queryColumns`、`fuzzyColumns`、`filterColumns`、`queryColumn/filterColumn`、`requestVo`；tmri-core 的主数据配置包含这些集合及 `toolbar="EXPORT"` | 生成视图/请求元数据和已配置的基础查询骨架；三个字段集合用途不同，不能相互推导，详见 §5.3 | 升级需求 §2.2、§2.4、§2.6 的业务统计口径、实施进度计算、多选部门以及查询/清除交互，须映射到请求字段、服务端过滤与统计逻辑。不能从 `filterColumns` 或工具栏元数据推断相应接口已实现，也不能让前端筛选替代服务端权限范围 |
+| 导出与文件列 | `excelVo`、`viewVo.toolbar` 及当前生成器支持的导出配置；tmri-core 主数据配置启用了 `excelVo` 和 `toolbar="EXPORT"` | 可按已配置字段范围生成导出 VO/端点或操作元数据，具体能力及限制按本指南导出章节核实 | 升级需求 §2.3、§2.5、§2.7 的自定义列选择、默认列顺序、筛选范围及金额口径须核对实际 API、前端交互、权限和导出结果；`toolbar="EXPORT"` 只是操作声明，不代表自定义导出行为已实现 |
+| 字典缓存与引用显示 | 被引用表的 `generateCachePo`；选项 API 由独立的 `generateOptions` 配置；引用方再配置 `htmlElementDescriptor`，列表展示由 VO、`@Dict`/映射及 `viewVo.defaultDisplayFields` 配合。tmri-core 的预算、计划、项目表分别配置 `valueColumn="procure_name"`、`procure_name`、`project_name` 作为缓存文本列 | `generateCachePo` 生成 CachePo/缓存查询能力；`generateOptions` 在配置有效且 Controller 启用时生成选项端点；详见 §13.5、§13.5.1 | 明确 key/type/value 与引用字段类型一致，检查转换服务、缓存实现及失效链路；`includeColumns` 和 `defaultDisplayFields` 不会创建 ID→名称转换、JOIN 或 ViewVo 字段 |
+| 主从明细与双侧多对多 | 主从表可使用经核实的数据字段、`htmlElementInnerList`/视图配置；只有真正的多对多才使用 `selectByTable`，双侧配置见 §8.2、§13.2 | `htmlElementInnerList` 传递列表来源/关联属性等元数据；`selectByTable` 在配置两端时生成相应关系查询/维护方法 | 主从保存次序、事务、跨表字段回写须由业务服务实现；多对多需明确两侧键、写入是增量还是解除、去重约束、缓存一致性和事务边界。下述 tmri 两份配置静态检索未发现 `<selectByTable>`、`<javaModelAssociation>` 或 `<javaModelCollection>` |
+| 阶段、审批、通知及其他流程行为 | 可用枚举或字典描述器呈现状态字段；`viewVo`/按钮配置可声明视图或动作元数据 | 状态字段展示、基础表单和操作描述 | 阶段新增值、审批状态迁移、审批回写、待办隐藏、敏感词确认/日志及邮件收件人均需核对枚举、Service/Listener、流程与前后端契约；页面配置不会实现工作流或副作用 |
+
+**双侧 `selectByTable` 的适用判定：** 只有两类实体通过同一张关系表形成多对多关联时，才在两侧分别配置 `selectByTable`，复用同一关系表名并交换 `thisColumn` / `otherColumn`，再分别设定不冲突的 `methodSuffix`、返回类型及 split/union 需要。调用方向应按“当前实体主键列 / 对端主键列”解释；同时核对关系表主键、两侧键非空与唯一约束，以及新增/解除 API 的请求形状。该配置不会自动创建数据库约束，也不会提供全量替换语义。tmri 的预算→计划→项目及项目→明细链路是业务主从/引用关系，不能因为存在跨表关联就直接套成双侧多对多；当前两份 tmri 配置未声明 `selectByTable`，本指南其他章节的关系示例仍是生成器通用示例，并非 tmri 已使用该能力的证据。预算、预审批、计划、项目明细之间的字段传递和后续审批回写，应先按[采购系统设计总览](D:\java\idea_projs10\tmri_v4\tmri-docs\doc\procurement-system-design-overview.md)确认业务来源与目标字段，再选择真实主外键、主从配置或业务 Service/Listener 扩展，不以关系查询节点替代业务数据流设计。
+
+**验收顺序：** 对每个字段逐项核对物理列及表归属 → Entity/VO 属性与映射 → XML/Mapper/Service/Controller 的输入输出 → 表单/列表元数据及宿主消费 → 人工扩展和保护标记 → 服务端授权、事务与错误行为 → 实际保存、回读、筛选/统计、导出或关系维护结果。若未运行消费者再生成、目标数据库和宿主测试，应明确标记未验证；需求落在通用生成器能力之外时，记录到业务项目设计/任务书并按归属评审扩展，不通过修改配置指南来承诺未实现能力。
