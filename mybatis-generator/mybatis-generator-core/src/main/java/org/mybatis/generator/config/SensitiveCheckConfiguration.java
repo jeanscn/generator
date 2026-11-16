@@ -11,6 +11,7 @@ import java.util.Set;
  */
 public final class SensitiveCheckConfiguration {
     private static final Set<String> STRATEGIES = Set.of("INHERIT", "BLOCK", "CONFIRM", "REPLACE", "WARN");
+    private static final Set<String> CONTENT_TYPES = Set.of("PLAIN_TEXT", "RICH_TEXT");
     private final List<String> columns;
     private final boolean enable;
     private final String strategy;
@@ -34,8 +35,8 @@ public final class SensitiveCheckConfiguration {
         if (!STRATEGIES.contains(this.strategy)) {
             throw new IllegalArgumentException("sensitiveCheck.strategy 不支持：" + this.strategy);
         }
-        if (!"PLAIN_TEXT".equals(this.contentType)) {
-            throw new IllegalArgumentException("sensitiveCheck.contentType 仅支持 PLAIN_TEXT");
+        if (!CONTENT_TYPES.contains(this.contentType)) {
+            throw new IllegalArgumentException("sensitiveCheck.contentType 不支持：" + this.contentType);
         }
     }
 

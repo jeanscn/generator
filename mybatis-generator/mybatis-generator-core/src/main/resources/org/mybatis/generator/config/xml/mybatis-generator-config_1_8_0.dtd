@@ -332,7 +332,7 @@
         -->
         <!--
           敏感检测仅按精确物理列名配置，逗号分隔，不接受 Java 属性名或通配符。
-          enable 默认 true；strategy 默认 INHERIT；本期 contentType 仅支持 PLAIN_TEXT。
+          enable 默认 true；strategy 默认 INHERIT；contentType 支持 PLAIN_TEXT/RICH_TEXT。
           内省后验证列存在、未忽略、最终类型 String、实际实体字段可生成。
           无此节点时保持既有输出；词库管理字段不得配置检测。
         -->
@@ -341,7 +341,7 @@
                 columns CDATA #REQUIRED
                 enable (true|false) "true"
                 strategy (INHERIT|BLOCK|CONFIRM|REPLACE|WARN) "INHERIT"
-                contentType (PLAIN_TEXT) "PLAIN_TEXT">
+                contentType (PLAIN_TEXT|RICH_TEXT) "PLAIN_TEXT">
 
         <!ELEMENT columnOverride (property*)>
         <!ATTLIST columnOverride

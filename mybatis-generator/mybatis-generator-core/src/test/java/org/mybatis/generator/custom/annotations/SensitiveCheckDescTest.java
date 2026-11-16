@@ -44,6 +44,15 @@ class SensitiveCheckDescTest {
     }
 
     @Test
+    void rendersRichTextContentType() {
+        SensitiveCheckDesc description = new SensitiveCheckDesc(
+                new SensitiveCheckConfiguration("content_", null, null, "RICH_TEXT"));
+
+        assertThat(description.toAnnotation()).isEqualTo(
+                "@SensitiveCheck(enable = true, strategy = SensitiveCheckStrategy.INHERIT, contentType = SensitiveContentType.RICH_TEXT)");
+    }
+
+    @Test
     void rejectsNullAndInvalidConfigurationInputs() {
         assertThatThrownBy(() -> new SensitiveCheckDesc(null))
                 .isInstanceOf(NullPointerException.class)

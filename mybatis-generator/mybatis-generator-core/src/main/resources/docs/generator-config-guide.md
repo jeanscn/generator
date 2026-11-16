@@ -280,7 +280,7 @@ DTD 属性仍为 `#IMPLIED`，仅当前 `mybatis-generator-config_1_8_0.dtd` 增
 | `columns` | 必填 | 非空、逗号分隔的物理列名；内省后必须唯一存在且未忽略 |
 | `enable` | `true` | 仅 `enable=true` 参与敏感生成；`enable=false` 或未配置 `sensitiveCheck` 时完全忽略敏感生成，不改变原有输出 |
 | `strategy` | `INHERIT` | `INHERIT/BLOCK/CONFIRM/REPLACE/WARN`，区分大小写 |
-| `contentType` | `PLAIN_TEXT` | 本期仅支持纯文本，未知类型明确失败 |
+| `contentType` | `PLAIN_TEXT` | `PLAIN_TEXT/RICH_TEXT`，区分大小写；`RICH_TEXT` 声明字段为 HTML 内容，由消费端 `vgosoft-sensitive` 富文本处理器按显示文本检测，命中区间回映原始 HTML；未知类型明确失败 |
 
 内省后验证最终 Java 类型为 `java.lang.String`、可写列、唯一属性和实际实体字段。支持单实体模型中的 VARCHAR/LONGVARCHAR String 及列重命名；父类持有字段、分层主键/BLOB 模型、不可变模型、其他 runtime、逻辑 JSON/派生双表示字段、被插件删除/改为静态或 final 的字段均明确报表/列错误，不静默漏标。启用声明要求同时生成实体和 Service，不能配置 `modelOnly=true`。未确认全部子实体写前检测的级联写入不支持。
 

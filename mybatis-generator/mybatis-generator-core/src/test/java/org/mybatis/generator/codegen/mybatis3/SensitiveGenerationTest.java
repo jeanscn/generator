@@ -270,6 +270,9 @@ class SensitiveGenerationTest {
         assertThat(check.isEnable()).isTrue();
         assertThat(check.getStrategy()).isEqualTo("INHERIT");
         assertThat(check.getContentType()).isEqualTo("PLAIN_TEXT");
+        var richCheck = parse(CHECK.replace("/>", " contentType=\"RICH_TEXT\"/>"))
+                .getTableConfigurations().get(0).getSensitiveCheckConfigurations().get(0);
+        assertThat(richCheck.getContentType()).isEqualTo("RICH_TEXT");
         for (String invalid : List.of("enable=\"yes\"", "strategy=\"BLOCKED\"", "contentType=\"HTML\"")) {
             assertThatThrownBy(() -> parse(CHECK.replace("/>", " " + invalid + "/>")))
                     .isInstanceOf(XMLParserException.class);
