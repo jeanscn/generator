@@ -975,7 +975,7 @@ src/main/resources/sql/init/data-menu-<moduleKeyword小写>.sql
 | 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
 |---|---|---|---|---|
 | `column` | 绑定数据库列 | DTD 必填 | vue3和html | Parser 用作 name；内省绑定失败会警告并移除配置，不是新增虚拟字段的方法。 |
-| `tagType` | 控件类型 | DTD 必填；显式节点不自动补齐 | vue3和html | 可选值见当前 DTD `%tagType;`；Vue 将 dropdownlist 转为 select。省略整个 descriptor 时才可能由列规则推导控件。 |
+| `tagType` | 控件类型 | DTD 必填；显式节点不自动补齐 | vue3和html | 可选值见当前 DTD `%tagType;`；Vue 将 dropdownlist 转为 select，markdown 仅 vue3 表单生效（见 §7.3.6）。省略整个 descriptor 时才可能由列规则推导控件。 |
 | `dataSource` | 字典/枚举/实体等来源 | 未设置；可被 dataFormat、自动列规则补齐 | vue3和html | 取当前 DTD `%dataSource;` 值，如 Dict/DictData/DictSys/DictUser/DictEnum/Department/User/Organization/InnerList；不是任意 bean 标识。 |
 | `dataUrl` | 选项/数据接口 | 显式值优先；字典来源可计算，见下文 | vue3和html | getter 对非空且无前导 `/` 的值补 `/`，不应未经核对就写外部绝对 URL。 |
 | `dataFormat` | 快捷语义/日期格式 | 未设置 | vue3和html | 是否/有无/性别/启停/缓急/级别会转换为对应枚举来源；日期类保留给日期控件处理。该转换可覆盖原 dataSource/enumClass，避免矛盾配置。 |
@@ -997,7 +997,7 @@ src/main/resources/sql/init/data-menu-<moduleKeyword小写>.sql
 
 字典 URL 的实际补值（`TableConfiguration.setHtmlElementDescriptorColumn`）：DictSys → `/system/sys-cfg-dict-impl/option/{dictCode}`，DictData → `/system/sys-dict-data-impl/option/{dictCode}`，DictUser → `/system/dict-content-impl/option/{dictCode}`。仅当 dataSource 匹配且 dataUrl 为空时执行；这些是当前生成器约定，并非所有宿主已有对应接口。
 
-无显式描述时，`TableConfiguration.generateDefaultElementDescriptor` 的列规则会为 state_、priority_、wf_state、parent_id、备注以“是否”开头等列建立描述；Vue 的后备类型推断为数值→number、日期/时间→date/time、长文本→editor、Boolean→switch、其他→input。普通 input 长度大于 499 占满行，大于 1499 转 textarea；editor 占满行。不要把自动列规则等同于任意业务字段都已有正确字典、权限和联动。
+无显式描述时，`TableConfiguration.generateDefaultElementDescriptor` 的列规则会为 state_、priority_、wf_state、parent_id、备注以“是否”开头等列建立描述；Vue 的后备类型推断为数值→number、日期/时间→date/time、长文本→editor、Boolean→switch、其他→input。普通 input 长度大于 499 占满行，大于 1499 转 textarea；editor 与 markdown 占满行。不要把自动列规则等同于任意业务字段都已有正确字典、权限和联动。
 
 ##### 文本输入实践建议
 
@@ -1078,6 +1078,21 @@ Parser 复用普通 descriptor 解析，随后强制 dataSource=Dict，tagType �
 | `hideExpression` / `disabledExpression` | 隐藏/禁用条件 | 未设置 | vue3 | 同 7.3.2。 |
 
 DTD 的子内容模型为 `properties*`，而 Parser 只识别 `property`；不要在此节点内配置 property 并期待同时通过当前 DTD 验证及解析。此处只记录限制，本次不修改 DTD/Parser。
+
+#### 7.3.6 `tagType="markdown"`：Markdown 表单字段
+
+`tagType="markdown"` 是 vue3 专用控件声明：`htmlElementDescriptor` 按普通 descriptor 解析，`setComponentName` 将其透传为 `@VueFormItemMeta(component = "markdown")`，宿主表单按 `component='markdown'` 渲染 Markdown 编辑器。
+
+- **布局**：与 `editor` 一致强制 `span=24`（整行）；默认 placeholder 为“请输入内容”。
+- **可用页面**：仅 editable / viewOnly；`generateHtml type="print"` 配置 markdown 字段在解析期即抛出 `generateHtml.type="print" 不支持 tagType="markdown"`，不会静默降级。
+- **宿主契约**：Framework `EFormComponentType.markdown` → `RenderFormItem` → `VgoMarkdownEditor`（vditor）。编辑态即时渲染，查看态 `Vditor.preview` 只读渲染，`preview.markdown.sanitize` 默认开启。编辑器高度、mode、cdn、上传配置经表单项 `props` 透传（`height`/`mode`/`cdn`/`upload`/`vditor`）；字段值就是 Markdown 原文，上传参数回填等运行时接线属于宿主业务配置，不在生成器侧承诺。
+- **适用范围**：正文、说明、指引类长文本；不替代富文本 `editor`（HTML 存储）与纯文本 textarea 语义。
+
+示例：
+
+```xml
+<htmlElementDescriptor column="content_md" tagType="markdown"/>
+```
 
 ### 7.4 校验、链接与按钮
 
@@ -1802,7 +1817,7 @@ SQL、CachePo 和 `ServiceMethods` 注解共用有效排序解析。生成器将
 
 | 类别 | 可选值 |
 |---|---|
-| `tagType` | `input/radio/checkbox/switch/date/time/datetime/select/title/cascader/checkboxGroup/slider/number/color/rate/tableselect/upload/editor/dropdownlist/signArea` |
+| `tagType` | `input/radio/checkbox/switch/date/time/datetime/select/title/cascader/checkboxGroup/slider/number/color/rate/tableselect/upload/editor/markdown/dropdownlist/signArea` |
 | `dataSource` | `Dict/DictData/DictUser/DictSys/DictEnum/DictModule/Organ/Department/User/Role/InnerList/DateRange` |
 | `dataFormat` | `启停/有无/是否/性别/缓急/级别/年/年月/年周/日期/日期时间/时间` |
 | `annotationType`（`overridePropertyValue`） | `DictUser/DictSys/DictModule/Dict/DictData/DictEnum` |

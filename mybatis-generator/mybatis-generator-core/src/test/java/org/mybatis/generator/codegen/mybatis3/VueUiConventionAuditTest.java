@@ -166,6 +166,53 @@ public class VueUiConventionAuditTest {
                 .satisfies(error -> assertThat(allExceptionMessages(error)).contains("未包含在静态页面布局中"));
     }
 
+    /**
+     * markdown 表单字段：tagType="markdown" 透传为 @VueFormItemMeta(component = "markdown")，
+     * 运行时表单元数据由宿主框架消费为 component='markdown'。
+     */
+    @Test
+    void markdownFieldEmitsMarkdownComponentInGeneratedVo() throws Exception {
+        var parser = new ConfigurationParser(new ArrayList<>());
+        Configuration config = parser.parseConfiguration(new StringReader(withMarkdownField(
+                CasConsumerBaselineTest.consumerXml(null))));
+        parser.customConfig(config);
+        var generator = new MyBatisGenerator(config, new DefaultShellCallback(true), new ArrayList<>());
+        generator.generate(null, null, null, false);
+
+        var markdownFields = generator.getGeneratedJavaFiles().stream()
+                .map(GeneratedFile::getFormattedContent)
+                .filter(content -> content.contains("component = \"markdown\""))
+                .toList();
+        assertThat(markdownFields)
+                .as("tagType=markdown 应在生成的 VO 字段上输出 @VueFormItemMeta(component = \"markdown\")")
+                .isNotEmpty();
+    }
+
+    /**
+     * print 页面不支持 markdown 字段，解析期即明确失败。
+     */
+    @Test
+    void markdownFieldRejectedOnPrintPages() throws Exception {
+        String xml = withMarkdownField(CasConsumerBaselineTest.consumerXml(null))
+                .replace("type=\"editable\" viewPath=\"sensitive_word\"",
+                        "type=\"print\" viewPath=\"sensitive_word\"");
+        assertThatThrownBy(() -> new ConfigurationParser(new ArrayList<>())
+                .parseConfiguration(new StringReader(xml)))
+                .satisfies(error -> assertThat(allExceptionMessages(error)).contains("不支持 tagType=\"markdown\""));
+    }
+
+    private static String withMarkdownField(String xml) {
+        int tableStart = xml.indexOf("<table ignore=\"false\" tableName=\"sensitive_word\"");
+        int htmlStart = xml.indexOf("<generateHtml", tableStart);
+        int htmlEnd = xml.indexOf("</generateHtml>", htmlStart);
+        if (tableStart < 0 || htmlStart < 0 || htmlEnd < 0) {
+            throw new IllegalStateException("consumer test configuration is missing the sensitive_word HTML page");
+        }
+        return xml.substring(0, htmlEnd)
+                + "<htmlElementDescriptor column=\"notes_\" tagType=\"markdown\"/>"
+                + xml.substring(htmlEnd);
+    }
+
     private static String withPageNavigator(String xml, String columns) {
         return withPageNavigator(xml, columns, "");
     }

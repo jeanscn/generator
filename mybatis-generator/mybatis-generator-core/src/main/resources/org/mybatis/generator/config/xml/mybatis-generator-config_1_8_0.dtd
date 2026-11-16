@@ -4,7 +4,7 @@
         几个通用的xml实体
         -->
         <!ENTITY % renderFunValues "(colDefsOdata|colDefsAsLink|colDefsState|colDefsYesNo|colDefsPriority|colDefsWfStatus|colDefsReadState|colDefsDatefmt|colDefsAsLinkSlide|colDefsAsLink_parent|colDefsAsLink_readonly|colDefsPublishStatus|extendFuncFirst|extendFuncSecond|extendFuncOther)" >
-        <!ENTITY % tagType "(input|radio|checkbox|switch|date|time|datetime|select|title|cascader|checkboxGroup|slider|number|color|rate|tableselect|upload|editor|dropdownlist|signArea)" >
+        <!ENTITY % tagType "(input|radio|checkbox|switch|date|time|datetime|select|title|cascader|checkboxGroup|slider|number|color|rate|tableselect|upload|editor|markdown|dropdownlist|signArea)" >
         <!ENTITY % dataSource "(Dict|DictData|DictUser|DictSys|DictEnum|DictModule|Organ|Department|User|Role|InnerList|DateRange)" >
         <!ENTITY % dataFormat "(启停|有无|是否|性别|缓急|级别|年|年月|年周|日期|日期时间|时间)" >
         <!ENTITY % valueType "(text|number|date|time|datetime|year|month|shortmonth|quarter)" >
@@ -737,6 +737,8 @@
                             select 弹窗选择，可以进一步指定dataSource、dataFormat、dataUrl、applyProperty、verify、callback
                             input 输入框，为了指定特定属性，如增加验证verify、限制长度limit等
                             tableselect 下拉表格选择，可以进一步指定listKey、listViewClass、dataSource（Dict、beanName）、dataUrl（引用表基本路径）、applyProperty、verify、callback、otherFieldName、
+                            editor 富文本编辑器，整行展示
+                            markdown Markdown编辑器（仅vue3），输出component='markdown'由Framework渲染vditor组件；editable/viewOnly可用，print不支持
             3、dataUrl 数据接口请求地址
             4、dataFormat 数据格式：  启停|有无|是否|性别，可应用在radio、switch、dropdownlist；
                                     缓急|级别，仅在radio、dropdownlist时有效；

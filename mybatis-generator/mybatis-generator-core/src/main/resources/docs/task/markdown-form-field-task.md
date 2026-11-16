@@ -3,8 +3,8 @@
 > 主体归属：`mybatis-generator-core`
 > 协作仓库：`vgosoft-basic / vgosoft-core-constant`（`HtmlElementTagTypeEnum` 枚举）、`tmri-ui4 / @vgosoft/framework`（表单运行时与 `VgoMarkdownEditor` 组件）
 > 需求负责人：用户
-> 整体状态：待执行
-> 进度：0/5 子任务完成
+> 整体状态：已完成
+> 进度：5/5 子任务完成
 > 更新时间：2026-11-16
 > 下游任务：[vgosoft-bizcore 操作指引文档开发任务书](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-bizcore\src\main\resources\docs\task\manual-doc-development-task.md)（K01 已定方案 A）
 > 下游设计：[操作指引文档设计总览 §3.1](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-bizcore\src\main\resources\docs\manual-doc-design-overview.md)
@@ -51,11 +51,11 @@
 
 | 子任务 | 内容 | 依赖 | 状态 | 关闭条件 | 下一动作 |
 |---|---|---|---|---|---|
-| G01 | `HtmlElementTagTypeEnum` 增加 `markdown`（中文注释） | 无 | 待执行 | 枚举编译通过，注释符合 §6.1 | 定位枚举文件修改 |
-| G02 | DTD `tagType` 增加 `markdown` + 解析/校验（editable/viewOnly 支持，print 明确失败） | G01 | 待执行 | 1.8.0 DTD 与 core 版本一致性核实记录；非法取值/print 场景测试通过 | 核实版本后改 DTD 与解析 |
-| G03 | Vue3 输出 `component='markdown'`（editable + detail），Edit/Detail 模板分支，生成器回归 | G02 | 待执行 | 定向回归测试通过；产物元数据断言 `component: 'markdown'` | 按 §4.3 实现 |
-| F01 | Framework `EFormComponentType.markdown` + `RenderFormItem` 分支 + `VgoMarkdownEditor`（vditor 3.11.3） | G03 | 待执行 | `RenderFormItem` 定向测试通过；编辑/查看两态渲染正常；Framework Vite 构建通过 | 按 §4.4 实现 |
-| V01 | 文档同步（生成器权威说明、配置指南 tagType 表、Framework 组件契约）+ 跨仓验证记录 | G03、F01 | 待执行 | 文档更新并登记本任务书进度；记录验证证据 | 收尾 |
+| G01 | `HtmlElementTagTypeEnum` 增加 `markdown`（中文注释） | 无 | 已完成 | `MARKDOWN(26,"markdown","Markdown编辑器")` 已加入并注释；core-constant 已 install 至本地仓库供生成器依赖链读取 | — |
+| G02 | DTD `tagType` 增加 `markdown` + 解析/校验（editable/viewOnly 支持，print 明确失败） | G01 | 已完成 | `mybatis-generator-config_1_8_0.dtd`（与 core 1.8.0-SNAPSHOT 一致）已加入值；Parser 解析 descriptor 时规范化 tagType，print+markdown 抛出 `generateHtml.type="print" 不支持 tagType="markdown"` | — |
+| G03 | Vue3 输出 `component='markdown'`（editable + detail），Edit/Detail 模板分支，生成器回归 | G02 | 已完成 | `VueFormGenerateUtil` 默认 placeholder“请输入内容”、component 透传 markdown；`VueUiConventionAuditTest` 新增两条断言（editable 产物含 `component = "markdown"`、print 拒绝），2/2 通过 | — |
+| F01 | Framework `EFormComponentType.markdown` + `RenderFormItem` 分支 + `VgoMarkdownEditor`（vditor 3.11.3） | G03 | 已完成 | `RenderFormItem.test.mjs` 24/24 通过；Framework Vite 构建通过（vditor 已入产物）；触碰文件 lint/typecheck 无新增诊断 | — |
+| V01 | 文档同步（生成器权威说明、配置指南 tagType 表、Framework 组件契约）+ 跨仓验证记录 | G03、F01 | 已完成 | 配置指南 §7.3.1/§7.3.3/§15.1 与新增 §7.3.6、DTD 内联说明、Framework 组件文档 §50 已同步；doc-index/doc-map 已登记 | — |
 
 ## 6. 验收条件
 
@@ -77,14 +77,18 @@
 
 | 编号 | 事项 | 建议 |
 |---|---|---|
-| G-Q01 | `component='markdown'` 透传 props 的元数据契约（编辑器 mode、高度、上传配置如何下发） | G02 评审时给出契约，与设计总览 §8.2 对齐 |
-| G-Q02 | vditor 依赖落点：`packages/framework/package.json` 还是应用根 | 按 Framework 现有第三方依赖约定执行 |
+| G-Q01 | `component='markdown'` 透传 props 的元数据契约（编辑器 mode、高度、上传配置如何下发） | **已定**：`RenderFormItem` 从表单项 `props` 透传 `height`/`mode`/`cdn`/`upload`/`vditor` 五键，组件内合并为 vditor options；上传 extraData 回填经组件 `updateUploadExtraData` 完成，不在注解元数据中承诺 |
+| G-Q02 | vditor 依赖落点：`packages/framework/package.json` 还是应用根 | **已定应用根 `package.json`**：Framework 经 tsconfig 路径别名解析到根 `node_modules`，与现有第三方依赖约定一致；已安装 `3.11.3` |
 | G-Q03 | 本能力是否同步回流 `mpmm-ui` 模板 | 与下游 Q04 一并登记，首期只在 tmri-ui4 实施 |
 
 ## 9. 完成结果
 
-（未开始）
+- 生成器侧：`HtmlElementTagTypeEnum.MARKDOWN(26)`、DTD `%tagType%` 增加 `markdown`、Parser 规范化 + print 拒绝、`VueFormGenerateUtil` 输出 `component='markdown'`。
+- Framework 侧：`EFormComponentType.markdown`、`RenderFormItem` 分支（编辑态 VgoMarkdownEditor / 只读 preview / tableCell 纯文本）、新组件 `vgoMarkdownEditor/index.vue`（vditor 3.11.3、本地 cdn、sanitize、上传 format/extraData、updateUploadExtraData）。
+- 验证：`VueUiConventionAuditTest` 全类 7 项 6 过 1 败（新增 2 条 markdown 断言均通过）；`RenderFormItem.test.mjs` 24/24 通过；`mvn -pl mybatis-generator-core -am -DskipTests compile` 通过；Framework Vite 构建通过（vditor 入产物）；触碰文件 lint 无警告、typecheck 无新增诊断。
+- 遗留：`VueUiConventionAuditTest.pageNavigatorGeneratesMatchingEditAndDetailAnchorsWithComponentDefaults` 存在与本轮无关的基线漂移失败（`width: 220` 期望 vs `150` 实值，`zIndex: 60` vs `120`），已登记生成器仓 `pending-issues.md`；tmri-ui4 全量 typecheck 存在既有错误，未处理。
 
 ## 10. 进度记录
 
 - 2026-11-16：建立任务书；K01 已定方案 A、vditor 定 `3.11.3`（下游任务书 §8 同步关闭两项待确认）。
+- 2026-11-16：G01–F01 实施完成并验证通过；V01 文档同步完成（配置指南 §7.3.6、DTD 内联说明、Framework 组件文档 §50）；G-Q01/G-Q02 随实施定案；任务关闭。

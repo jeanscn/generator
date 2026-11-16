@@ -1328,6 +1328,10 @@ public class MyBatisGeneratorConfigurationParser {
                 case PropertyRegistry.ELEMENT_HTML_ELEMENT_DESCRIPTOR:
                     HtmlElementDescriptor htmlElementDescriptor = parseHtmlElementDescriptor(childNode);
                     htmlElementDescriptor.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                    if (HtmlElementTagTypeEnum.MARKDOWN.codeName().equals(htmlElementDescriptor.getTagType())
+                            && HtmlDocumentTypeEnum.PRINT.equals(htmlGeneratorConfiguration.getType())) {
+                        throw new IllegalArgumentException("generateHtml.type=\"print\" 不支持 tagType=\"markdown\"");
+                    }
                     if (stringHasValue(htmlElementDescriptor.getName()) && stringHasValue(htmlElementDescriptor.getTagType())) {
                         htmlGeneratorConfiguration.getElementDescriptors().add(htmlElementDescriptor);
                     }

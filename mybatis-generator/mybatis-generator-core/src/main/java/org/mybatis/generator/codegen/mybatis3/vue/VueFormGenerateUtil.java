@@ -45,6 +45,7 @@ public class VueFormGenerateUtil {
                 case NUMBER:
                     return "请输入数字";
                 case EDITOR:
+                case MARKDOWN:
                     return "请输入内容";
                 default:
                     return "";
@@ -85,7 +86,8 @@ public class VueFormGenerateUtil {
             if (introspectedColumn.getLength() > 1499) {
                 vueFormItemMetaDesc.setType("textarea");
             }
-        } else if (HtmlElementTagTypeEnum.EDITOR.codeName().equals(vueFormItemMetaDesc.getComponent())) {
+        } else if (HtmlElementTagTypeEnum.EDITOR.codeName().equals(vueFormItemMetaDesc.getComponent())
+                || HtmlElementTagTypeEnum.MARKDOWN.codeName().equals(vueFormItemMetaDesc.getComponent())) {
             vueFormItemMetaDesc.setSpan(24);
         }
     }

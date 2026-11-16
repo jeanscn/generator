@@ -3,7 +3,7 @@
 > 所属项目：`generator/mybatis-generator`
 > 模块/范围：`mybatis-generator-core`
 > 规范：[非主线问题登记与后续处理规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\deferred-issue-management-standard.md)
-> 更新时间：2026-11-15
+> 更新时间：2026-11-16
 
 ## 1. 问题总览
 
@@ -20,6 +20,7 @@
 | generator-core-ISSUE-0009 | 中 | 依赖兼容 | `vgosoft-tool:7.0.0-SNAPSHOT` 的 `VArrayUtil.merge` 新增受检异常导致生成器无法全量编译 | 已复现 | 已解决（生成器适配异常契约） | 复核通过 | 2026-11-07 | [审计字段自动填充任务书](task/audit-field-filling-task.md) T08 |
 | generator-core-ISSUE-0010 | 中 | 权限 | `generateController` 缺少按接口简称排除 `@PreAuthorize` 的配置 | 源码已定位 | 待处理（需求登记） | — | 2026-11-12 | 无（用户提出的生成器配置需求） |
 | generator-core-ISSUE-0011 | 中 | 测试与基线 | 全量测试中既有基线漂移与 Excel 导入夹具失败 | 已定位根因并修复（2026-11-15） | 已处理（基线重录 + 夹具固定快照 + 孤儿 import 生成逻辑修复） | — | 2026-11-15 | VgoTable 查询表单 W2 |
+| generator-core-ISSUE-0012 | 低 | 测试与基线 | `pageNavigatorGeneratesMatchingEditAndDetailAnchorsWithComponentDefaults` 期望 width 220/zIndex 60 与当前默认 150/120 不符 | 已复现 | 待处理（基线断言需随默认值演进更新） | — | 2026-11-16 | [表单 Markdown 字段支持任务书](task/markdown-form-field-task.md) |
 
 ## 2. 问题详情
 
@@ -147,6 +148,17 @@
 - 与当前任务的关系：W2 组合条件及普通查询兼容定向测试 28 项全部通过；全量失败集中在既有 CAS/Sensitive 基线与 Excel 导入 fixture 路径。本轮不重录基线、不改断言、不修复 Excel 夹具。
 - 建议后续处理：独立排查各基线漂移来源（可能是工作区其他未提交改动或上游未同步的生成逻辑变更）与 `SensitiveWordExcelVo` 无效 import、legacy Excel VO 夹具缺失配置；说明真实差异后再决定修复生成逻辑或更新快照。
 - 责任与关联：`mybatis-generator-core` 测试维护方；关联 CAS/敏感信息/Excel 导入工作流相关生成能力。
+
+### generator-core-ISSUE-0012 pageNavigator 默认值演进后测试断言未同步
+
+- 发现来源：2026-11-16 执行[表单 Markdown 字段支持任务书](task/markdown-form-field-task.md) 回归时，`VueUiConventionAuditTest` 7 项中 1 项失败，与 markdown 改动无关。
+- 位置与证据：`VueUiConventionAuditTest.pageNavigatorGeneratesMatchingEditAndDetailAnchorsWithComponentDefaults`（第 99 行起）断言 `width: 220`、`zIndex: 60`；当前 `PageNavigatorConfiguration` 默认值为 `width = 150`、`zIndex = 120`（源码第 28、44 行），生成产物输出 `width: 150`、`zIndex: 120`。断言期望落后于默认值演进，非生成缺陷。
+- 问题现象与触发条件：直接执行该测试即失败；打印页/重复列等相邻断言不受影响。
+- 影响与分级依据：低。属测试基线漂移，不影响生成行为；不得通过回退默认值掩盖，应将断言更新为当前既定默认（width 150、zIndex 120）并说明演进原因。
+- 与当前任务的关系：markdown 字段相关两项定向测试（`markdownFieldEmitsMarkdownComponentInGeneratedVo`、`markdownFieldRejectedOnPrintPages`）均通过；本问题只登记，不改断言。
+- 建议后续处理：把该用例的默认属性断言更新为 width 150 / zIndex 120，并与 pageNavigator 任务书 §4 中「edge 默认 8、滚动容器外预留」等后续演进记录对齐。
+- 责任与关联：`mybatis-generator-core` 测试维护方；关联[页面导航器生成任务书](task/page-navigator-generation-task.md)。
+- 更新与关闭记录：2026-11-16 首次登记，低/已复现/待处理；本轮只登记，不修改断言或默认值。
 - 根因与修复（2026-11-15 关闭）：8 项失败分三类。①基线漂移（2 项）：已提交的 query-condition 组合条件特性将 Example 的 `andXxxAnyCondition` 改为 `andXxxRegexp`、实体 `anyWhereCondition` 描述由「任意过滤条件」改为「受限条件表达式…」、Controller `andAnyCondition` 改为 `andRegexp`/`andTrustedCondition` 并引入 `parseCondition`/`parseFilterMap` 列白名单，属合法变更，按批准方案重录 `consumer-current-v1-parser-baseline.zip`（16 个文件逐项核对均属上述变更）与 `SensitiveGenerationTest.offlineOutputBaseline` 四个场景×三层摘要（实体层与 TS 层变化，服务实现层不变）。②Excel 夹具（6 项）：`ExcelImportWorkflowGenerationTest` 与 `ImportScopeAuditTest` 通过 `consumerXml` 读取漂移的实时消费配置（`sensitive_word` 的 `excelVo` 由 `generate="false"` 改为 `generate="true" includeFields="…"`），改为固定快照 `consumerSnapshotXml` 消除配置漂移。③孤儿 import（生成逻辑缺陷）：`VoExcelGenerator` 经 `buildOverrideColumn` 为派生转换字段（如 `categoryText`/`strategyText`）登记 `@Dict`/`@DictEnum` 导入后，字段又被 `exportIncludeFields` 过滤掉，遗留孤儿 import；修复为仅在 include 过滤下构建会被导出的转换属性。全量复跑 684 项 0 失败 5 跳过通过。
 - 后续约束：`DisabledServiceEntryGenerationTest` 与 `VueUiConventionAuditTest` 仍通过 `consumerXml` 读取实时消费配置，当前不失败但存在后续漂移风险，宜在后续统一固定到快照；`VoExcelGenerator` 孤儿 import 修复的确定性回归建议由既有 `ImportScopeAuditTest`（revision 场景含 `excelVo` 路径）覆盖，若消费配置再次关闭 `excelVo` 需另立固定夹具。
 - 更新与关闭记录：2026-11-15 首次登记，中/已复现/待处理；同日全量复跑 681 项，8 项失败仍为原失败集合，新增兼容测试及组合条件定向测试 28 项全部通过。2026-11-15 定位根因并按批准方案修复：重录 CAS 原始输出基线、更新敏感离线基线摘要、将 Excel/Import 审计夹具固定到快照配置、修复 `VoExcelGenerator` 孤儿 import；全量 684 项 0 失败 5 跳过通过，问题关闭。
