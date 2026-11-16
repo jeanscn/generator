@@ -1840,41 +1840,96 @@ SQL、CachePo 和 `ServiceMethods` 注解共用有效排序解析。生成器将
 
 ## 16. `rootClass` 范围、父类关系与影响
 
-### 16.1 关键行为（源码口径）
+`rootClass` 不是单纯的“父类引用”，而是生成器的**实体继承契约、业务类型识别依据与约定字段元数据来源**。配置时在 table 上以 property 声明全限定类名：
+
+```xml
+<property name="rootClass" value="com.vgosoft.core.entity.abs.AbstractPersistenceLockSortableEntity"/>
+```
+
+### 16.1 配置入口与默认值
 
 | 行为 | 说明 |
 |---|---|
-| 默认父类 | table 未配置 `rootClass` 时，默认 `com.vgosoft.core.entity.abs.AbstractEntity`。 |
-| 作用域 | `rootClass` 可在 table property 配置；也可由 context 的 model properties 继承。 |
-| 泛型支持 | 可通过 `rootClassTypeArguments` 追加父类泛型参数。 |
-| 字段去重 | rootClass 已有字段不会在子类重复生成（`RootClassInfo.containsProperty`）。 |
-| 语义分支 | 是否工作流/业务/BLOB 实体会根据 rootClass 继承关系触发不同生成分支。 |
+| 默认值 | table 未配置 `rootClass` 时，`MyBatisGeneratorConfigurationParser` 在解析时回填 `com.vgosoft.core.entity.abs.AbstractEntity`。 |
+| 回退路径 | `JavaBeansUtil.getRootClass` 在 table property 为空时回退读取 `javaModelGenerator` properties。XML 解析路径下表级属性已被回填默认值，该回退实际不可达，仅在程序化构造配置时生效。 |
+| 泛型支持 | 可通过 `rootClassTypeArguments` 追加父类泛型实参（写入生成子类的 `extends 父类<...>`）。 |
+| 加载失败 | `isAssignable` 用 `ObjectFactory.internalClassForName` 加载类，`ClassNotFoundException` 时静默返回 false——rootClass 写错或不在 classpath 时，工作流/BLOB/业务判定全部退化为普通实体，且字段去重、结构同步失效，务必保证类可达。 |
 
-### 16.2 常用父类（DTD 注释）
+### 16.2 两类生成期作用
 
-| 父类 | 典型附加字段语义 |
+**作用一：按继承关系判定业务类型，分流生成逻辑**（`GenerateUtils` 对 rootClass 与平台接口做 `ClassUtils.isAssignable` 判定）。
+
+| 判定 | 目标接口 | 命中的主要生成分支 |
+|---|---|---|
+| `isWorkflowInstance` | `com.vgosoft.core.entity.IWorkflowBaseEntity` | Service 增加 `cleanupInvalidRecords`；实体监听器父类换为 `AbstractWorkflowEventListener`；Mapper 子接口加 `@TableDataScope`（主键集合 + `wf_state != 4` 数据范围）；`@ViewTableMeta` 置 `dataFilterType=1` 且不生成 `createUrl`；`WorkflowPropertyPlugin` 置 `workflowEnabled=1`；Controller/单测以 `business` 作参数键；Layui/Zui/Vue3 页面走流程表单分支；table `processDefinedKey` 非空时输出 `data-wf-proc-type-*.sql` 流程类型期初脚本。 |
+| `isBlobInstance` | `com.vgosoft.core.entity.upload.IPersistenceBlob` | Mapper 父接口换为 `MBGMapperBlobInterface`；Service 接口按 `javaModelByteStreamOutputMode`（file/string/bytes）换为 `IMybatisBGBlob{File,Bytes,String}Service`（未配置时用 `IMybatisBGBlobService`），实现基类换为 `AbstractMybatisBGBlob{Base,File,Bytes,String}Service` 家族。 |
+| `isBusinessInstance` | `com.vgosoft.core.entity.IBusinessEntity` | 业务对象标记；与 blob 同时命中时 Service 抽象实现换为 `AbstractBlob{File,Bytes,String}ServiceBusiness` 家族。 |
+
+**作用二：声明约定字段、去重生成并校正物理表结构**（即“生成时为表添加必须的约定字段，修改长度、类型与约定不一致的字段”）。
+
+- **字段去重**：`RootClassInfo` 对 rootClass 及父类做 JavaBeans 内省，父类已有属性不在子类重复生成；属性名、Java 类型、getter/setter 须全部匹配，类型不一致记 Warning.21 且该列照常生成。
+- **结构同步**：默认开启的 `Context.rootClassSchemaSynchronizationEnabled` 使 `ValidateDatabaseTable` 把 rootClass 及父类全部 `@ColumnMeta` 字段与物理表比较——缺列生成 `ADD`，JDBC 类型/长度/精度/备注/可空/显式默认值/主键不一致生成 `MODIFY`（机制与风险详见 §16.5）。
+- **初始化与 VO 字段范围**：`EntityAbstractParentEnum`（`com.vgosoft.core.constant.enums.core`，位于 `vgosoft-core-constant` 模块）登记生成器已知的实体根类及其字段清单，用于实体初始化跳过、VO MapStruct 忽略目标与 Vue3 父类字段判定；`scope` 取值 0=普通持久化、1=工作流、2=BLOB、3=其他。注意该枚举字段清单为手工维护，可能与类源码滞后不一致（如 `ABSTRACT_ENTITY` 登记的 `delete_flag` 实际并不在该类中），字段去重与结构同步仍以 `@ColumnMeta` 反射为准。
+- **枚举 scope 分支**：`<Entity>FlowableEventListener`（`JavaFlowableListenerGenerator`）、模块数据 `wf_apply=1`、`@ViewTableMeta.createUrl` 抑制按枚举 `scope()==1` 判定而非接口判定。配置了实现 `IWorkflowBaseEntity` 但未登记进该枚举的根类时，接口分支生效、枚举分支不生效。
+
+### 16.3 非工作流根类清单（`com.vgosoft.core.entity.abs`）
+
+下表“新增字段”只列本类声明的持久化列（`@ColumnMeta` + `@TableField`），未标注 `@ColumnMeta` 的字段不参与结构同步；表实际约定列 = 沿继承链向上的全部字段累计。标（非持久）者为 `@TableField(exist=false)`，只入实体不入表。
+
+| 根类 | 继承自 | 本类新增持久化字段 | 说明与适用 |
+|---|---|---|---|
+| `AbstractEntity` | —（`IPersistenceBasic`） | `id_`（PK，VARCHAR 36）；`persistenceBeanName`、`modelTempId`、`persistenceStatus`（非持久） | 最小根类：仅主键，无逻辑删除/审计/版本。Parser 默认值；适合只需 `id_` 的极简表（如 tmri-core `tmri_main_budget_freeze`）。注意：DTD 旧注释称其含 `delete_flag`，与源码不符，需要逻辑删除时应选下游类。 |
+| `AbstractPersistenceObjectEntity` | `AbstractEntity` | + `delete_flag`（INT）、`created_`、`modified_`、`created_id`、`modified_id` | `IPersistenceObject`；逻辑删除 + 创建/修改时间与操作人审计基线。 |
+| `AbstractPersistenceLockEntity` | `AbstractPersistenceObjectEntity` | + `version_`（INT，乐观锁） | `IPersistenceLock`；版本列是 CAS/版本校验类服务前提，tmri `tmri_recycle_bin`、`tmri_format_contract_setting` 使用。 |
+| `AbstractPersistenceLockSortableEntity` | `AbstractPersistenceLockEntity` | + `sort_`（INT） | `ISortableEntity`（`compareTo`）；主数据、明细、设置等需排序的普通业务表，tmri 非流程表的主力根类（含 `tmri_main_project`）。 |
+| `AbstractPersistenceLockNumberableEntity` | `AbstractPersistenceLockEntity` | + `reg_doc_number`（VARCHAR 64，单号）、`number_rule`（255）、`fld_ser_number`（INT，流水号） | `INumberable`；需单号/编号规则但不需 `sort_` 的非流程单据。未登记 `EntityAbstractParentEnum`，字段去重与结构同步不受影响，但枚举驱动的初始化/VO 字段清单分支不覆盖。 |
+| `AbstractPersistenceSimpleEntity` | `AbstractPersistenceLockSortableEntity` | + `apply_dept_id`、`apply_org_id`、`reg_doc_number`、`number_rule`、`fld_ser_number`、`apply_user_id`、`apply_date`、`apply_handler_id`、`apply_contact`（50） | 非流程“简单申请”模型：申请人套件 + 单号套件 + `sort_`，一次带齐。源码声明为 `public class`（非 abstract），仍可用作 rootClass。 |
+| `AbstractBusinessEntity` | `AbstractPersistenceLockEntity` | + `priority_`、`subject_`（500，标题）、`file_category`（64）、`module_id`（64）、`author_`；`readers`（非持久） | `IBusinessEntity` → `isBusinessInstance` 命中。有标题/缓急/所属模块/文种/作者语义的非流程业务对象；也是全部工作流实体根类的父类。未登记 `EntityAbstractParentEnum`。 |
+| `AbstractBlobEntity` | —（`IPersistenceBlob`，独立继承树，不挂 `AbstractEntity`） | `id_`（PK）、`delete_flag`、`name_`（500，文件名）、`size_`（BIGINT）、`mime_type`、`bytes_`（BLOB 文件体） | `isBlobInstance` 命中：Mapper/Service 切到 BLOB 家族；文件内容直接存表 `bytes_` 列。 |
+| `AbstractBlobPersistenceObjectEntity` | `AbstractBlobEntity` | + `created_`、`modified_`、`created_id`、`modified_id` | BLOB + 审计字段。 |
+| `AbstractBlobPersistenceLockEntity` | `AbstractBlobPersistenceObjectEntity` | + `version_` | BLOB + 审计 + 版本；表存储附件类的基线。 |
+| `AbstractBlobBusinessEntity` | `AbstractBlobPersistenceLockEntity` | + `fld_ser_number`、`subject_`、`priority_`、`module_id`、`file_category`、`author_`；`viewPath`、`readers`（非持久） | `IBusinessEntity` + `IPersistenceBlob` 双命中 → `AbstractBlob*ServiceBusiness` 家族。未登记 `EntityAbstractParentEnum`。 |
+| `upload.AbstractTableFilesMgr` | `AbstractBlobPersistenceLockEntity` | + `sort_`、`record_id`（64，关联记录标识）、`title_`、`type_`（附件类型）、`notes_`（2000） | 附件管理（表存储）：业务记录附件统一经 `record_id` 挂接；`EntityAbstractParentEnum` scope=2。`public class` 非 abstract，仍可用作 rootClass。 |
+| `upload.AbstractDiskFilesMgr` | `AbstractPersistenceLockSortableEntity` | + `record_id`（36）、`title_`、`name_`（500）、`size_`（BIGINT）、`type_`、`mime_type`、`sub_dir`、`full_path`（500）、`relative_path`（500）、`notes_`（2000） | 附件管理（磁盘存储）：实现 `IPersistenceDiskFile`（非 `IPersistenceBlob`），**不命中 BLOB 分支**；表只存路径与元数据，文件体在磁盘。枚举 scope=0。 |
+
+### 16.4 工作流根类清单（`com.vgosoft.workflow.absimpl`）
+
+可作为表 `rootClass` 的实体根类共 4 个；继承链上自动携带 `AbstractBusinessEntity`/`AbstractPersistence*` 全部约定字段。选择任一工作流根类即声明“该表生成的模块需要绑定工作流”，生成器按 §16.2 作用一分支产出流程相关产物。
+
+| 根类 | 继承自 | 本类新增持久化字段 | 说明与适用 |
+|---|---|---|---|
+| `AbstractWorkflowBusinessEntity` | `AbstractBusinessEntity` | + `wf_state`（INT，默认 `'4'`=起草中）、`proc_type_id`（36，流程类型标识）、`cur_processors`（480，当前处理人）；`businessKey`、`taskExtAttributes`（非持久） | `IWorkflowBusinessEntity` → `IWorkflowBaseEntity` 命中，枚举 scope=1。最基础流程根类：业务对象字段 + 流转三要素；`getBusinessKey()` 为空时回退 `id`。适合不需编号、不带申请人套件的流程业务。 |
+| `AbstractWorkflowBusinessNumberable` | `AbstractWorkflowBusinessEntity` | + `reg_doc_number`（64）、`number_rule`（255）、`fld_ser_number`（INT） | `INumberable`，scope=1；流程业务 + 单号套件。tmri-serv `tmri_budget_rec` 使用。 |
+| `AbstractWorkflowSampleEntity` | `AbstractWorkflowBusinessNumberable` | + `apply_dept_id`（36）、`apply_user_id`（36）、`apply_date`（TIMESTAMP，默认 `CURRENT_TIMESTAMP`）、`apply_handler_id`（36）、`apply_contact`（50）、`apply_org_id`（36） | `WorkflowSampleEntity`，scope=1；标准审批单根类 = 流程字段 + 单号 + 申请人套件（申请部门/人/时间/经办人/联系方式/机构，带默认值约定）。tmri-serv 各审批表统一使用（如 `tmri_project_phase_change`）。 |
+| `AbstractBlobWorkflowBusinessEntity` | `AbstractBlobBusinessEntity` | + `wf_state`（INT）、`cur_processors`（1000）；`businessKey`、`taskExtAttributes` 未注解 | 接口判定同时命中 workflow + BLOB + business，适用于流程型大字段业务。注意：**未登记 `EntityAbstractParentEnum`**，`FlowableEventListener`、模块 `wf_apply`、`createUrl` 抑制等枚举分支不生效；`businessKey`/`taskExtAttributes` 既无 `@TableField(exist=false)` 也无 `@ColumnMeta`，选用前需核对宿主 MyBatis-Plus 映射与建表方式。 |
+
+同包下**不能**用作表 `rootClass` 的类（属服务/引擎/DTO 层，没有 `@ColumnMeta` 实体契约，误配会导致字段缺失与类型判定错误）：
+
+| 类 | 实际用途 |
 |---|---|
-| `AbstractEntity` | `id_`、`delete_flag` |
-| `AbstractPersistenceObjectEntity` | + `created_`、`modified_`、`created_id`、`modified_id` |
-| `AbstractPersistenceLockEntity` | + `version_` |
-| `AbstractBusinessEntity` | + `subject_`、`priority_`、`module_id`、`file_category` 等业务字段 |
-| `AbstractWorkflowBusinessEntity` | + `business_key`、`wf_state`、`cur_processors` |
-| `AbstractWorkflowSampleEntity` | + `apply_dept_id`、`apply_user_id`、`apply_org_id` 等流程申请字段 |
-| `AbstractBlob*` 系列 | 包含 `bytes_` 等大字段语义 |
+| `AbstractServiceWorkflowBusiness` | 工作流 Service 抽象实现：删除业务数据时级联清理待办/已办/流程关联数据，供宿主 ServiceImpl 继承 |
+| `AbstractBlob{Bytes,File,String}ServiceWorkflowBusiness` | BLOB 工作流 Service 抽象实现，按 `javaModelByteStreamOutputMode` 三选一 |
+| `AbstractWorkflowEngine` | 流程引擎门面：`initWorkflowEntityEngine`/`initWorkflowExecuteEntity`/`completeTask` 等，宿主服务侧调用 |
+| `AbstractTaskExtensionAttributes` | 任务节点扩展属性基类（多实例、办理者、区段权限等流程元数据） |
+| `AbstractExecuteEntity` | 流程执行对象基类（`processDefinitionKey`/`businessKey`/`variables`），发起/完成任务传参用 |
 
-### 16.3 设计建议
-
-1. 先选父类，再定表结构；不要先建字段后再“硬塞”父类。
-2. `rootClass` 一旦确定，VO/页面默认字段、校验、查询能力都会受影响。
-3. 涉及流程、附件、大字段时，优先用能表达该语义的父类，避免后续大量补丁配置。
-
-### 16.4 根实体字段与数据库物理结构同步
+### 16.5 根实体字段与数据库物理结构同步
 
 生成器正式入口默认启用 `Context.rootClassSchemaSynchronizationEnabled=true`。内省当前生成范围内启用语句的表后，生成器会跳过 `ignore=true` 的表，并对其最终配置的 `rootClass` 及父类中带 `@ColumnMeta` 的字段执行结构比较。缺失物理列可能生成 `ALTER TABLE ... ADD`；类型、长度、精度、备注、主键/可空或显式默认值等已比较元数据不一致时可能生成 `ALTER TABLE ... MODIFY`。根字段标记为主键而数据库内省未识别时，还可能附加 `ADD PRIMARY KEY`。此同步不生成删除列操作，但 `MODIFY` 仍可能改变既有列定义，不能视为无风险的只读检查或替代数据库迁移评审。
 
 SQL 由当前数据库产品名选择 DDL 方言格式，并通过生成使用的 JDBC `Connection` 直接执行；执行成功后才将新增/更新列加入本次生成使用的内存内省结果。SQL 执行的 `SQLException` 会转为 warning，生成继续；Maven Mojo 将 warning 记录为 WARN 而不据此失败。因此出现“结构同步失败”warning 时，不能仅凭 Maven 成功退出认定 schema 和生成产物一致，应先核查失败 SQL、数据库实际结构及本次产物，再决定是否继续消费验收。真实目标数据库、驱动及 DDL 方言需在获准环境中验证。
 
 该行为不由普通 XML/DTD 属性控制。独立离线生成程序须显式对每个 context 调用 `context.setRootClassSchemaSynchronizationEnabled(false)`；`generate(..., false)` 只关闭生成文件写盘，不关闭结构同步。Maven Mojo 的可选 `sqlScript`（`mybatis.generator.sqlScript`）是另一条“生成前运行指定脚本”的独立入口；`sqlScript` 未配置时不运行该脚本，但不会因此关闭 Context 自动结构同步。权威能力说明见[生成器权威说明 §2.1.1](generator-authoritative-spec.md#211-实体物理表与列元数据注解)。
+
+### 16.6 选择建议
+
+1. **先按业务类型选族**：流程审批 → `com.vgosoft.workflow.absimpl` 中已登记的工作流根类；附件/大字段 → `AbstractBlob*`、`upload.AbstractTableFilesMgr`（表存储）或 `upload.AbstractDiskFilesMgr`（磁盘存储）；普通数据 → `AbstractPersistence*` 族。同一项目应按表的业务语义混配，如 tmri 中审批表用 `AbstractWorkflowSampleEntity`、主数据/明细用 `AbstractPersistenceLockSortableEntity`。
+2. **再按能力选层级**：逻辑删除+审计（→`AbstractPersistenceObjectEntity`）、乐观锁（→`AbstractPersistenceLockEntity`）、排序（→`...LockSortableEntity`）、单号（→`...Numberable*`）、申请人套件（→`AbstractPersistenceSimpleEntity`/`AbstractWorkflowSampleEntity`）。字段沿继承链累加，选“够用”的最深类即可，不必为多余字段选过深的根类。
+3. **工作流根类必须表业务匹配**：仅当该表确实是流程业务时才能配工作流根类——否则实体被误判为流程模块，页面/Mapper/Service 走流程分支，结构同步还会补入 `wf_state`/`proc_type_id`/`cur_processors` 等约定列；普通主数据/明细表误配工作流根类是典型错配（参见 tmri `pending-issues.md` TMRI-SERV-ISSUE-0001）。
+4. **选定后核对约定列**：rootClass 全链 `@ColumnMeta` 会同步进物理表；表上已有的同名但类型/长度/可空/默认值不一致的列会被 `MODIFY` 为约定形态。先按 §16.5 风险口径评审再执行生成。
+5. **枚举登记的分支差异**：需要 `FlowableEventListener`、模块数据 `wf_apply=1`、`createUrl` 抑制时，只能选枚举 scope=1 的三个工作流根类；自定义工作流根类须同步登记 `EntityAbstractParentEnum` 才能获得完整分支，否则仅接口判定部分生效。
+6. **极简表可省略 `rootClass`**：默认 `AbstractEntity` 仅提供 `id_`；需要 `delete_flag` 至少选 `AbstractPersistenceObjectEntity`。
+7. **先选父类再定表结构**：不要先建字段后“硬塞”父类；父类一旦确定，VO/页面默认字段、校验与查询能力随之变化。
 
 ## 17. 补充：与 `mybatis-generator-config_1_8_0.dtd` 的对照关系
 
