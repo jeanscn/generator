@@ -42,3 +42,5 @@
     用途：记录 `generateHtml/pageNavigator` 跨生成器与 Framework 的确认范围、子任务依赖、进度及隔离验证证据。
 19. [生成器配置指南业务契合度完善任务书](..\mybatis-generator-core\src\main\resources\docs\task\configuration-guide-business-fit-task.md)
     用途：记录基于 tmri_v4 采购需求与真实生成配置完善配置指南的范围、进度和文档验收边界；不表示业务配置已生成或功能已验收。
+20. [表单 Markdown 字段支持任务书](..\mybatis-generator-core\src\main\resources\docs\task\markdown-form-field-task.md)
+    用途：记录 `tagType="markdown"` 的枚举、DTD、Vue3 输出与 Framework `VgoMarkdownEditor` 的跨仓范围、子任务依赖与验证边界；不表示业务配置已生成或功能已验收。
