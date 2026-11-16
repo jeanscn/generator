@@ -100,7 +100,7 @@ public class VueUiConventionAuditTest {
                     .contains("railWidth: 36")
                     .contains("tickGap: 14")
                     .contains("maxHeight: 640")
-                    .contains("edge: 14")
+                    .contains("edge: 8")
                     .contains("theme: \"auto\"")
                     .contains("showTitle: true")
                     .contains("zIndex: 60");

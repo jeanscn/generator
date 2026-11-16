@@ -25,7 +25,7 @@ public class PageNavigatorConfiguration {
 
     private int offset;
 
-    private int width = 220;
+    private int width = 150;
 
     private int railWidth = 36;
 
@@ -33,7 +33,7 @@ public class PageNavigatorConfiguration {
 
     private int maxHeight = 640;
 
-    private int edge = 14;
+    private int edge = 8;
 
     private String theme = "auto";
 
@@ -41,5 +41,5 @@ public class PageNavigatorConfiguration {
 
     private String scrollContainer;
 
-    private int zIndex = 60;
+    private int zIndex = 120;
 }

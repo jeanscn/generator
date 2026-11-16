@@ -637,7 +637,9 @@
                 4、placement 位置：left-左侧，right-右侧；默认 right。
                 5、offset、width、railWidth、tickGap、maxHeight、edge、zIndex 为像素或层级数值；
                    theme 可选 auto、light、dark；showTitle 可选 true、false。
-                6、scrollContainer 为可选滚动容器 CSS 选择器；省略时使用整页滚动容器。
+                6、scrollContainer 为可选滚动容器 CSS 选择器；省略时由 VgoForm 自动解析实际滚动容器，
+                   无局部容器时使用整页模式。局部容器外侧预留与导航定位遵循 Framework 组件契约；
+                   edge 在整页模式控制水平边距，在局部容器模式控制上下安全间距。
                 7、items 由 columns 生成，activeId 由组件按滚动位置管理，不在 XML 中配置。
                 8、仅支持配置了 Context.vueEndProjectPath 且 generate=true 的 editable/viewOnly 页面；print 页面明确不支持。
                 9、多 generateHtml 时应配置在 Vue 表单元数据采用的 default 页面；目标列必须进入 VO 表单且静态布局可见。

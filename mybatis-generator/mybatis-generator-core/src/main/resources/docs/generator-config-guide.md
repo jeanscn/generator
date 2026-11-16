@@ -878,10 +878,10 @@ src/main/resources/sql/init/data-menu-<moduleKeyword小写>.sql
 | `placement` | 导航位置 | `right` | vue3 | `left` / `right`。 |
 | `offset` | 锚点顶部偏移 | `0` | vue3 | 整数；可为负数。 |
 | `width` / `railWidth` / `tickGap` / `maxHeight` | 展开宽度、收缩轨宽、刻度间距、最大高度 | `220` / `36` / `14` / `640` | vue3 | 正整数；按 `VgoPageNav` 的组件契约解释。 |
-| `edge` | 距定位侧边缘距离 | `14` | vue3 | 非负整数。 |
+| `edge` | 整页模式的水平边距；局部容器模式的上下安全间距 | `8` | vue3 | 非负整数；局部模式的水平刻度区位置由容器外侧预留区确定。 |
 | `theme` | 主题 | `auto` | vue3 | `auto` / `light` / `dark`。 |
 | `showTitle` | 是否显示标题栏 | `true` | vue3 | `true` / `false`。 |
-| `scrollContainer` | 滚动容器 CSS 选择器 | 未设置（组件使用整页滚动容器） | vue3 | 非空选择器字符串；弹窗或抽屉需按实际滚动节点配置。 |
+| `scrollContainer` | 滚动容器 CSS 选择器 | 未设置（`VgoForm` 自动解析实际滚动容器） | vue3 | 显式配置时使用非空选择器字符串；未找到局部容器时使用整页模式。 |
 | `zIndex` | 层级 | `60` | vue3 | 非负整数。 |
 
 ```xml
@@ -891,6 +891,8 @@ src/main/resources/sql/init/data-menu-<moduleKeyword小写>.sql
 ```
 
 列标题取数据库列注释，注释为空时回退为列名；每项固定 `level=1`，锚点 id 为 `nav-<实际列名>`。Framework 将 id 设置到对应字段外层 `el-form-item`，并按字段名将锚点映射传给表单。字段或所属布局的运行时条件隐藏时，导航项同步移除。
+
+局部滚动容器的外侧预留及导航定位规则以 [Framework 组件复用指南 §45.6](D:\vscode\mpmm-ui\packages\framework\docs\components-reuse-capability-overview.md#456-复用与测试关键点) 为准；生成器只传递配置，不生成表单内部留白或宿主布局样式。
 
 以下约束在生成阶段明确校验：
 
