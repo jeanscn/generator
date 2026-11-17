@@ -46,3 +46,5 @@
     用途：记录基于 tmri_v4 采购需求与真实生成配置完善配置指南的范围、进度和文档验收边界；不表示业务配置已生成或功能已验收。
 21. [表单 Markdown 字段支持任务书](..\mybatis-generator-core\src\main\resources\docs\task\markdown-form-field-task.md)
     用途：记录 `tagType="markdown"` 的枚举、DTD、Vue3 输出与 Framework `VgoMarkdownEditor` 的跨仓范围、子任务依赖与验证边界；不表示业务配置已生成或功能已验收。
+22. [组合查询选项化生成支持任务书](..\mybatis-generator-core\src\main\resources\docs\task\query-condition-options-generation-task.md)
+    用途：E01 归属任务书；`conditionOption` 配置/DTD/Parser、选项注解输出、Example 分组 Criterion 与 XML 嵌套 OR 装配、list/export 接线的子任务与验证边界；不表示业务配置已生成或功能已验收。
