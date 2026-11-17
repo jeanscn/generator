@@ -2082,7 +2082,7 @@
             组合条件生成 @QueryCondition 注解并由 @ViewTableMeta.queryConditions 暴露，
             前端只提交 key 与参数值，字段与操作符只来自配置。
         -->
-        <!ELEMENT queryColumn (property*,(conditionParam*,conditionTerm*|conditionOption*))>
+        <!ELEMENT queryColumn (property*,((conditionParam*,conditionTerm*)|conditionOption*))>
         <!ATTLIST queryColumn
                 column CDATA #IMPLIED
                 queryType (field|condition) #IMPLIED

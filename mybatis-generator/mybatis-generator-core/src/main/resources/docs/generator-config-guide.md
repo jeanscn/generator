@@ -839,6 +839,35 @@ DTD 允许 `viewVo` 含上述及相关子节点；当前 Parser 对 `queryColumn
 | `options:["all","done"]` 混传 | 校验失败 | `IllegalArgumentException`，请求整体失败 |
 | `options:[]` 空数组 | 视同清空 | 不产生谓词（`options` 字段本身不得为 null——选项型条件提交时必须携带数组） |
 
+**示例 H：实战进阶模式**——以下三种模式均来自真实业务配置，覆盖「以…开头」「列与列等值」「主状态+在途标志」三类常见变形需求：
+
+1. *前缀匹配（"编号以 XX 开头"）*：`conditionTerm` 没有前缀 LIKE 算子，`LikeAny` 是 `%值%` 包含匹配不能当前缀用；但「以 `XM26` 开头」等价于字符串区间 `['XM26','XM27')`，用 `GE + LT` 两个常量 term 可**精确**表达：
+
+```xml
+<!-- 年度筛选：project_number 以 "XM"+yy 开头；20 个普通选项 + 1 个 clear 恰好顶满上限 -->
+<queryColumn key="project_year" queryType="condition" tagType="select" multiple="true" remark="项目所属年度">
+    <conditionOption value="all" remark="全部" clear="true"/>
+    <conditionOption value="2026" remark="2026年">
+        <conditionTerm column="project_number" operator="GreaterThanOrEqualTo" value="XM26" valueType="string"/>
+        <conditionTerm column="project_number" operator="LessThan" value="XM27" valueType="string"/>
+    </conditionOption>
+    <!-- …其余年份同构… -->
+</queryColumn>
+```
+
+多选后按选项 OR：`（project_number>='XM26' and project_number<'XM27'） or （>='XM28' and <'XM29'）…`。
+
+2. *列与列等值（"数量 = 已采购数量"）*：term 只能「列 vs 常量/参数」，列间比较不可直接表达；若存在不变量可换算为常量谓词。如预算表 `available = budget - completed - freeze`，则 `budget = completed` ⟺ `available = 0 AND freeze = 0`：
+
+```xml
+<conditionOption value="submitted" remark="完成提交">
+    <conditionTerm column="available_quantity" operator="EqualTo" value="0" valueType="number"/>
+    <conditionTerm column="freeze_quantity" operator="EqualTo" value="0" valueType="number"/>
+</conditionOption>
+```
+
+3. *主状态 + 在途标志的复合阶段（"XX审批中"）*：若宿主以 `phase_state`（已完成阶段）+ `apply_state`（1=审批在途）两列组合派生显示态，则「采购需求审批中」=`phase_state=4 AND apply_state=1`，直接映射为两个常量 term。但若需求分组是 `(phase=2∧apply=1) ∨ (phase∈3~6)` 这类**选项内 OR**，单选项无法表达——须与业务确认近似口径（如取 `phase∈3~6`，在途子集仅落入「全部」），并把取舍写入注释。
+
 ##### 生成产物对照
 
 以示例 E 为例，各层产物如下，可据此核对配置是否生效：
@@ -939,7 +968,7 @@ Example/Mapper 产物：选项视图的 `Criteria` 额外生成 `andBoundConditi
 | `NotEqualTo` | `列 <> 值` | 单值参数或常量 |
 | `GreaterThan` / `GreaterThanOrEqualTo` | `列 > / >= 值` | 单值参数或常量 |
 | `LessThan` / `LessThanOrEqualTo` | `列 < / <= 值` | 单值参数或常量 |
-| `LikeAny` | `列 LIKE '%值%'`，`!`/`%`/`_` 以 `!` 转义，SQL Server 另转义 `[` | 单值文本参数或常量 |
+| `LikeAny` | `列 LIKE '%值%'`（包含匹配，**非前缀**），`!`/`%`/`_` 以 `!` 转义，SQL Server 另转义 `[` | 单值文本参数或常量 |
 | `In` | `列 IN (v1,…,vn)` | 仅 `multiple="true"` 参数，不接受常量 |
 | `ContainsAll` | 每个候选值各产出一个谓词并以 AND 合取：`Token` → `concat(',',列,',') LIKE '%,v,%'`（候选值不得为空或含逗号，逐值匹配依赖逗号定界）；`Text` → `列 LIKE '%v%'` | 仅 `multiple="true"` 文本参数，不接受常量 |
 
@@ -947,8 +976,8 @@ Example/Mapper 产物：选项视图的 `Criteria` 额外生成 `andBoundConditi
 
 - 参数模式：同一条件内各 `conditionTerm` 以 **AND** 合取；一次请求提交的多个条件实例之间也以 **AND** 合取，不支持 OR 与嵌套分组。
 - 选项模式：同一选项内各 `conditionTerm` 以 **AND** 合取；多选时各选中选项之间以 **OR** 析取并装配为单个分组谓词；不同查询项（条件项、字段项、可信约束）之间仍以 **AND** 合取。OR 只存在于「已声明选项」这一层，不存在任意谓词的自由分组。
-- 可表达：「值集合 → 某列 `IN`」（`multiple` 参数 + `In`，由前端把选项映射为值数组，例如进度分组 → 阶段编码数组）、「多列合取谓词」（多个 term）、「固定阈值谓词组」（全常量 term 的无参条件）、「各自可选的区间上下限」（可选参数缺失即跳过）、「若干固定谓词组取并集」（选项模式多选，如进度分组多选）。
-- 不可表达：「列与列比较」（如 `数量 = 已采购数量`）、「前端自由组合谓词并任意 OR/嵌套」。需要这些形态时改用宿主支持的 `anyWhereCondition` 或服务端扩展查询。不要为「任一组命中」的多选场景堆叠多个互斥条件 key——同时提交多个 key 会变成 AND 交集，通常得到空结果；选项模式才是该场景的正解。
+- 可表达：「值集合 → 某列 `IN`」（`multiple` 参数 + `In`，由前端把选项映射为值数组，例如进度分组 → 阶段编码数组）、「多列合取谓词」（多个 term）、「固定阈值谓词组」（全常量 term 的无参条件）、「各自可选的区间上下限」（可选参数缺失即跳过）、「若干固定谓词组取并集」（选项模式多选，如进度分组多选）、「文本前缀匹配」（`GE '前缀' AND LT '后继前缀'` 区间对，见示例 H-1）、「可经不变量换算为常量谓词的列间关系」（见示例 H-2）。
+- 不可表达：「列与列直接比较」（无不变量时）、「常量值集合 `IN`」（`In` 只引用多值参数，选项 term 必须是常量 → 枚举编码集合须改写为多个 `EqualTo` 选项或区间）、「选项内 OR」（一个选项只能是 AND 合取，`(a∧b)∨c` 形态须业务取舍近似，见示例 H-3）、「前端自由组合谓词并任意 OR/嵌套」。需要这些形态时改用宿主支持的 `anyWhereCondition` 或服务端扩展查询。不要为「任一组命中」的多选场景堆叠多个互斥条件 key——同时提交多个 key 会变成 AND 交集，通常得到空结果；选项模式才是该场景的正解。
 - 可选参数：`required="false"` 的参数未提交时其 term 被跳过；所有参数均可选且均未提交时，该条件不产生谓词。
 - 无 `conditionParam` 的条件是固定谓词组（全部 term 用常量），适合「勾选即启用」的开关类条件项。
 
