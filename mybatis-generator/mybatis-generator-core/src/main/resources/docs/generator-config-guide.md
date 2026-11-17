@@ -692,45 +692,198 @@ DTD 允许 `viewVo` 含上述及相关子节点；当前 Parser 对 `queryColumn
 
 #### 5.3.2.1 组合条件（`queryType="condition"`）
 
-`queryType="condition"` 把一个查询项定义为「一组按服务端固定模板展开的原子谓词」：前端只提交条件 `key` 和参数值（或选项标识），作用的列、操作符与组合方式全部来自 `@ViewTableMeta.queryConditions` 注解，用户输入一律经 `#{}` 绑定或转义字面量，不拼接 SQL。它适合表达单字段项无法表达的谓词形态——多列合取、值集合 `IN`、固定阈值组——以及需要把多个物理列收敛成一个业务查询项的场景（例如「项目进度」一项展开为某列的一组状态值）。仅需单字段等值/模糊/范围查询时仍使用普通 `queryColumn` 字段项或 `filterColumn`；同列多值取并集也不必用组合条件，字段项 `multiple="true"` 即可生成多选 `IN`。
+`queryType="condition"` 把一个查询项定义为「一组按服务端固定模板展开的原子谓词」：前端只提交条件 `key` 和参数值（或选项标识），作用的列、操作符与组合方式全部来自 `@ViewTableMeta.queryConditions` 注解，用户输入一律经 `#{}` 绑定或转义字面量，不拼接 SQL。它适合表达单字段项无法表达的谓词形态——多列合取、值集合 `IN`、固定阈值组——以及需要把多个物理列收敛成一个业务查询项的场景（例如「项目进度」一项展开为某列的一组状态值）。
 
 条件项有两种互斥形态：**参数模式**（`conditionParam` + `conditionTerm`，前端提交参数值）与**选项模式**（`conditionOption`，前端只提交选中的选项 `value`）。选项模式把若干「服务端预定义的谓词组」呈现为普通字段查询控件（单选/多选），选中项之间按 OR 析取、组内原子条件按 AND 合取，用于可复用的状态分组筛选（例如「项目进度」：全部 / 进行中 / 已完成），前端无法自定义谓词内容。
 
+##### 快速选型
+
+| 需求场景 | 配置形态 | 前端提交形态 |
+|---|---|---|
+| 单字段等值/模糊/范围查询 | 普通 `queryColumn` 字段项或 `filterColumn` | 查询表单字段值 |
+| 同列多值取并集（`IN`） | 字段项 `multiple="true"` | 字段值数组 |
+| 多列合取谓词（一个查询项同时约束多列） | 参数模式：多个 `conditionTerm` | `{key, params:{...}}` |
+| 前端输入值集合 → 某列 `IN` | 参数模式：`multiple` 参数 + `In` | `{key, params:{p:[v1,…]}}` |
+| 各自可选的区间上下限 | 参数模式：`required="false"` 参数 | `{key, params:{可选}}` |
+| 勾选即启用的固定谓词组 | 参数模式：无 `conditionParam`、全常量 term | `{key}`（params 为空） |
+| 预定义谓词组做单选/多选（状态分组筛选） | 选项模式：`conditionOption` | `{key, options:[v,…]}` |
+| 二态开关（启用/全部） | 选项模式：`tagType="switch"` | `{key, options:["on"]}` 或省略 |
+
+不要为「任一组命中」的多选场景堆叠多个互斥条件 `key`——同时提交多个 `key` 会变成 AND 交集，通常得到空结果；选项模式才是该场景的正解。需要「列与列比较」（如 `数量 = 已采购数量`）或前端自由组合谓词任意 OR/嵌套时，改用宿主支持的 `anyWhereCondition` 或服务端扩展查询，组合条件不支持。
+
 ##### 配置与生成链路
-
-```xml
-<viewVo generate="true" queryColumns="code_,score_pass" ...>
-    <queryColumn column="code_" remark="编码"/>
-    <queryColumn queryType="condition" key="score_pass" remark="成绩达标">
-        <conditionParam name="minA" remark="A 下限" fieldType="number" tagType="number" required="true"/>
-        <conditionParam name="tags" column="tags_" multiple="true" required="false"/>
-        <conditionTerm column="score_a" operator="GreaterThan" param="minA"/>
-        <conditionTerm column="tags_" operator="ContainsAll" param="tags" containsMode="Text"/>
-        <conditionTerm column="score_b" operator="GreaterThanOrEqualTo" value="0" valueType="number"/>
-    </queryColumn>
-    <queryColumn queryType="condition" key="phase_group" remark="项目进度" tagType="checkbox">
-        <conditionOption value="all" remark="全部" clear="true"/>
-        <conditionOption value="doing" remark="进行中">
-            <conditionTerm column="phase_state" operator="LessThan" value="7" valueType="number"/>
-        </conditionOption>
-        <conditionOption value="done" remark="已完成">
-            <conditionTerm column="phase_state" operator="GreaterThanOrEqualTo" value="7" valueType="number"/>
-            <conditionTerm column="audit_state" operator="EqualTo" value="P" valueType="string"/>
-        </conditionOption>
-    </queryColumn>
-</viewVo>
-```
-
-选项模式示例中，`tagType="checkbox"` 表示多选：提交 `[{key:"phase_group", options:["doing","done"]}]` 生成 `(phase_state < ?) or (phase_state >= ? and audit_state = ?)` 单个分组谓词；选中 `all`（或不提交该项）不产生谓词。
 
 完整链路如下，任一环节缺失都会使配置无效：
 
-1. 在 `queryColumns` 中列入条件 `key`，与普通字段混合排序，该位置决定条件项在查询项中的顺序；`key` 优先于同名列名匹配。`hasQueryConditions()` 仅当「存在 condition 配置且其 `key` 列入 `queryColumns`」时为真——只写 `<queryColumn>` 子节点而不把 `key` 列入 `queryColumns`，既不生成条件元数据也不会接入后端解析。
-2. `ViewMetaAnnotationPlugin` 为 ViewVo 生成 `@ViewTableMeta.queryConditions`：参数模式输出 `@QueryCondition(key, remark, order, params={@QueryConditionParam}, terms={@QueryConditionTerm})`；选项模式输出 `@QueryCondition(key, remark, order, tagName, multiple, options={@QueryConditionOption(value, remark, clear, terms={@QueryConditionTerm})})`（`tagName` 为 `select` 时省略、`multiple` 为 `false` 时省略）。普通项仍生成 `querys = {@CompositeQuery}`。视图内存在条件项时，`querys` 与 `queryConditions` 各项 `order` 统一按 `queryColumns` 位置重新编号，`queryColumn` 上的 `order` 属性不保证生效。
-3. `hasQueryConditions()` 为真时，生成 Controller 的 `list` 与 `export` 方法自动接入 `QueryConditionResolver`：仅参数模式走 `resolve`，存在选项条件（`hasOptionQueryConditions()`）时走 `resolveConditions`——后者返回 `ResolvedConditions(conditions, groups)`，平铺谓词照旧 AND 进各 Criteria，各 `BoundConditionGroup` 经生成的 `Criteria.andBoundConditionGroup` 装配为 `((组内 AND) or (组内 AND))` 单个谓词。**该接线由重新生成产出**：在组合条件能力合入之前生成的 Controller 不含此调用，配置组合条件后必须重新生成对应表才会补齐；判断依据以生成产物中是否出现 `QueryConditionResolver` 调用为准。
-4. 前端按视图元数据呈现查询项：参数模式提交 `filterParam.conditions = [{key, params:{参数名: 值或数组}}]`（无 `conditionParam` 的条件呈现为可勾选的固定谓词项）；选项模式提交 `[{key, options:[选项 value, ...]}]`，未选中或仅选「全部」时该项整体省略，不进入提交数组。
+1. **声明查询项**：`<queryColumn queryType="condition" key="…" …>` 在 `<viewVo>` 中声明参数或选项模式子节点。
+2. **列入 `queryColumns`**：`viewVo` 的 `queryColumns` 属性必须包含该 `key`，与普通字段混合排序，该位置决定条件项在查询项中的顺序；`key` 优先于同名列名匹配。`hasQueryConditions()` 仅当「存在 condition 配置且其 `key` 列入 `queryColumns`」时为真——**只写 `<queryColumn>` 子节点而不把 `key` 列入 `queryColumns`，既不生成条件元数据也不接入后端解析，且不报错**，这是最常见的配置失误。
+3. **注解元数据生成**：`ViewMetaAnnotationPlugin` 为 ViewVo 生成 `@ViewTableMeta.queryConditions`：参数模式输出 `@QueryCondition(key, remark, order, params={@QueryConditionParam}, terms={@QueryConditionTerm})`；选项模式输出 `@QueryCondition(key, remark, order, tagName, multiple, options={@QueryConditionOption(value, remark, clear, terms={@QueryConditionTerm})})`（`tagName` 为 `select` 时省略、`multiple` 为 `false` 时省略）。普通项仍生成 `querys = {@CompositeQuery}`。视图内存在条件项时，`querys` 与 `queryConditions` 各项 `order` 统一按 `queryColumns` 位置重新编号，`queryColumn` 上的 `order` 属性不保证生效。`viewVo` 配置 `listKey` 时透传为 `@QueryCondition.listKey`，与 `@CompositeQuery.listKey` 语义一致。
+4. **Controller 接线**：`hasQueryConditions()` 为真时，生成 Controller 的 `list` 与 `export` 方法自动接入 `QueryConditionResolver`：仅参数模式走 `resolve`，存在选项条件（`hasOptionQueryConditions()`）时走 `resolveConditions`——后者返回 `ResolvedConditions(conditions, groups)`，平铺谓词照旧 AND 进各 Criteria，各 `BoundConditionGroup` 经生成的 `Criteria.andBoundConditionGroup` 装配为 `((组内 AND) or (组内 AND))` 单个谓词。**该接线由重新生成产出**：在组合条件能力合入之前生成的 Controller 不含此调用，配置组合条件后必须重新生成对应表才会补齐；判断依据以生成产物中是否出现 `QueryConditionResolver` 调用为准。
+5. **前端提交**：参数模式提交 `filterParam.conditions = [{key, params:{参数名: 值或数组}}]`（无 `conditionParam` 的条件呈现为可勾选的固定谓词项）；选项模式提交 `[{key, options:[选项 value, ...]}]`，未选中或仅选「全部」时该项整体省略，不进入提交数组。列表查询、导出与已保存查询方案的恢复使用同一语义。
 
 边界：`innerListView` 虽然也接受 `queryColumn` 子节点，但其视图元数据只按列名生成 `@CompositeQuery`，`queryType="condition"` 在其中配置会被静默忽略——组合条件当前只支持 `viewVo` 主视图。
+
+##### 参数模式配置示例
+
+**示例 A：区间上下限（必填 + 可选参数）**——「最低分必填、最高分可选」：
+
+```xml
+<queryColumn queryType="condition" key="score_range" remark="分数区间">
+    <conditionParam name="minScore" remark="最低分" fieldType="number" tagType="number" required="true"/>
+    <conditionParam name="maxScore" remark="最高分" fieldType="number" tagType="number" required="false"/>
+    <conditionTerm column="score_" operator="GreaterThanOrEqualTo" param="minScore"/>
+    <conditionTerm column="score_" operator="LessThanOrEqualTo" param="maxScore"/>
+</queryColumn>
+```
+
+- 提交 `{key:"score_range", params:{minScore:"60", maxScore:"90"}}` → `score_ >= ? and score_ <= ?`（绑定 60/90）
+- 只提交 `minScore` → 仅 `score_ >= ?`（`maxScore` 的 term 整个跳过）
+- `remark` 原文即前端输入框 placeholder（`"最低分"`/`"最高分"`），勿写说明性长句
+
+**示例 B：前端多值 → 列 `IN`**——值集合由前端控件提交：
+
+```xml
+<queryColumn queryType="condition" key="phase_in" remark="指定阶段">
+    <conditionParam name="phases" remark="阶段" column="phase_state" fieldType="number" multiple="true"/>
+    <conditionTerm column="phase_state" operator="In" param="phases"/>
+</queryColumn>
+```
+
+- 提交 `{key:"phase_in", params:{phases:[2,3,5]}}` → `phase_state in (?, ?, ?)`
+- `multiple="true"` 参数必须被 `In`/`ContainsAll` 引用；`column="phase_state"` 借用该列的表单项（字典/选项/控件描述），参数控件沿用列配置
+
+**示例 C：标签全包含（`ContainsAll`）**：
+
+```xml
+<queryColumn queryType="condition" key="tags_all" remark="含全部标签">
+    <conditionParam name="tags" remark="标签" multiple="true"/>
+    <conditionTerm column="tags_" operator="ContainsAll" param="tags" containsMode="Token"/>
+</queryColumn>
+```
+
+- 提交 `tags:["a","b"]` → `concat(',',tags_,',') like ? and concat(',',tags_,',') like ?`（绑定 `%,a,%`、`%,b,%`，逐值精确匹配，存储值以逗号分隔为前提）
+- `containsMode="Text"` 则生成 `tags_ like ? and tags_ like ?`（`%a%`、`%b%`，文本子串）
+
+**示例 D：无参固定条件（勾选即启用）**：
+
+```xml
+<queryColumn queryType="condition" key="only_valid" remark="仅有效数据">
+    <conditionTerm column="del_flag" operator="EqualTo" value="0" valueType="number"/>
+    <conditionTerm column="audit_state" operator="EqualTo" value="P" valueType="string"/>
+</queryColumn>
+```
+
+- 无 `conditionParam`，前端呈现为可勾选固定条件项；勾选提交 `{key:"only_valid"}`（params 为空）→ `del_flag = ? and audit_state = ?`
+- 常量必须声明 `valueType`（`string`/`number`/`boolean`），且不能用于 `In`/`ContainsAll`
+
+##### 选项模式配置示例
+
+**示例 E：多选分组（`checkbox`）**——可复用状态筛选：
+
+```xml
+<queryColumn queryType="condition" key="phase_group" remark="项目进度" tagType="checkbox">
+    <conditionOption value="all" remark="全部" clear="true"/>
+    <conditionOption value="doing" remark="进行中">
+        <conditionTerm column="phase_state" operator="LessThan" value="7" valueType="number"/>
+    </conditionOption>
+    <conditionOption value="done" remark="已完成">
+        <conditionTerm column="phase_state" operator="GreaterThanOrEqualTo" value="7" valueType="number"/>
+        <conditionTerm column="audit_state" operator="EqualTo" value="P" valueType="string"/>
+    </conditionOption>
+</queryColumn>
+```
+
+- 多选提交 `[{key:"phase_group", options:["doing","done"]}]` → `((phase_state < ?) or (phase_state >= ? and audit_state = ?))` 单个分组谓词：组间 OR、组内 AND
+- `checkbox` 强制多选（显式 `multiple="false"` 报错）；`select`/`dropdownlist` 加 `multiple="true"` 等价呈现为下拉多选
+
+**示例 F：单选分组（`radio`/`select`/`dropdownlist`）**：
+
+```xml
+<queryColumn queryType="condition" key="level" remark="级别" tagType="radio">
+    <conditionOption value="all" remark="全部" clear="true"/>
+    <conditionOption value="high" remark="高">
+        <conditionTerm column="lv_" operator="GreaterThanOrEqualTo" value="3" valueType="number"/>
+    </conditionOption>
+    <conditionOption value="low" remark="低">
+        <conditionTerm column="lv_" operator="LessThan" value="3" valueType="number"/>
+    </conditionOption>
+</queryColumn>
+```
+
+- `radio`/`switch` 固定单选，不得配 `multiple="true"`；`select`/`dropdownlist` 默认单选
+- 提交 `{key:"level", options:["high"]}` → `lv_ >= ?`
+- `dropdownlist` 在注解中保留原值，由前端显式映射到 select 渲染；未配置 `tagType` 默认 `select`
+
+**示例 G：二态开关（`switch`）**：
+
+```xml
+<queryColumn queryType="condition" key="enabled" remark="启用状态" tagType="switch">
+    <conditionOption value="all" remark="全部" clear="true"/>
+    <conditionOption value="on" remark="已启用">
+        <conditionTerm column="enabled_" operator="EqualTo" value="true" valueType="boolean"/>
+    </conditionOption>
+</queryColumn>
+```
+
+- `switch` 结构固定：恰为一个 `clear` + 一个普通选项，多一个少一个都报错
+- 打开提交 `{key:"enabled", options:["on"]}` → `enabled_ = ?`（绑定 true）；关闭等同「全部」，不产谓词
+
+**提交形态对照**（任一选项条件）：
+
+| 界面操作 | `filterParam.conditions` 提交 | 后端语义 |
+|---|---|---|
+| 未操作该项 / 选中「全部」 | 不包含该项（前端整体省略） | 不产生谓词 |
+| 显式提交 `options:["all"]` | `[{key, options:["all"]}]` | 视为清空，不产生谓词 |
+| 单选 `done` | `[{key, options:["done"]}]` | 该选项 term 组 |
+| 多选 `doing`+`done` | `[{key, options:["doing","done"]}]` | `(组A) or (组B)` 单个谓词 |
+| `options:["all","done"]` 混传 | 校验失败 | `IllegalArgumentException`，请求整体失败 |
+| `options:[]` 空数组 | 视同清空 | 不产生谓词（`options` 字段本身不得为 null——选项型条件提交时必须携带数组） |
+
+##### 生成产物对照
+
+以示例 E 为例，各层产物如下，可据此核对配置是否生效：
+
+ViewVo 注解（`select` 与 `multiple=false` 按默认省略，`dropdownlist` 保留原值）：
+
+```java
+@ViewTableMeta(value = "record_", listName = "记录", beanName = "record", queryConditions = {
+        @QueryCondition(key = "phase_group", remark = "项目进度",
+                tagName = HtmlElementTagTypeEnum.CHECKBOX, multiple = true,
+                options = {
+                        @QueryConditionOption(value = "all", remark = "全部", clear = true),
+                        @QueryConditionOption(value = "doing", remark = "进行中",
+                                terms = {@QueryConditionTerm(column = "phase_state",
+                                        operator = QueryConditionOperatorEnum.LT,
+                                        value = "7", valueType = QueryConditionValueTypeEnum.NUMBER)}),
+                        @QueryConditionOption(value = "done", remark = "已完成",
+                                terms = {@QueryConditionTerm(column = "phase_state",
+                                        operator = QueryConditionOperatorEnum.GE,
+                                        value = "7", valueType = QueryConditionValueTypeEnum.NUMBER),
+                                        @QueryConditionTerm(column = "audit_state",
+                                                operator = QueryConditionOperatorEnum.EQ,
+                                                value = "P", valueType = QueryConditionValueTypeEnum.STRING)})})})
+public class RecordViewVo extends RecordVo { … }
+```
+
+Controller `list`/`export`（options 存在时走分组入口）：
+
+```java
+ResolvedConditions resolved = QueryConditionResolver.resolveConditions(RecordViewVo.class, filterParam.getConditions(), "r");
+List<BoundCondition> conditions = resolved.conditions();
+example.getOredCriteria().forEach(criteria -> conditions.forEach(bound -> {
+    switch (bound.kind()) {
+        case VALUE -> criteria.andBoundCondition(bound.condition(), bound.value());
+        case LITERAL_LIKE -> criteria.andLiteralLike(bound.condition(), (String) bound.value(), bound.sqlServerValue());
+        case TOKEN_LIKE -> criteria.andTokenLike(bound.condition(), (String) bound.value(), bound.sqlServerValue());
+        default -> throw new IllegalStateException("不支持的查询条件类型: " + bound.kind());
+    }
+}));
+example.getOredCriteria().forEach(criteria -> resolved.groups().forEach(group -> criteria.andBoundConditionGroup(group.orGroups())));
+```
+
+纯参数模式视图则生成 `List<BoundCondition> conditions = QueryConditionResolver.resolve(…)`，无 `resolved.groups()` 一行；`list` 与 `export` 两处的接线结构一致。
+
+Example/Mapper 产物：选项视图的 `Criteria` 额外生成 `andBoundConditionGroup(List<List<BoundCondition>>)`；`Example_Where_Clause` 片段按 `groupValue` 分派嵌套 OR 渲染，全部值经 `#{}` 绑定。
 
 ##### 元素属性速查
 
@@ -808,6 +961,54 @@ DTD 允许 `viewVo` 含上述及相关子节点；当前 Parser 对 `queryColumn
 3. 运行期（`QueryConditionResolver.resolve`/`resolveConditions`）：提交的 `key` 必须已声明且不重复，条件实例数不得超过视图声明数；提交的参数名必须已声明；`required` 参数缺失报错；非多值参数收到数组报错；多值参数必须为数组、元素不超过 50 个、非空且非嵌套；标量值仅接受字符串/数值，文本不超过 200 字符并按 `fieldType` 严格转换。选项项额外校验：必须携带 `options`（不得同时携带 `params`）；`options` 元素必须是已声明的选项 `value` 且不重复、数量不超过声明数；`clear` 值与其他值混传报错；单选控件收到多个值报错；仅含 `clear` 值等价于清空、不产生谓词。参数模式下向选项型条件提交（或向旧 `resolve` 路径提交选项型条件）按配置/集成缺陷显式失败，不静默降级。任一校验失败抛出 `IllegalArgumentException`（集成缺陷为 `IllegalStateException`），请求整体失败，不静默降级。
 
 LIKE 谓词按执行语句所属 `Configuration` 的 `_databaseId` 选择方言：mysql/mariadb 用 `concat`，postgresql/h2/oracle/db2/dm 用 `||`，sqlserver/sqlserver2005 用 `+` 并绑定 `secondValue`；未支持方言在 SQL 构建阶段由 `vgosoft-mybatis` 的 `QueryDialectGuard` 显式报错，不静默降级。上述方言分支已通过渲染层测试断言；2026-11-15，mpmm 本机 `local-mysql` profile 已实测 Token/Text `ContainsAll`、日期查询及 `%`、`_`、`!` 字面语义。其余方言为“已渲染验证、未实库验证”，不代表实库支持已验证。
+
+##### 常见配置错误速查
+
+按「报错/现象 → 原因 → 修正」对照排障；解析期报错均以 `表 X 的 queryColumn[…]` 前缀抛出：
+
+| 现象 / 报错关键词 | 原因 | 修正 |
+|---|---|---|
+| 配置了 `<queryColumn queryType="condition">` 但生成物无 `@QueryCondition`、查询项不出现 | `key` 未列入 `viewVo` 的 `queryColumns`（静默忽略，不报错） | 把 `key` 加入 `queryColumns` 并重生成 |
+| `queryType=condition 时 key 必填` | 条件项未配 `key` | 补唯一 `key` 并写入 `queryColumns` |
+| `condition 项不配置 column` | condition 项误配了 `column` 属性 | 删除 `column`，列由 `conditionTerm.column` 声明 |
+| `至少需要一个 conditionTerm 或 conditionOption` | 条件项无子谓词 | 参数模式补 `conditionTerm`；选项模式补 `conditionOption` |
+| `conditionParam 的 name 为空或重复` | 参数名缺失或同名 | 保证条件内 `name` 唯一 |
+| `param 与 value 必须且只能配置一个` | term 两者都配或都没配 | 恰配一个：`param` 引用参数，`value` 常量 |
+| `conditionTerm 引用了未声明的参数` | `param` 指向不存在的 `conditionParam` | 补齐参数声明或修正引用名 |
+| `参数多值设置与操作符不匹配` | `In`/`ContainsAll` 引用了 `multiple="false"` 参数，或单值操作符引用了多值参数 | 多值操作符配 `multiple="true"`，其余配 `false` |
+| `常量值必须声明 valueType` | 常量 term 未配 `valueType` | 补 `string`/`number`/`boolean` |
+| `常量不是合法数值` / `常量不是合法布尔值` | `valueType` 与 `value` 不匹配 | 数值可解析为 BigDecimal；布尔仅 `true`/`false` |
+| `常量值不支持多值操作符` | `In`/`ContainsAll` 配了 `value` 常量 | 多值操作符只能引用多值参数 |
+| `引用参数时不得配置 valueType` | 参数引用 term 误配 `valueType` | 删除 `valueType`，类型在 `conditionParam.fieldType` 声明 |
+| `包含类操作符只允许文本参数` | `LikeAny`/`ContainsAll` 参数配了 `number`/`date`/`datetime`/`time` | 改用文本类型参数或换操作符 |
+| `conditionOption 与 conditionParam、直接 conditionTerm 互斥` | 选项与参数/顶层 term 混配 | 同一条件只选一种模式 |
+| `conditionOption 必须恰好配置一个 clear=true 选项` | 无 clear 或有多个 clear | 恰配一个 `clear="true"` 且不含 term 的选项 |
+| `clear=true 的 conditionOption 不得配置 conditionTerm` | 「全部」项下写了谓词 | 删除该选项内所有 term |
+| `普通 conditionOption 至少需要一个 conditionTerm` | 普通选项为空壳 | 每选项至少一个常量 term |
+| `conditionOption 的 conditionTerm 必须使用常量 value，不能使用 param` | 选项 term 引用了参数 | 选项谓词只能用常量；需要参数请改参数模式 |
+| `conditionOption 的 value 重复` / `value 必填且不能为空` | 选项标识重复或为空 | 保证 `value` 非空且条件内唯一 |
+| `普通 conditionOption 最多允许 20 个` | 超过上限 | 拆分条件或收敛选项设计 |
+| `选项型条件不支持的 tagType` | 配了 `date`/`input`/`checkboxGroup` 等非选项控件 | 限 `radio`/`checkbox`/`select`/`dropdownlist`/`switch` |
+| `tagType=radio/switch 不支持 multiple=true` | 单选控件配了多选 | 去掉 `multiple` 或改 `checkbox`/`select` |
+| `tagType=checkbox 不支持 multiple=false` | 显式声明了 `multiple="false"` | `checkbox` 恒为多选，删除该属性 |
+| `tagType=switch 必须恰好包含一个 clear 选项和一个普通选项` | switch 选项数 ≠ 2 | 恰为一个 `clear` + 一个普通选项 |
+| `conditionTerm 的 column 在表中未找到` / `配置了自定义 typeHandler`（生成期） | term 引用了不存在列或 typeHandler 列 | 修正列名；typeHandler 列暂不支持 |
+| 条件项在 `innerListView` 下不生效 | 组合条件只支持 `viewVo` 主视图 | 移出 `innerListView` 或改用其他方案 |
+| 已保存方案恢复时报「未知选项」 | 选项 `value` 改名/删除后旧方案仍引用 | 属预期显式失败，迁移或丢弃旧方案 |
+| 向参数型条件提交 `options`（或反之）报错 | 提交形态与声明模式不符 | 参数模式提交 `params`；选项模式提交 `options` |
+
+##### 配置核对清单
+
+生成前逐项确认：
+
+1. `key` 在视图内唯一、不与真实列同名，且已列入 `queryColumns` 的目标位置（顺序即查询项顺序）。
+2. 参数/选项模式二选一：不得混配 `conditionParam` 与 `conditionOption`，也不得在选项模式下写顶层 `conditionTerm`。
+3. 参数模式：每个 `conditionTerm` 的 `param` 引用的参数已声明且 `multiple` 与操作符匹配；可选参数 `required="false"`；`remark` 即 placeholder 文案。
+4. 选项模式：恰一个 `clear`（无 term），普通选项 ≥1 个常量 term 且 ≤20 个；`tagType`/`multiple` 组合合法（见示例 F 注记）。
+5. 常量 term 必配合法 `valueType` 且不得用于 `In`/`ContainsAll`；`containsMode` 仅 `ContainsAll` 可配。
+6. term 引用的列真实存在、无自定义 `typeHandler`；借用列 `conditionParam.column` 真实存在。
+7. 条件项只配在 `viewVo` 下（`innerListView` 静默忽略）。
+8. 生成后核对三处产物：ViewVo 含 `@QueryCondition`（选项模式含 `options`）；Controller `list`/`export` 含 `QueryConditionResolver.resolve`（纯参数）或 `resolveConditions`（含选项）；选项视图的 Example 含 `andBoundConditionGroup`、Mapper XML 含 `Example_Where_Clause_Criterion_Choose` 片段。能力合入前的旧产物须重生成补齐。
 
 #### 5.3.3 最小视图配置示例
 
