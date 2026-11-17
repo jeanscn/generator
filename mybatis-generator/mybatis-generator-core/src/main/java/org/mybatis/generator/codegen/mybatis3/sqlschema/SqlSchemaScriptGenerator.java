@@ -81,7 +81,9 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
             }
             String remarks = databaseDdlDialects.escapeSqlLiteral(col.getRemarks(false));
             JdbcTypeInformation jdbcTypeInformation = coreJavaTypeResolver.getJdbcTypeInformation(JDBCType.valueOf(col.getJdbcType()));
-            String actualTypeName = jsonColumn ? VStringUtil.toUpperCase(typeName)
+            boolean preserveMysqlLobType = SqlScriptUtil.isMysqlOrMariadbDatabase(databaseDdlDialects)
+                    && isMysqlBlobOrTextType(typeName);
+            String actualTypeName = jsonColumn || preserveMysqlLobType ? VStringUtil.toUpperCase(typeName)
                     : VStringUtil.toUpperCase(jdbcTypeInformation.getActualTypeName());
             String rowSql = VStringUtil.format(createStatement,
                     databaseDdlDialects.quoteIdentifier(col.getActualColumnName()),
@@ -182,6 +184,14 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
             ret.addAll(postStatements);
         }
         return String.join("\n", ret);
+    }
+
+    private static boolean isMysqlBlobOrTextType(String typeName) {
+        return switch (typeName) {
+            case "TINYBLOB", "BLOB", "MEDIUMBLOB", "LONGBLOB",
+                    "TINYTEXT", "TEXT", "MEDIUMTEXT", "LONGTEXT" -> true;
+            default -> false;
+        };
     }
 
 }
