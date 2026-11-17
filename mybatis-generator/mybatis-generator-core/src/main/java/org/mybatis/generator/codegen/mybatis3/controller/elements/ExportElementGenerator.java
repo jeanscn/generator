@@ -198,10 +198,21 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
                 parent.addImportedType(entityViewVoType);
                 parent.addImportedType("com.vgosoft.web.utils.QueryConditionResolver");
                 parent.addImportedType("com.vgosoft.web.utils.BoundCondition");
-                export.addBodyLine("List<BoundCondition> conditions = QueryConditionResolver.resolve("
-                        + entityViewVoType.getShortName() + ".class, filterParam.getConditions(), \""
-                        + escapeStringForJava(introspectedTable.getTableConfiguration().getAlias() == null
-                        ? "" : introspectedTable.getTableConfiguration().getAlias()) + "\");");
+                boolean optionConditions = introspectedTable.getTableConfiguration().hasOptionQueryConditions();
+                if (optionConditions) {
+                    // 选项型条件走分组解析：平铺谓词与 OR 组谓词均以 AND 并入各 Criteria
+                    parent.addImportedType("com.vgosoft.web.utils.ResolvedConditions");
+                    export.addBodyLine("ResolvedConditions resolved = QueryConditionResolver.resolveConditions("
+                            + entityViewVoType.getShortName() + ".class, filterParam.getConditions(), \""
+                            + escapeStringForJava(introspectedTable.getTableConfiguration().getAlias() == null
+                            ? "" : introspectedTable.getTableConfiguration().getAlias()) + "\");");
+                    export.addBodyLine("List<BoundCondition> conditions = resolved.conditions();");
+                } else {
+                    export.addBodyLine("List<BoundCondition> conditions = QueryConditionResolver.resolve("
+                            + entityViewVoType.getShortName() + ".class, filterParam.getConditions(), \""
+                            + escapeStringForJava(introspectedTable.getTableConfiguration().getAlias() == null
+                            ? "" : introspectedTable.getTableConfiguration().getAlias()) + "\");");
+                }
                 export.addBodyLine("example.getOredCriteria().forEach(criteria -> conditions.forEach(bound -> {");
                 export.addBodyLine("switch (bound.kind()) {");
                 export.addBodyLine("case VALUE -> criteria.andBoundCondition(bound.condition(), bound.value());");
@@ -210,6 +221,9 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
                 export.addBodyLine("default -> throw new IllegalStateException(\"不支持的查询条件类型: \" + bound.kind());");
                 export.addBodyLine("}");
                 export.addBodyLine("}));");
+                if (optionConditions) {
+                    export.addBodyLine("example.getOredCriteria().forEach(criteria -> resolved.groups().forEach(group -> criteria.andBoundConditionGroup(group.orGroups())));");
+                }
             }
             export.addBodyLine("}");
         }

@@ -6,6 +6,8 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.IntrospectedTableMyBatis3Impl;
+import org.mybatis.generator.config.ConditionOptionConfiguration;
+import org.mybatis.generator.config.ConditionTermConfiguration;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.JavaModelGeneratorConfiguration;
 import org.mybatis.generator.config.ModelType;
@@ -79,6 +81,34 @@ class QueryConditionControllerElementsTest {
     }
 
     @Test
+    void listShouldDispatchOptionConditionsViaResolveConditions() {
+        ListFixture fixture = listFixture(true, true);
+        fixture.generator.addElements(fixture.output);
+        String body = String.join("\n", method(fixture.output, "listPostRecord").getBodyLines());
+        assertThat(body).contains(
+                "ResolvedConditions resolved = QueryConditionResolver.resolveConditions(RecordViewVo.class, filterParam.getConditions(), \"r\")",
+                "List<BoundCondition> conditions = resolved.conditions();",
+                "example.getOredCriteria().forEach(criteria -> conditions.forEach(bound -> {",
+                "example.getOredCriteria().forEach(criteria -> resolved.groups().forEach(group -> criteria.andBoundConditionGroup(group.orGroups())));");
+        assertThat(body).doesNotContain("List<BoundCondition> conditions = QueryConditionResolver.resolve(");
+        assertThat(fixture.output.getImportedTypes())
+                .anySatisfy(i -> assertThat(i.getFullyQualifiedName()).isEqualTo("com.vgosoft.web.utils.ResolvedConditions"))
+                .anySatisfy(i -> assertThat(i.getFullyQualifiedName()).isEqualTo("com.vgosoft.web.utils.QueryConditionResolver"));
+    }
+
+    @Test
+    void exportShouldDispatchOptionConditionsViaResolveConditions() {
+        ExportFixture fixture = exportFixture(true, true);
+        fixture.generator.addElements(fixture.output);
+        String body = String.join("\n", method(fixture.output, "exportPostRecord").getBodyLines());
+        assertThat(body).contains(
+                "ResolvedConditions resolved = QueryConditionResolver.resolveConditions(RecordViewVo.class, filterParam.getConditions(), \"r\")",
+                "List<BoundCondition> conditions = resolved.conditions();",
+                "example.getOredCriteria().forEach(criteria -> resolved.groups().forEach(group -> criteria.andBoundConditionGroup(group.orGroups())));");
+        assertThat(body).doesNotContain("List<BoundCondition> conditions = QueryConditionResolver.resolve(");
+    }
+
+    @Test
     void exportShouldNotEmitConditionsWhenViewVoDisabled() {
         ExportFixture fixture = exportFixture(false);
         fixture.generator.addElements(fixture.output);
@@ -92,8 +122,12 @@ class QueryConditionControllerElementsTest {
     }
 
     private static ListFixture listFixture(boolean viewVo) {
+        return listFixture(viewVo, false);
+    }
+
+    private static ListFixture listFixture(boolean viewVo, boolean options) {
         Context context = new Context(ModelType.CONDITIONAL);
-        TableConfiguration configuration = tableConfiguration(context, viewVo);
+        TableConfiguration configuration = tableConfiguration(context, viewVo, options);
         IntrospectedTableMyBatis3Impl table = new IntrospectedTableMyBatis3Impl();
         table.setContext(context);
         table.setTableConfiguration(configuration);
@@ -125,8 +159,12 @@ class QueryConditionControllerElementsTest {
     }
 
     private static ExportFixture exportFixture(boolean viewVo) {
+        return exportFixture(viewVo, false);
+    }
+
+    private static ExportFixture exportFixture(boolean viewVo, boolean options) {
         Context context = new Context(ModelType.CONDITIONAL);
-        TableConfiguration configuration = tableConfiguration(context, viewVo);
+        TableConfiguration configuration = tableConfiguration(context, viewVo, options);
         IntrospectedTableMyBatis3Impl table = new IntrospectedTableMyBatis3Impl();
         table.setContext(context);
         table.setTableConfiguration(configuration);
@@ -162,6 +200,10 @@ class QueryConditionControllerElementsTest {
     }
 
     private static TableConfiguration tableConfiguration(Context context, boolean viewVo) {
+        return tableConfiguration(context, viewVo, false);
+    }
+
+    private static TableConfiguration tableConfiguration(Context context, boolean viewVo, boolean options) {
         try {
             var plugins = Context.class.getDeclaredField("pluginAggregator");
             plugins.setAccessible(true);
@@ -187,6 +229,15 @@ class QueryConditionControllerElementsTest {
             QueryColumnConfiguration condition = new QueryColumnConfiguration(configuration);
             condition.setQueryType("condition");
             condition.setKey("score_pass");
+            if (options) {
+                ConditionOptionConfiguration clear = new ConditionOptionConfiguration();
+                clear.setValue("all");
+                clear.setClear(true);
+                ConditionOptionConfiguration done = new ConditionOptionConfiguration();
+                done.setValue("done");
+                condition.getConditionOptionConfigurations().add(clear);
+                condition.getConditionOptionConfigurations().add(done);
+            }
             view.addQueryColumnConfigurations(condition);
             voGenerator.setVoViewConfiguration(view);
         }

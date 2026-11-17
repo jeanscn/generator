@@ -255,6 +255,19 @@ public class ExampleGenerator extends AbstractJavaGenerator {
             answer.addMethod(getGetter(field));
         }
 
+        if (introspectedTable.getTableConfiguration().hasOptionQueryConditions()) {
+            // 分组谓词容器：外层为 OR 析取的选项组，内层为 AND 合取的原子条件
+            field = new Field("orGroups", new FullyQualifiedJavaType("java.util.List<java.util.List<Criterion>>"));
+            field.setVisibility(JavaVisibility.PRIVATE);
+            answer.addField(field);
+            answer.addMethod(getGetter(field));
+
+            field = new Field("groupValue", FullyQualifiedJavaType.getBooleanPrimitiveInstance());
+            field.setVisibility(JavaVisibility.PRIVATE);
+            answer.addField(field);
+            answer.addMethod(getGetter(field));
+        }
+
         field = new Field("typeHandler", FullyQualifiedJavaType.getStringInstance());
         field.setVisibility(JavaVisibility.PRIVATE);
         answer.addField(field);
@@ -306,6 +319,20 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         method.addParameter(new Parameter(FullyQualifiedJavaType.getObjectInstance(), "secondValue"));
         method.addBodyLine("this(condition, value, secondValue, null);");
         answer.addMethod(method);
+
+        if (introspectedTable.getTableConfiguration().hasOptionQueryConditions()) {
+            // 分组谓词专用构造器：持有 (内层 AND) OR (内层 AND) 结构，由 XML 嵌套渲染为单个谓词
+            method = new Method("Criterion");
+            method.setVisibility(JavaVisibility.PROTECTED);
+            method.setConstructor(true);
+            method.addParameter(new Parameter(
+                    new FullyQualifiedJavaType("java.util.List<java.util.List<Criterion>>"), "orGroups"));
+            method.addBodyLine("super();");
+            method.addBodyLine("this.orGroups = orGroups;");
+            method.addBodyLine("this.typeHandler = null;");
+            method.addBodyLine("this.groupValue = true;");
+            answer.addMethod(method);
+        }
 
         if (introspectedTable.getTableConfiguration().hasQueryConditions()) {
             // LIKE 字面量条件专用构造器：只设置 LIKE 标志，value 存标准转义模式，secondValue 存 SQL Server 转义模式
@@ -681,6 +708,10 @@ public class ExampleGenerator extends AbstractJavaGenerator {
             answer.addMethod(getLiteralLikeMethod());
             answer.addMethod(getTokenLikeMethod());
         }
+        if (introspectedTable.getTableConfiguration().hasOptionQueryConditions()) {
+            topLevelClass.addImportedType("com.vgosoft.web.utils.BoundCondition");
+            answer.addMethod(getBoundConditionGroupMethod());
+        }
         return answer;
     }
 
@@ -994,6 +1025,46 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "value"));
         method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "secondValue"));
         method.addBodyLine("addLikeCriterion(condition, value, secondValue, false);");
+        method.addBodyLine("return (Criteria) this;");
+        return method;
+    }
+
+    /**
+     * 选项型组合条件分组装配入口：外层列表为 OR 析取的选项组，内层各原子条件沿用
+     * {@code andBoundCondition/andLiteralLike/andTokenLike} 相同的 Criterion 构造路径，
+     * 整体作为单个分组谓词并入 criteria 列表。
+     */
+    private Method getBoundConditionGroupMethod() {
+        Method method = new Method("andBoundConditionGroup");
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.setReturnType(FullyQualifiedJavaType.getCriteriaInstance());
+        method.addParameter(new Parameter(
+                new FullyQualifiedJavaType("java.util.List<java.util.List<com.vgosoft.web.utils.BoundCondition>>"),
+                "orGroups"));
+        method.addBodyLine("if (orGroups == null || orGroups.isEmpty()) {");
+        method.addBodyLine("return (Criteria) this;");
+        method.addBodyLine("}");
+        method.addBodyLine("List<List<Criterion>> groups = new ArrayList<>();");
+        method.addBodyLine("for (List<BoundCondition> andGroup : orGroups) {");
+        method.addBodyLine("List<Criterion> atoms = new ArrayList<>();");
+        method.addBodyLine("for (BoundCondition bound : andGroup) {");
+        method.addBodyLine("if (bound.value() == null) {");
+        method.addBodyLine("throw new RuntimeException(\"Value for boundCondition cannot be null\");");
+        method.addBodyLine("}");
+        method.addBodyLine("switch (bound.kind()) {");
+        method.addBodyLine("case VALUE -> atoms.add(new Criterion(bound.condition(), bound.value()));");
+        method.addBodyLine("case LITERAL_LIKE -> atoms.add(new Criterion(bound.condition(), bound.value(), bound.sqlServerValue(), false));");
+        method.addBodyLine("case TOKEN_LIKE -> atoms.add(new Criterion(bound.condition(), bound.value(), bound.sqlServerValue(), true));");
+        method.addBodyLine("default -> throw new IllegalStateException(\"不支持的查询条件类型: \" + bound.kind());");
+        method.addBodyLine("}");
+        method.addBodyLine("}");
+        method.addBodyLine("if (!atoms.isEmpty()) {");
+        method.addBodyLine("groups.add(atoms);");
+        method.addBodyLine("}");
+        method.addBodyLine("}");
+        method.addBodyLine("if (!groups.isEmpty()) {");
+        method.addBodyLine("criteria.add(new Criterion(groups));");
+        method.addBodyLine("}");
         method.addBodyLine("return (Criteria) this;");
         return method;
     }

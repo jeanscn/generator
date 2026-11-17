@@ -731,6 +731,22 @@ public class TableConfiguration extends PropertyHolder {
                         && viewConfiguration.getQueryColumns().contains(configuration.getKey()));
     }
 
+    /**
+     * 视图的查询项中是否包含已启用的选项型组合条件；成立时生成产物需要分组 Criterion 与嵌套 OR 渲染。
+     */
+    public boolean hasOptionQueryConditions() {
+        VoViewGeneratorConfiguration viewConfiguration = Optional.ofNullable(this.getVoGeneratorConfiguration())
+                .map(VoGeneratorConfiguration::getVoViewConfiguration)
+                .orElse(null);
+        if (viewConfiguration == null) {
+            return false;
+        }
+        return getViewQueryColumnConfigurations().stream()
+                .anyMatch(configuration -> configuration.isCondition()
+                        && !configuration.getConditionOptionConfigurations().isEmpty()
+                        && viewConfiguration.getQueryColumns().contains(configuration.getKey()));
+    }
+
     void updateQueryColumnConfiguration(AbstractIntrospectedTable abstractIntrospectedTable) {
 
         // 普通查询项按列解析；组合条件以 key 标识，不依赖 queryColumn.column

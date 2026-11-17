@@ -10,6 +10,7 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.api.dom.xml.render.ElementRenderer;
 import org.mybatis.generator.codegen.mybatis3.IntrospectedTableMyBatis3Impl;
 import org.mybatis.generator.internal.PluginAggregator;
+import org.mybatis.generator.config.ConditionOptionConfiguration;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.JavaModelGeneratorConfiguration;
 import org.mybatis.generator.config.ModelType;
@@ -139,13 +140,94 @@ class ExampleWhereClauseDialectTest {
         assertThat(format(parent)).doesNotContain("criterion.literalLikeValue", "criterion.tokenLikeValue");
     }
 
-    private String whereClauseXml() {
+    @Test
+    void shouldRenderOptionGroupAsNestedOrWithInnerAnd() {
+        // 组间 OR、组内 AND：全部原子条件经绑定参数输出，不拼接用户值
+        BoundSql boundSql = renderOption("mysql", List.of(Map.of(
+                "groupValue", true,
+                "orGroups", List.of(
+                        List.of(Map.of("singleValue", true, "condition", "t.phase_state >", "value", 7),
+                                Map.of("singleValue", true, "condition", "t.score_a =", "value", 90)),
+                        List.of(Map.of("singleValue", true, "condition", "t.score_b <", "value", 60))))));
+        String sql = normalize(boundSql.getSql()).replaceAll("\\s+", "");
+        assertThat(sql).contains("(t.phase_state>?andt.score_a=?)or(t.score_b<?)");
+        assertThat(boundSql.getParameterMappings()).hasSize(3);
+    }
+
+    @Test
+    void shouldAndScalarCriterionWithOptionGroup() {
+        // 平铺谓词与分组谓词共存于同一 Criteria，彼此以 AND 叠加
+        BoundSql boundSql = renderOption("mysql", List.of(
+                Map.of("singleValue", true, "condition", "t.del_flag =", "value", 0),
+                Map.of("groupValue", true,
+                        "orGroups", List.of(List.of(
+                                Map.of("singleValue", true, "condition", "t.phase_state >", "value", 7))))));
+        String sql = normalize(boundSql.getSql()).replaceAll("\\s+", "");
+        assertThat(sql.indexOf("t.del_flag=?")).isLessThan(sql.indexOf("t.phase_state>?"));
+        assertThat(sql).contains("t.del_flag=?and((t.phase_state>?))");
+    }
+
+    @Test
+    void shouldRenderLikeAtomsInsideOptionGroupPerDialect() {
+        // 组内 LIKE 原子复用共享片段的方言分支与守卫
+        java.util.function.Supplier<List<Map<String, Object>>> groupWithLike = () -> List.of(Map.of(
+                "groupValue", true,
+                "orGroups", List.of(List.of(Map.of(
+                        "literalLikeValue", true,
+                        "condition", "t.name_",
+                        "value", "%x_y%",
+                        "secondValue", "%x_![y%")))));
+        BoundSql mysql = renderOption("mysql", groupWithLike.get());
+        assertThat(normalize(mysql.getSql()).replaceAll("\\s+", ""))
+                .contains("((t.name_like?escape'!'))");
+        BoundSql sqlserver = renderOption("sqlserver", groupWithLike.get());
+        assertThat(normalize(sqlserver.getSql()).replaceAll("\\s+", ""))
+                .contains("((t.name_like?escape'!'))");
+        assertThatThrownBy(() -> renderOption("sqlite", groupWithLike.get()))
+                .satisfies(e -> assertThat(causeMessages(e)).contains("LITERAL_LIKE"));
+    }
+
+    @Test
+    void shouldEmitSharedChooseFragmentAndGroupIncludesOnce() {
+        String fragment = whereClauseXml(true);
+        assertThat(fragment)
+                .containsOnlyOnce("<sql id=\"Example_Where_Clause_Criterion_Choose\">")
+                .contains("criterion.groupValue", "criterion.orGroups", "separator=\"or \"");
+        // 顶层 otherwise 与嵌套组各引用一次共享片段
+        assertThat(fragment.split("refid=\"Example_Where_Clause_Criterion_Choose\"").length - 1)
+                .isGreaterThanOrEqualTo(2);
+    }
+
+    @Test
+    void shouldEmitGroupBranchForUpdateByExampleWithoutDuplicateFragment() {
+        // UpdateByExample 变体复用同一共享片段，片段定义只在标准 where 子句登记一次
+        ExampleWhereClauseElementGenerator generator = new ExampleWhereClauseElementGenerator(true);
+        generator.setContext(context());
+        generator.setIntrospectedTable(optionTable());
+        XmlElement parent = new XmlElement("mapper");
+        generator.addElements(parent);
+        String content = format(parent);
+        assertThat(content).contains("criterion.groupValue", "criterion.orGroups",
+                "refid=\"Example_Where_Clause_Criterion_Choose\"");
+        assertThat(content).doesNotContain("<sql id=\"Example_Where_Clause_Criterion_Choose\"");
+    }
+
+    @Test
+    void shouldNotEmitGroupStructureForParamOnlyConditions() {
+        assertThat(whereClauseXml()).doesNotContain("groupValue", "orGroups", "Criterion_Choose");
+    }
+
+    private String whereClauseXml(boolean optionConditions) {
         ExampleWhereClauseElementGenerator generator = new ExampleWhereClauseElementGenerator(false);
         generator.setContext(context());
-        generator.setIntrospectedTable(table());
+        generator.setIntrospectedTable(tableWithOptions(optionConditions));
         XmlElement parent = new XmlElement("mapper");
         generator.addElements(parent);
         return format(parent);
+    }
+
+    private String whereClauseXml() {
+        return whereClauseXml(false);
     }
 
     private String format(XmlElement parent) {
@@ -170,6 +252,14 @@ class ExampleWhereClauseDialectTest {
     }
 
     private IntrospectedTableMyBatis3Impl table() {
+        return tableWithOptions(false);
+    }
+
+    private IntrospectedTableMyBatis3Impl optionTable() {
+        return tableWithOptions(true);
+    }
+
+    private IntrospectedTableMyBatis3Impl tableWithOptions(boolean options) {
         Context context = new Context(ModelType.CONDITIONAL);
         JavaModelGeneratorConfiguration model = new JavaModelGeneratorConfiguration(context);
         model.setTargetPackage("sample.pojo");
@@ -183,6 +273,15 @@ class ExampleWhereClauseDialectTest {
         QueryColumnConfiguration condition = new QueryColumnConfiguration(tc);
         condition.setQueryType("condition");
         condition.setKey("tags_condition");
+        if (options) {
+            ConditionOptionConfiguration clear = new ConditionOptionConfiguration();
+            clear.setValue("all");
+            clear.setClear(true);
+            ConditionOptionConfiguration done = new ConditionOptionConfiguration();
+            done.setValue("done");
+            condition.getConditionOptionConfigurations().add(clear);
+            condition.getConditionOptionConfigurations().add(done);
+        }
         view.addQueryColumnConfigurations(condition);
         vo.setVoViewConfiguration(view);
         tc.setVoGeneratorConfiguration(vo);
@@ -207,6 +306,18 @@ class ExampleWhereClauseDialectTest {
     }
 
     private BoundSql render(String databaseId, Map<String, Object> criterion) {
+        return render(databaseId, criterion, false);
+    }
+
+    private BoundSql render(String databaseId, Map<String, Object> criterion, boolean optionConditions) {
+        return render(databaseId, List.of(criterion), whereClauseXml(optionConditions));
+    }
+
+    private BoundSql renderOption(String databaseId, List<Map<String, Object>> criteria) {
+        return render(databaseId, criteria, whereClauseXml(true));
+    }
+
+    private BoundSql render(String databaseId, List<Map<String, Object>> criteria, String xml) {
         Configuration configuration = new Configuration();
         if (databaseId != null) {
             configuration.setDatabaseId(databaseId);
@@ -220,14 +331,14 @@ class ExampleWhereClauseDialectTest {
                 <include refid="Example_Where_Clause"/>
                 </select>
                 </mapper>
-                """.formatted(whereClauseXml());
+                """.formatted(xml);
         XMLMapperBuilder builder = new XMLMapperBuilder(
                 new ByteArrayInputStream(mapper.getBytes(StandardCharsets.UTF_8)),
                 configuration, "query-condition-dialect-test.xml", configuration.getSqlFragments());
         builder.parse();
         MappedStatement statement = configuration.getMappedStatement("t.T.s");
         Map<String, Object> parameter = Map.of("oredCriteria",
-                List.of(Map.of("valid", true, "criteria", List.of(criterion))));
+                List.of(Map.of("valid", true, "criteria", criteria)));
         return statement.getBoundSql(parameter);
     }
 

@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.config.ConditionOptionConfiguration;
 import org.mybatis.generator.config.ConditionParamConfiguration;
 import org.mybatis.generator.config.ConditionTermConfiguration;
 import org.mybatis.generator.config.QueryColumnConfiguration;
@@ -34,12 +35,21 @@ public class QueryConditionDesc extends AbstractAnnotation {
 
     public static final String ANNOTATION_NAME = "@QueryCondition";
 
+    /**
+     * {@code @QueryConditionOption} 的全类名；不直接引用 Class 以免依赖尚未供应新注解成员的
+     * vgosoft-core-annotation 工件版本。
+     */
+    private static final String CONDITION_OPTION_ANNOTATION = "com.vgosoft.core.annotation.QueryConditionOption";
+
     private String key;
     private String remark;
     private String listKey;
     private int order;
     private List<ConditionParamConfiguration> params = List.of();
     private List<ConditionTermConfiguration> terms = List.of();
+    private List<ConditionOptionConfiguration> options = List.of();
+    private HtmlElementTagTypeEnum tagName;
+    private boolean multiple;
 
     /**
      * 由配置构建组合条件注解描述；结构约束已在 Parser 校验，此处校验依赖表元数据的约束。
@@ -56,12 +66,11 @@ public class QueryConditionDesc extends AbstractAnnotation {
             throw new IllegalStateException("表 " + tableName + " 的 queryColumn[" + key + "]：组合条件 key 不得与真实列名冲突");
         }
         for (ConditionTermConfiguration term : configuration.getConditionTermConfigurations()) {
-            IntrospectedColumn column = introspectedTable.getColumn(term.getColumn())
-                    .orElseThrow(() -> new IllegalStateException("表 " + tableName + " 的 queryColumn[" + key
-                            + "]：conditionTerm 的 column 在表中未找到: " + term.getColumn()));
-            if (org.mybatis.generator.internal.util.StringUtility.stringHasValue(column.getTypeHandler())) {
-                throw new IllegalStateException("表 " + tableName + " 的 queryColumn[" + key
-                        + "]：conditionTerm 的列配置了自定义 typeHandler，第一期不支持组合条件: " + term.getColumn());
+            assertTermColumn(introspectedTable, tableName, key, term.getColumn());
+        }
+        for (ConditionOptionConfiguration option : configuration.getConditionOptionConfigurations()) {
+            for (ConditionTermConfiguration term : option.getConditionTermConfigurations()) {
+                assertTermColumn(introspectedTable, tableName, key, term.getColumn());
             }
         }
         for (ConditionParamConfiguration param : configuration.getConditionParamConfigurations()) {
@@ -76,8 +85,28 @@ public class QueryConditionDesc extends AbstractAnnotation {
         desc.order = configuration.getOrder();
         desc.params = configuration.getConditionParamConfigurations();
         desc.terms = configuration.getConditionTermConfigurations();
+        desc.options = configuration.getConditionOptionConfigurations();
+        // tagName 与 multiple 仅选项型条件输出；Parser 已完成控件归一化（UNKNOWN→select、checkbox→multiple）
+        if (!desc.options.isEmpty()) {
+            desc.tagName = configuration.getTagName();
+            desc.multiple = configuration.isMultiple();
+        }
         desc.addImports(QueryCondition.class.getCanonicalName());
         return desc;
+    }
+
+    /**
+     * 校验 term 引用的物理列存在且未配置自定义 typeHandler。
+     */
+    private static void assertTermColumn(AbstractIntrospectedTable introspectedTable, String tableName,
+                                         String key, String columnName) {
+        IntrospectedColumn column = introspectedTable.getColumn(columnName)
+                .orElseThrow(() -> new IllegalStateException("表 " + tableName + " 的 queryColumn[" + key
+                        + "]：conditionTerm 的 column 在表中未找到: " + columnName));
+        if (org.mybatis.generator.internal.util.StringUtility.stringHasValue(column.getTypeHandler())) {
+            throw new IllegalStateException("表 " + tableName + " 的 queryColumn[" + key
+                    + "]：conditionTerm 的列配置了自定义 typeHandler，第一期不支持组合条件: " + columnName);
+        }
     }
 
     @Override
@@ -97,10 +126,44 @@ public class QueryConditionDesc extends AbstractAnnotation {
             this.items.add("params = {\n                " + params + "\n        }");
             this.addImports(QueryConditionParam.class.getCanonicalName());
         }
-        String terms = this.terms.stream().map(this::termToAnnotation).collect(Collectors.joining(",\n                "));
-        this.items.add("terms = {\n                " + terms + "\n        }");
-        this.addImports(QueryConditionTerm.class.getCanonicalName());
+        if (!this.options.isEmpty()) {
+            if (this.tagName != null && this.tagName != HtmlElementTagTypeEnum.UNKNOWN
+                    && this.tagName != HtmlElementTagTypeEnum.SELECT) {
+                this.items.add(VStringUtil.format("tagName = HtmlElementTagTypeEnum.{0}", this.tagName.name()));
+                this.addImports(HtmlElementTagTypeEnum.class.getCanonicalName());
+            }
+            if (this.multiple) {
+                this.items.add("multiple = true");
+            }
+            String options = this.options.stream().map(this::optionToAnnotation)
+                    .collect(Collectors.joining(",\n                "));
+            this.items.add("options = {\n                " + options + "\n        }");
+            this.addImports(CONDITION_OPTION_ANNOTATION);
+        }
+        if (!this.terms.isEmpty()) {
+            String terms = this.terms.stream().map(this::termToAnnotation).collect(Collectors.joining(",\n                "));
+            this.items.add("terms = {\n                " + terms + "\n        }");
+            this.addImports(QueryConditionTerm.class.getCanonicalName());
+        }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
+    }
+
+    private String optionToAnnotation(ConditionOptionConfiguration option) {
+        java.util.List<String> members = new java.util.ArrayList<>();
+        members.add(VStringUtil.format("value = \"{0}\"", option.getValue()));
+        if (stringHasValue(option.getRemark())) {
+            members.add(VStringUtil.format("remark = \"{0}\"", option.getRemark()));
+        }
+        if (option.isClear()) {
+            members.add("clear = true");
+        }
+        if (!option.getConditionTermConfigurations().isEmpty()) {
+            String terms = option.getConditionTermConfigurations().stream().map(this::termToAnnotation)
+                    .collect(Collectors.joining(",\n                        "));
+            members.add("terms = {\n                        " + terms + "\n                }");
+            this.addImports(QueryConditionTerm.class.getCanonicalName());
+        }
+        return "@QueryConditionOption(" + String.join(", ", members) + ")";
     }
 
     private String paramToAnnotation(ConditionParamConfiguration param) {

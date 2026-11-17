@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.codegen.mybatis3.IntrospectedTableMyBatis3Impl;
+import org.mybatis.generator.config.ConditionOptionConfiguration;
 import org.mybatis.generator.config.ConditionParamConfiguration;
 import org.mybatis.generator.config.ConditionTermConfiguration;
 import org.mybatis.generator.config.Context;
@@ -80,6 +81,85 @@ class QueryConditionDescTest {
                 .hasMessageContaining("未找到");
     }
 
+    @Test
+    void shouldRenderOptionConditionAnnotation() {
+        QueryColumnConfiguration configuration = optionConfig();
+        QueryConditionDesc desc = QueryConditionDesc.create(configuration, table());
+        String annotation = desc.toAnnotation();
+        assertThat(annotation).contains("@QueryCondition(", "key = \"state_filter\"", "remark = \"状态\"");
+        assertThat(annotation).contains("tagName = HtmlElementTagTypeEnum.CHECKBOX", "multiple = true");
+        assertThat(annotation).contains("options = {")
+                .contains("@QueryConditionOption(value = \"all\", remark = \"全部\", clear = true)")
+                .contains("@QueryConditionOption(value = \"done\", remark = \"已完成\"");
+        assertThat(annotation).contains("@QueryConditionTerm(column = \"phase_state\", operator = QueryConditionOperatorEnum.GT, value = \"7\", valueType = QueryConditionValueTypeEnum.NUMBER)");
+        assertThat(annotation).doesNotContain("params =", "terms = {\n                @QueryConditionTerm");
+        assertThat(desc.getImportedTypes().stream().map(Object::toString).toList())
+                .anySatisfy(i -> assertThat(i).isEqualTo("com.vgosoft.core.annotation.QueryConditionOption"));
+    }
+
+    @Test
+    void shouldOmitSelectTagNameAndEmitMultipleOnlyWhenDeclared() {
+        QueryColumnConfiguration configuration = optionConfig();
+        configuration.setTagName(HtmlElementTagTypeEnum.SELECT);
+        configuration.setMultiple(true);
+        String annotation = QueryConditionDesc.create(configuration, table()).toAnnotation();
+        assertThat(annotation).doesNotContain("tagName");
+        assertThat(annotation).contains("multiple = true");
+
+        QueryColumnConfiguration dropdown = optionConfig();
+        dropdown.setTagName(HtmlElementTagTypeEnum.DROPDOWN_LIST);
+        dropdown.setMultiple(false);
+        String dropdownAnnotation = QueryConditionDesc.create(dropdown, table()).toAnnotation();
+        assertThat(dropdownAnnotation).contains("tagName = HtmlElementTagTypeEnum.DROPDOWN_LIST");
+        assertThat(dropdownAnnotation).doesNotContain("multiple");
+    }
+
+    @Test
+    void shouldRejectOptionTermColumnMissingOrTypeHandled() {
+        QueryColumnConfiguration configuration = optionConfig();
+        configuration.getConditionOptionConfigurations().get(1).getConditionTermConfigurations().get(0)
+                .setColumn("ghost_");
+        assertThatThrownBy(() -> QueryConditionDesc.create(configuration, table()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("未找到");
+
+        QueryColumnConfiguration handled = optionConfig();
+        IntrospectedTableMyBatis3Impl table = table();
+        table.getColumn("phase_state").orElseThrow().setTypeHandler("com.example.MyHandler");
+        assertThatThrownBy(() -> QueryConditionDesc.create(handled, table))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("typeHandler");
+    }
+
+    private QueryColumnConfiguration optionConfig() {
+        Context context = new Context(ModelType.CONDITIONAL);
+        TableConfiguration tc = new TableConfiguration(context, new ArrayList<>());
+        tc.setTableName("record_");
+        QueryColumnConfiguration configuration = new QueryColumnConfiguration(tc);
+        configuration.setQueryType("condition");
+        configuration.setKey("state_filter");
+        configuration.setRemark("状态");
+        configuration.setTagName(HtmlElementTagTypeEnum.CHECKBOX);
+        configuration.setMultiple(true);
+
+        ConditionOptionConfiguration clear = new ConditionOptionConfiguration();
+        clear.setValue("all");
+        clear.setRemark("全部");
+        clear.setClear(true);
+        ConditionOptionConfiguration done = new ConditionOptionConfiguration();
+        done.setValue("done");
+        done.setRemark("已完成");
+        ConditionTermConfiguration gt = new ConditionTermConfiguration();
+        gt.setColumn("phase_state");
+        gt.setOperator(QueryConditionOperatorEnum.GT);
+        gt.setValue("7");
+        gt.setValueType(QueryConditionValueTypeEnum.NUMBER);
+        done.getConditionTermConfigurations().add(gt);
+        configuration.getConditionOptionConfigurations().add(clear);
+        configuration.getConditionOptionConfigurations().add(done);
+        return configuration;
+    }
+
     private QueryColumnConfiguration conditionConfig() {
         Context context = new Context(ModelType.CONDITIONAL);
         TableConfiguration tc = new TableConfiguration(context, new ArrayList<>());
@@ -132,6 +212,7 @@ class QueryConditionDescTest {
         table.getBaseColumns().add(column(context, "score_a", "scoreA"));
         table.getBaseColumns().add(column(context, "score_b", "scoreB"));
         table.getBaseColumns().add(column(context, "tags_", "tags"));
+        table.getBaseColumns().add(column(context, "phase_state", "phaseState"));
         return table;
     }
 

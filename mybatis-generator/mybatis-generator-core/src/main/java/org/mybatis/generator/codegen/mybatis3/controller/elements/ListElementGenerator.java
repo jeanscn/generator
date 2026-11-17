@@ -95,8 +95,16 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
             parentElement.addImportedType(entityViewVoType);
             parentElement.addImportedType("com.vgosoft.web.utils.QueryConditionResolver");
             parentElement.addImportedType("com.vgosoft.web.utils.BoundCondition");
-            postMethod.addBodyLine("List<BoundCondition> conditions = QueryConditionResolver.resolve({0}.class, filterParam.getConditions(), \"{1}\");",
-                    entityViewVoType.getShortName(), escapeStringForJava(alias == null ? "" : alias));
+            boolean optionConditions = introspectedTable.getTableConfiguration().hasOptionQueryConditions();
+            if (optionConditions) {
+                parentElement.addImportedType("com.vgosoft.web.utils.ResolvedConditions");
+                postMethod.addBodyLine("ResolvedConditions resolved = QueryConditionResolver.resolveConditions({0}.class, filterParam.getConditions(), \"{1}\");",
+                        entityViewVoType.getShortName(), escapeStringForJava(alias == null ? "" : alias));
+                postMethod.addBodyLine("List<BoundCondition> conditions = resolved.conditions();");
+            } else {
+                postMethod.addBodyLine("List<BoundCondition> conditions = QueryConditionResolver.resolve({0}.class, filterParam.getConditions(), \"{1}\");",
+                        entityViewVoType.getShortName(), escapeStringForJava(alias == null ? "" : alias));
+            }
             postMethod.addBodyLine("example.getOredCriteria().forEach(criteria -> conditions.forEach(bound -> {");
             postMethod.addBodyLine("switch (bound.kind()) {");
             postMethod.addBodyLine("case VALUE -> criteria.andBoundCondition(bound.condition(), bound.value());");
@@ -105,6 +113,9 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
             postMethod.addBodyLine("default -> throw new IllegalStateException(\"不支持的查询条件类型: \" + bound.kind());");
             postMethod.addBodyLine("}");
             postMethod.addBodyLine("}));");
+            if (optionConditions) {
+                postMethod.addBodyLine("example.getOredCriteria().forEach(criteria -> resolved.groups().forEach(group -> criteria.andBoundConditionGroup(group.orGroups())));");
+            }
         }
         postMethod.addBodyLine("}");
         addSelectByExampleWithPagehelper(parentElement, postMethod,entityRequestVoType.getShortNameFirstLowCase());

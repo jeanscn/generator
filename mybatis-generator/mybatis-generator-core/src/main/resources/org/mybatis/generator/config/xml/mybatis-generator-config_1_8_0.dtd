@@ -2077,11 +2077,12 @@
             11、enumClassFullName 可选，枚举类的全类名
             12、dictCode 可选，字典编码
             13、dataUrl 可选，数据来源url
-            queryType=condition 时通过 conditionParam 声明参数、conditionTerm 声明原子条件；
+            queryType=condition 时通过 conditionParam/conditionTerm 声明参数型组合条件，
+            或通过 conditionOption 声明选项型条件；两种模式互斥。
             组合条件生成 @QueryCondition 注解并由 @ViewTableMeta.queryConditions 暴露，
             前端只提交 key 与参数值，字段与操作符只来自配置。
         -->
-        <!ELEMENT queryColumn (property*,conditionParam*,conditionTerm*)>
+        <!ELEMENT queryColumn (property*,(conditionParam*,conditionTerm*|conditionOption*))>
         <!ATTLIST queryColumn
                 column CDATA #IMPLIED
                 queryType (field|condition) #IMPLIED
@@ -2120,6 +2121,21 @@
                 dataUrl CDATA #IMPLIED
                 multiple (true|false) #IMPLIED
                 required (true|false) #IMPLIED>
+
+        <!--
+            选项型组合条件选项（queryType=condition 的子节点）。
+            属性信息：
+            1、value 必须，选项提交值，条件内唯一且不能为空
+            2、remark 可选，选项显示名称
+            3、clear 可选，是否为清除条件的“全部”选项，默认 false；一个条件必须恰有一个 clear=true 选项
+            普通选项至少包含一个 conditionTerm，term 只能使用常量 value；clear=true 选项不得包含 conditionTerm。
+            conditionOption 与同级 conditionParam、conditionTerm 互斥，普通选项最多 20 个。
+        -->
+        <!ELEMENT conditionOption (conditionTerm*)>
+        <!ATTLIST conditionOption
+                value CDATA #REQUIRED
+                remark CDATA #IMPLIED
+                clear (false|true) #IMPLIED>
 
         <!--
             组合条件原子条件（queryType=condition 的子节点），同一条件内各 term 以 AND 合取。

@@ -680,7 +680,8 @@ for (Class<?> type = entityClass; type != null && type != Object.class; type = t
 | `fieldOverrides` | 覆盖指定 ViewVo 字段的标签、宽度、对齐、固定、排序、隐藏及编辑标记 | `fields` 必填，按 VO 属性名匹配；优先核对生成的 `ViewColumnMeta` |
 | `queryColumn` | 补充查询字段描述；`queryType="condition"` 时声明自定义组合条件 | `queryType="field"`（默认）时 `column` 必填；可配置 tag/query mode、类型、顺序、格式、数据源、枚举/字典或 dataUrl。`queryType="condition"` 时 `key` 必填（视图内唯一、不得与真实列名冲突、同时列入 `queryColumns`），不配置 `column`，用 `conditionParam`/`conditionTerm` 子节点描述，完整配置方法与链路见 §5.3.2.1。该描述不自动添加 RequestVo 字段 |
 | `conditionParam` | 组合条件的参数声明 | `name` 必填且条件内唯一；可选 `remark`、`column`（借用真实列的表单项，须存在）、`tagType`、`fieldType`、`dataUrl`、`multiple`、`required`（默认 true）。`In`/`ContainsAll` 引用的参数必须 `multiple="true"`，其余操作符引用单值参数 |
-| `conditionTerm` | 组合条件的原子条件，同条件内各 term 以 AND 合取（不支持 OR/嵌套） | `column` 必填且须为真实列（配置了自定义 `typeHandler` 的列第一期不支持）；`operator` 必填；`param` 与 `value` 恰配一个，常量值必须声明 `valueType`（string/number/boolean）且不支持 `In`/`ContainsAll`；`containsMode` 仅 `ContainsAll` 有效，Token（默认）为逗号分隔字段逐值精确匹配，Text 为文本子串全部包含 |
+| `conditionTerm` | 组合条件的原子条件，同条件内各 term 以 AND 合取；参数模式下不支持 OR/嵌套，选项模式下以 `conditionOption` 组提供声明式 OR | `column` 必填且须为真实列（配置了自定义 `typeHandler` 的列第一期不支持）；`operator` 必填；`param` 与 `value` 恰配一个，常量值必须声明 `valueType`（string/number/boolean）且不支持 `In`/`ContainsAll`；`containsMode` 仅 `ContainsAll` 有效，Token（默认）为逗号分隔字段逐值精确匹配，Text 为文本子串全部包含 |
+| `conditionOption` | 选项型组合条件的谓词组声明；配置后整项转为选项模式，与 `conditionParam`/顶层 `conditionTerm` 互斥 | `value` 必填且条件内唯一非空；`remark` 为显示名；`clear="true"` 标记唯一的「全部」清空选项（不得含 term）；普通选项至少一个 `conditionTerm` 且只能用常量 `value`，数量不超过 20 |
 | `filterColumn` | 补充过滤字段描述 | `column` 必填；可配置控件、query mode、顺序、重复/多选/范围及 `operators`；操作符和值域必须与后端解析支持一致 |
 | `htmlButton` | 描述自定义工具栏/行操作按钮 | 用 `toolbar` / `actionColumn` 引用相应按钮 ID；描述按钮不等于实现 handler、服务端动作或授权 |
 | `overridePropertyValue` / `columnRenderFun` | 配置显示值转换/列表渲染 | 核对来源字段、目标 ViewVo 属性、值来源及实际前端渲染支持 |
@@ -691,7 +692,9 @@ DTD 允许 `viewVo` 含上述及相关子节点；当前 Parser 对 `queryColumn
 
 #### 5.3.2.1 组合条件（`queryType="condition"`）
 
-`queryType="condition"` 把一个查询项定义为「一组按服务端固定模板展开的原子谓词」：前端只提交条件 `key` 和参数值，作用的列、操作符与组合方式全部来自 `@ViewTableMeta.queryConditions` 注解，用户输入一律经 `#{}` 绑定或转义字面量，不拼接 SQL。它适合表达单字段项无法表达的谓词形态——多列合取、值集合 `IN`、固定阈值组——以及需要把多个物理列收敛成一个业务查询项的场景（例如「项目进度」一项展开为某列的一组状态值）。仅需单字段等值/模糊/范围查询时仍使用普通 `queryColumn` 字段项或 `filterColumn`；同列多值取并集也不必用组合条件，字段项 `multiple="true"` 即可生成多选 `IN`。
+`queryType="condition"` 把一个查询项定义为「一组按服务端固定模板展开的原子谓词」：前端只提交条件 `key` 和参数值（或选项标识），作用的列、操作符与组合方式全部来自 `@ViewTableMeta.queryConditions` 注解，用户输入一律经 `#{}` 绑定或转义字面量，不拼接 SQL。它适合表达单字段项无法表达的谓词形态——多列合取、值集合 `IN`、固定阈值组——以及需要把多个物理列收敛成一个业务查询项的场景（例如「项目进度」一项展开为某列的一组状态值）。仅需单字段等值/模糊/范围查询时仍使用普通 `queryColumn` 字段项或 `filterColumn`；同列多值取并集也不必用组合条件，字段项 `multiple="true"` 即可生成多选 `IN`。
+
+条件项有两种互斥形态：**参数模式**（`conditionParam` + `conditionTerm`，前端提交参数值）与**选项模式**（`conditionOption`，前端只提交选中的选项 `value`）。选项模式把若干「服务端预定义的谓词组」呈现为普通字段查询控件（单选/多选），选中项之间按 OR 析取、组内原子条件按 AND 合取，用于可复用的状态分组筛选（例如「项目进度」：全部 / 进行中 / 已完成），前端无法自定义谓词内容。
 
 ##### 配置与生成链路
 
@@ -705,15 +708,27 @@ DTD 允许 `viewVo` 含上述及相关子节点；当前 Parser 对 `queryColumn
         <conditionTerm column="tags_" operator="ContainsAll" param="tags" containsMode="Text"/>
         <conditionTerm column="score_b" operator="GreaterThanOrEqualTo" value="0" valueType="number"/>
     </queryColumn>
+    <queryColumn queryType="condition" key="phase_group" remark="项目进度" tagType="checkbox">
+        <conditionOption value="all" remark="全部" clear="true"/>
+        <conditionOption value="doing" remark="进行中">
+            <conditionTerm column="phase_state" operator="LessThan" value="7" valueType="number"/>
+        </conditionOption>
+        <conditionOption value="done" remark="已完成">
+            <conditionTerm column="phase_state" operator="GreaterThanOrEqualTo" value="7" valueType="number"/>
+            <conditionTerm column="audit_state" operator="EqualTo" value="P" valueType="string"/>
+        </conditionOption>
+    </queryColumn>
 </viewVo>
 ```
+
+选项模式示例中，`tagType="checkbox"` 表示多选：提交 `[{key:"phase_group", options:["doing","done"]}]` 生成 `(phase_state < ?) or (phase_state >= ? and audit_state = ?)` 单个分组谓词；选中 `all`（或不提交该项）不产生谓词。
 
 完整链路如下，任一环节缺失都会使配置无效：
 
 1. 在 `queryColumns` 中列入条件 `key`，与普通字段混合排序，该位置决定条件项在查询项中的顺序；`key` 优先于同名列名匹配。`hasQueryConditions()` 仅当「存在 condition 配置且其 `key` 列入 `queryColumns`」时为真——只写 `<queryColumn>` 子节点而不把 `key` 列入 `queryColumns`，既不生成条件元数据也不会接入后端解析。
-2. `ViewMetaAnnotationPlugin` 为 ViewVo 生成 `@ViewTableMeta.queryConditions = {@QueryCondition(key, remark, order, params={@QueryConditionParam}, terms={@QueryConditionTerm})}`；普通项仍生成 `querys = {@CompositeQuery}`。视图内存在条件项时，`querys` 与 `queryConditions` 各项 `order` 统一按 `queryColumns` 位置重新编号，`queryColumn` 上的 `order` 属性不保证生效。
-3. `hasQueryConditions()` 为真时，生成 Controller 的 `list` 与 `export` 方法自动接入 `QueryConditionResolver.resolve(XxxViewVo.class, filterParam.getConditions(), "表别名")`，把返回的 `BoundCondition` 按 `VALUE`/`LITERAL_LIKE`/`TOKEN_LIKE` 写入 Example criteria。**该接线由重新生成产出**：在组合条件能力合入之前生成的 Controller 不含此调用，配置组合条件后必须重新生成对应表才会补齐；判断依据以生成产物中是否出现 `QueryConditionResolver` 调用为准。
-4. 前端按视图元数据呈现查询项，提交 `filterParam.conditions = [{key, params:{参数名: 值或数组}}]`；无 `conditionParam` 的条件没有参数区，通常呈现为可勾选的固定谓词项，勾选即以 `key` 提交。
+2. `ViewMetaAnnotationPlugin` 为 ViewVo 生成 `@ViewTableMeta.queryConditions`：参数模式输出 `@QueryCondition(key, remark, order, params={@QueryConditionParam}, terms={@QueryConditionTerm})`；选项模式输出 `@QueryCondition(key, remark, order, tagName, multiple, options={@QueryConditionOption(value, remark, clear, terms={@QueryConditionTerm})})`（`tagName` 为 `select` 时省略、`multiple` 为 `false` 时省略）。普通项仍生成 `querys = {@CompositeQuery}`。视图内存在条件项时，`querys` 与 `queryConditions` 各项 `order` 统一按 `queryColumns` 位置重新编号，`queryColumn` 上的 `order` 属性不保证生效。
+3. `hasQueryConditions()` 为真时，生成 Controller 的 `list` 与 `export` 方法自动接入 `QueryConditionResolver`：仅参数模式走 `resolve`，存在选项条件（`hasOptionQueryConditions()`）时走 `resolveConditions`——后者返回 `ResolvedConditions(conditions, groups)`，平铺谓词照旧 AND 进各 Criteria，各 `BoundConditionGroup` 经生成的 `Criteria.andBoundConditionGroup` 装配为 `((组内 AND) or (组内 AND))` 单个谓词。**该接线由重新生成产出**：在组合条件能力合入之前生成的 Controller 不含此调用，配置组合条件后必须重新生成对应表才会补齐；判断依据以生成产物中是否出现 `QueryConditionResolver` 调用为准。
+4. 前端按视图元数据呈现查询项：参数模式提交 `filterParam.conditions = [{key, params:{参数名: 值或数组}}]`（无 `conditionParam` 的条件呈现为可勾选的固定谓词项）；选项模式提交 `[{key, options:[选项 value, ...]}]`，未选中或仅选「全部」时该项整体省略，不进入提交数组。
 
 边界：`innerListView` 虽然也接受 `queryColumn` 子节点，但其视图元数据只按列名生成 `@CompositeQuery`，`queryType="condition"` 在其中配置会被静默忽略——组合条件当前只支持 `viewVo` 主视图。
 
@@ -725,7 +740,9 @@ DTD 允许 `viewVo` 含上述及相关子节点；当前 Parser 对 `queryColumn
 |---|---|
 | `key` | 必填。视图内唯一，不得与真实列名冲突，必须同时列入 `queryColumns`；前端凭 `key` 提交 |
 | `remark` | 可选。查询项显示名，生成 `@QueryCondition.remark` |
-| `queryType` | 固定 `condition`。此时不得配置 `column`；`tagType`/`queryMode`/`fieldType`/`multiple`/`dataFormat`/`dataSource`/`enumClassFullName`/`dictCode`/`dataUrl` 等字段项属性对条件项无意义（输入控件由 `conditionParam` 各自声明），`key` 也不允许出现在字段项上 |
+| `queryType` | 固定 `condition`。此时不得配置 `column`；参数模式下 `tagType`/`queryMode`/`fieldType`/`multiple`/`dataFormat`/`dataSource`/`enumClassFullName`/`dictCode`/`dataUrl` 等字段项属性对条件项无意义（输入控件由 `conditionParam` 各自声明），`key` 也不允许出现在字段项上 |
+| `tagType` | 仅选项模式有效：选项控件 `radio`/`checkbox`/`select`/`dropdownlist`/`switch`，未配置默认 `select`。`checkbox` 按多选处理；`radio`/`switch` 为单选且不得配 `multiple="true"`；`select`/`dropdownlist` 默认单选，可显式设为多选；`switch` 结构固定为「一个 `clear` + 一个普通选项」 |
+| `multiple` | 仅选项模式有效：`checkbox` 按 `true` 处理（显式配 `false` 报错）；`select`/`dropdownlist` 默认 `false`，可设为 `true`；`radio`/`switch` 必须为 `false` |
 
 `conditionParam`（可多个，声明前端可提交的参数）：
 
@@ -750,6 +767,17 @@ DTD 允许 `viewVo` 含上述及相关子节点；当前 Parser 对 `queryColumn
 | `valueType` | 常量值类型 `string`/`number`/`boolean`；引用参数时禁止配置 |
 | `containsMode` | 仅 `ContainsAll` 有效：`Token`（默认）按逗号分隔字段逐值精确匹配，`Text` 按文本子串全部包含 |
 
+`conditionOption`（选项模式，与 `conditionParam`/顶层 `conditionTerm` 互斥）：
+
+| 属性 | 说明 |
+|---|---|
+| `value` | 必填。条件内唯一非空，前端按 `options` 数组提交该标识 |
+| `remark` | 可选。选项显示名 |
+| `clear` | 可选，默认 `false`。唯一允许的「全部」清空选项：恰好一个、不得含 `conditionTerm`，选中即清空该项且不产谓词 |
+| `conditionTerm` | 普通选项至少一个；**只允许常量 `value` 项**（必须声明 `valueType`），不得引用 `param`——选项谓词完全由服务端声明固定 |
+
+普通选项数量上限 20 个；`clear` 选项不计入。选项谓词与参数模式共用同一 `conditionTerm` 属性表与操作符表，但常量约束同样生效（`In`/`ContainsAll` 不接受常量）。
+
 操作符语义（DTD 值 → 运行时谓词）：
 
 | `operator` | 生成谓词 | 参数与常量约束 |
@@ -764,9 +792,10 @@ DTD 允许 `viewVo` 含上述及相关子节点；当前 Parser 对 `queryColumn
 
 ##### 组合语义与表达边界
 
-- 同一条件内各 `conditionTerm` 以 **AND** 合取；一次请求提交的多个条件实例之间也以 **AND** 合取，不支持 OR 与嵌套分组。
-- 可表达：「值集合 → 某列 `IN`」（`multiple` 参数 + `In`，由前端把选项映射为值数组，例如进度分组 → 阶段编码数组）、「多列合取谓词」（多个 term）、「固定阈值谓词组」（全常量 term 的无参条件）、「各自可选的区间上下限」（可选参数缺失即跳过）。
-- 不可表达：「若干谓词组取并集 OR」（如多选进度分组）、「列与列比较」（如 `数量 = 已采购数量`）、「同一列多个 LIKE 值取并集」（如多个编号年度前缀）。需要这些形态时改用同列多值 `IN` 已覆盖的字段项、宿主支持的 `anyWhereCondition` 或服务端扩展查询。不要为「任一组命中」的多选场景堆叠多个互斥条件 key——同时提交多个 key 会变成 AND 交集，通常得到空结果。
+- 参数模式：同一条件内各 `conditionTerm` 以 **AND** 合取；一次请求提交的多个条件实例之间也以 **AND** 合取，不支持 OR 与嵌套分组。
+- 选项模式：同一选项内各 `conditionTerm` 以 **AND** 合取；多选时各选中选项之间以 **OR** 析取并装配为单个分组谓词；不同查询项（条件项、字段项、可信约束）之间仍以 **AND** 合取。OR 只存在于「已声明选项」这一层，不存在任意谓词的自由分组。
+- 可表达：「值集合 → 某列 `IN`」（`multiple` 参数 + `In`，由前端把选项映射为值数组，例如进度分组 → 阶段编码数组）、「多列合取谓词」（多个 term）、「固定阈值谓词组」（全常量 term 的无参条件）、「各自可选的区间上下限」（可选参数缺失即跳过）、「若干固定谓词组取并集」（选项模式多选，如进度分组多选）。
+- 不可表达：「列与列比较」（如 `数量 = 已采购数量`）、「前端自由组合谓词并任意 OR/嵌套」。需要这些形态时改用宿主支持的 `anyWhereCondition` 或服务端扩展查询。不要为「任一组命中」的多选场景堆叠多个互斥条件 key——同时提交多个 key 会变成 AND 交集，通常得到空结果；选项模式才是该场景的正解。
 - 可选参数：`required="false"` 的参数未提交时其 term 被跳过；所有参数均可选且均未提交时，该条件不产生谓词。
 - 无 `conditionParam` 的条件是固定谓词组（全部 term 用常量），适合「勾选即启用」的开关类条件项。
 
@@ -774,9 +803,9 @@ DTD 允许 `viewVo` 含上述及相关子节点；当前 Parser 对 `queryColumn
 
 三层校验，配置错误尽早失败：
 
-1. 配置解析期（Parser）：`key` 必填且 condition 项不得配置 `column`；至少一个 `conditionTerm`；`conditionParam` 的 `name` 非空且不重复；term 的 `column`/`operator` 必填、`param` 与 `value` 恰配一个；常量必须声明合法 `valueType`（`number` 须可解析为数值、`boolean` 仅 `true`/`false`）且不得用于 `In`/`ContainsAll`；引用的参数必须已声明、`param.multiple` 与操作符多重性一致；`LikeAny`/`ContainsAll` 参数不得为数值/日期/时间类 `fieldType`；`containsMode` 配为非默认值时仅允许 `ContainsAll`；`queryType="field"` 项必须配置 `column` 且不得含 condition 子节点和 `key`。
-2. 生成期（`QueryConditionDesc.create`）：`key` 不得与真实列名冲突、不得重复；term 的 `column` 必须在表中存在且未配置自定义 `typeHandler`；`conditionParam.column` 借用列必须在表中存在。`queryColumns` 中既未匹配 condition key 也未匹配真实列的条目被忽略（不报错）。
-3. 运行期（`QueryConditionResolver.resolve`）：提交的 `key` 必须已声明且不重复，条件实例数不得超过视图声明数；提交的参数名必须已声明；`required` 参数缺失报错；非多值参数收到数组报错；多值参数必须为数组、元素不超过 50 个、非空且非嵌套；标量值仅接受字符串/数值，文本不超过 200 字符并按 `fieldType` 严格转换。任一校验失败抛出 `IllegalArgumentException`，请求整体失败，不静默降级。
+1. 配置解析期（Parser）：`key` 必填且 condition 项不得配置 `column`；参数模式至少一个 `conditionTerm`；`conditionParam` 的 `name` 非空且不重复；term 的 `column`/`operator` 必填、`param` 与 `value` 恰配一个；常量必须声明合法 `valueType`（`number` 须可解析为数值、`boolean` 仅 `true`/`false`）且不得用于 `In`/`ContainsAll`；引用的参数必须已声明、`param.multiple` 与操作符多重性一致；`LikeAny`/`ContainsAll` 参数不得为数值/日期/时间类 `fieldType`；`containsMode` 配为非默认值时仅允许 `ContainsAll`；`queryType="field"` 项必须配置 `column` 且不得含 condition 子节点和 `key`。选项模式额外校验：`conditionOption` 与 `conditionParam`/顶层 `conditionTerm` 互斥；`value` 非空且不重复；`clear` 恰好一个且不含 term；普通选项至少一个 term 且不得引用 `param`；普通选项不超过 20 个；`tagType` 限 `radio`/`checkbox`/`select`/`dropdownlist`/`switch`；`radio` 不得 `multiple="true"`、`checkbox` 不得 `multiple="false"`、`switch` 必须恰为「一个 `clear` + 一个普通选项」。
+2. 生成期（`QueryConditionDesc.create`）：`key` 不得与真实列名冲突、不得重复；term 的 `column`（含各 `conditionOption` 内）必须在表中存在且未配置自定义 `typeHandler`；`conditionParam.column` 借用列必须在表中存在。`queryColumns` 中既未匹配 condition key 也未匹配真实列的条目被忽略（不报错）。
+3. 运行期（`QueryConditionResolver.resolve`/`resolveConditions`）：提交的 `key` 必须已声明且不重复，条件实例数不得超过视图声明数；提交的参数名必须已声明；`required` 参数缺失报错；非多值参数收到数组报错；多值参数必须为数组、元素不超过 50 个、非空且非嵌套；标量值仅接受字符串/数值，文本不超过 200 字符并按 `fieldType` 严格转换。选项项额外校验：必须携带 `options`（不得同时携带 `params`）；`options` 元素必须是已声明的选项 `value` 且不重复、数量不超过声明数；`clear` 值与其他值混传报错；单选控件收到多个值报错；仅含 `clear` 值等价于清空、不产生谓词。参数模式下向选项型条件提交（或向旧 `resolve` 路径提交选项型条件）按配置/集成缺陷显式失败，不静默降级。任一校验失败抛出 `IllegalArgumentException`（集成缺陷为 `IllegalStateException`），请求整体失败，不静默降级。
 
 LIKE 谓词按执行语句所属 `Configuration` 的 `_databaseId` 选择方言：mysql/mariadb 用 `concat`，postgresql/h2/oracle/db2/dm 用 `||`，sqlserver/sqlserver2005 用 `+` 并绑定 `secondValue`；未支持方言在 SQL 构建阶段由 `vgosoft-mybatis` 的 `QueryDialectGuard` 显式报错，不静默降级。上述方言分支已通过渲染层测试断言；2026-11-15，mpmm 本机 `local-mysql` profile 已实测 Token/Text `ContainsAll`、日期查询及 `%`、`_`、`!` 字面语义。其余方言为“已渲染验证、未实库验证”，不代表实库支持已验证。
 

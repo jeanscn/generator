@@ -59,7 +59,12 @@ public class ExampleWhereClauseElementGenerator extends AbstractXmlElementGenera
 
         ifElement.addElement(trimElement);
 
-        trimElement.addElement(getMiddleForEachElement(null));
+        boolean optionConditions = introspectedTable.getTableConfiguration().hasOptionQueryConditions();
+        if (optionConditions) {
+            trimElement.addElement(getOptionAwareCriteriaForEach());
+        } else {
+            trimElement.addElement(getMiddleForEachElement(null));
+        }
 
         for (IntrospectedColumn introspectedColumn : introspectedTable.getNonBlobColumns()) {
             if (stringHasValue(introspectedColumn.getTypeHandler())) {
@@ -70,6 +75,79 @@ public class ExampleWhereClauseElementGenerator extends AbstractXmlElementGenera
         if (context.getPlugins().sqlMapExampleWhereClauseElementGenerated(answer, introspectedTable)) {
             parentElement.addElement(answer);
         }
+
+        if (optionConditions && !isForUpdateByExample) {
+            // 原子条件列表的共享渲染片段只登记一次；UpdateByExample 变体与外层组渲染按 refid 复用
+            parentElement.addElement(buildCriterionChooseFragment());
+        }
+    }
+
+    /**
+     * 共享 {@code <sql>} 片段标识；顶层与嵌套 OR 组复用同一份原子条件 choose。
+     */
+    private String criterionChooseFragmentId() {
+        return introspectedTable.getExampleWhereClauseId() + "_Criterion_Choose";
+    }
+
+    /**
+     * 选项型条件的无类型谓词列表：分组谓词渲染为 {@code and ((内层 AND) or (内层 AND))}，
+     * 原子谓词经共享片段渲染；嵌套列表只允许原子谓词，不产生二级分组。
+     */
+    private XmlElement getOptionAwareCriteriaForEach() {
+        XmlElement middleForEachElement = new XmlElement("foreach");
+        middleForEachElement.addAttribute(new Attribute("collection", "criteria.criteria"));
+        middleForEachElement.addAttribute(new Attribute("item", "criterion"));
+
+        XmlElement chooseElement = new XmlElement("choose");
+        middleForEachElement.addElement(chooseElement);
+
+        XmlElement groupWhen = new XmlElement("when");
+        groupWhen.addAttribute(new Attribute("test", "criterion.groupValue"));
+        groupWhen.addElement(new TextElement("and"));
+        XmlElement orForEach = new XmlElement("foreach");
+        orForEach.addAttribute(new Attribute("collection", "criterion.orGroups"));
+        orForEach.addAttribute(new Attribute("item", "orGroup"));
+        orForEach.addAttribute(new Attribute("open", "("));
+        orForEach.addAttribute(new Attribute("close", ")"));
+        orForEach.addAttribute(new Attribute("separator", "or "));
+        XmlElement innerTrim = new XmlElement("trim");
+        innerTrim.addAttribute(new Attribute("prefix", "("));
+        innerTrim.addAttribute(new Attribute("suffix", ")"));
+        innerTrim.addAttribute(new Attribute("prefixOverrides", "and"));
+        XmlElement innerForEach = new XmlElement("foreach");
+        innerForEach.addAttribute(new Attribute("collection", "orGroup"));
+        innerForEach.addAttribute(new Attribute("item", "criterion"));
+        innerForEach.addElement(buildCriterionChooseInclude());
+        innerTrim.addElement(innerForEach);
+        orForEach.addElement(innerTrim);
+        groupWhen.addElement(orForEach);
+        chooseElement.addElement(groupWhen);
+
+        XmlElement otherwise = new XmlElement("otherwise");
+        otherwise.addElement(buildCriterionChooseInclude());
+        chooseElement.addElement(otherwise);
+        return middleForEachElement;
+    }
+
+    private XmlElement buildCriterionChooseInclude() {
+        XmlElement include = new XmlElement("include");
+        include.addAttribute(new Attribute("refid", criterionChooseFragmentId()));
+        return include;
+    }
+
+    private XmlElement buildCriterionChooseFragment() {
+        XmlElement fragment = new XmlElement("sql");
+        fragment.addAttribute(new Attribute("id", criterionChooseFragmentId()));
+        context.getCommentGenerator().addComment(fragment);
+        fragment.addElement(buildScalarCriterionChoose());
+        return fragment;
+    }
+
+    /**
+     * 无类型谓词列表的共享 choose：供共享 {@code <sql>} 片段与嵌套 OR 组引用。
+     */
+    private XmlElement buildScalarCriterionChoose() {
+        return getCriterionChoose(false, null);
     }
 
     private XmlElement getMiddleForEachElement(IntrospectedColumn introspectedColumn) {
@@ -101,8 +179,14 @@ public class ExampleWhereClauseElementGenerator extends AbstractXmlElementGenera
                 "collection", criteriaAttribute));
         middleForEachElement.addAttribute(new Attribute("item", "criterion"));
 
+        middleForEachElement.addElement(getCriterionChoose(typeHandled, typeHandlerString));
+
+        return middleForEachElement;
+    }
+
+    private XmlElement getCriterionChoose(boolean typeHandled, String typeHandlerString) {
+        StringBuilder sb = new StringBuilder();
         XmlElement chooseElement = new XmlElement("choose");
-        middleForEachElement.addElement(chooseElement);
 
         XmlElement when = new XmlElement("when");
         when.addAttribute(new Attribute("test", "criterion.noValue"));
@@ -165,7 +249,7 @@ public class ExampleWhereClauseElementGenerator extends AbstractXmlElementGenera
         when.addElement(innerForEach);
         chooseElement.addElement(when);
 
-        return middleForEachElement;
+        return chooseElement;
     }
 
     /**

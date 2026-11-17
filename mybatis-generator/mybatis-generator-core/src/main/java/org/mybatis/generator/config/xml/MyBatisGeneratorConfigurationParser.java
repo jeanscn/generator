@@ -57,6 +57,14 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
 @Slf4j
 public class MyBatisGeneratorConfigurationParser {
     private final Properties extraProperties;
+    /**
+     * 选项型组合条件支持的控件集合，与 vgosoft-web2 的 resolveOptionControl 保持一致。
+     */
+    private static final Set<HtmlElementTagTypeEnum> OPTION_CONTROL_TAGS = Set.of(
+            HtmlElementTagTypeEnum.RADIO, HtmlElementTagTypeEnum.SWITCH,
+            HtmlElementTagTypeEnum.SELECT, HtmlElementTagTypeEnum.DROPDOWN_LIST,
+            HtmlElementTagTypeEnum.CHECKBOX);
+
     private final Properties configurationProperties;
     private final List<String> warnings;
     private final String configurationSystemId;
@@ -3729,6 +3737,7 @@ public class MyBatisGeneratorConfigurationParser {
             queryColumnConfiguration.setDataUrl(dataUrl);
         }
         String multiple = attributes.getProperty("multiple");
+        boolean multipleWasSpecified = stringHasValue(multiple);
         if (stringHasValue(multiple)) {
             queryColumnConfiguration.setMultiple(Boolean.parseBoolean(multiple));
         }
@@ -3756,6 +3765,9 @@ public class MyBatisGeneratorConfigurationParser {
                 case "conditionTerm":
                     queryColumnConfiguration.getConditionTermConfigurations().add(parseConditionTerm(conditionChild));
                     break;
+                case "conditionOption":
+                    queryColumnConfiguration.getConditionOptionConfigurations().add(parseConditionOption(conditionChild));
+                    break;
                 case "property":
                     parseProperty(queryColumnConfiguration, conditionChild);
                     break;
@@ -3765,8 +3777,34 @@ public class MyBatisGeneratorConfigurationParser {
                     break;
             }
         }
-        validateQueryColumn(tc, queryColumnConfiguration);
+        validateQueryColumn(tc, queryColumnConfiguration, multipleWasSpecified);
         return queryColumnConfiguration;
+    }
+
+    /**
+     * 解析 {@code <conditionOption>} 选项及其常量条件。
+     */
+    private ConditionOptionConfiguration parseConditionOption(Node childNode) {
+        ConditionOptionConfiguration configuration = new ConditionOptionConfiguration();
+        Properties attributes = parseAttributes(childNode);
+        configuration.setValue(attributes.getProperty("value"));
+        String remark = attributes.getProperty("remark");
+        if (stringHasValue(remark)) {
+            configuration.setRemark(remark);
+        }
+        String clear = attributes.getProperty("clear");
+        if (stringHasValue(clear)) {
+            configuration.setClear(Boolean.parseBoolean(clear));
+        }
+        NodeList children = childNode.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            Node conditionChild = children.item(i);
+            if (conditionChild.getNodeType() == Node.ELEMENT_NODE
+                    && "conditionTerm".equals(conditionChild.getNodeName())) {
+                configuration.getConditionTermConfigurations().add(parseConditionTerm(conditionChild));
+            }
+        }
+        return configuration;
     }
 
     /**
@@ -3857,7 +3895,8 @@ public class MyBatisGeneratorConfigurationParser {
      * 校验 {@code <queryColumn>} 结构约束（生成时失败即报错，不生成残缺注解）；
      * 涉及真实列存在性、列名冲突与 typeHandler 的校验由 ViewMetaAnnotationPlugin 在生成阶段执行。
      */
-    private void validateQueryColumn(TableConfiguration tc, QueryColumnConfiguration configuration) {
+    private void validateQueryColumn(TableConfiguration tc, QueryColumnConfiguration configuration,
+                                     boolean multipleWasSpecified) {
         String location = "表 " + tc.getTableName() + " 的 queryColumn";
         if (configuration.isCondition()) {
             if (!stringHasValue(configuration.getKey())) {
@@ -3867,9 +3906,7 @@ public class MyBatisGeneratorConfigurationParser {
                 throw new IllegalArgumentException(location + "[" + configuration.getKey() + "]：condition 项不配置 column");
             }
             List<ConditionTermConfiguration> terms = configuration.getConditionTermConfigurations();
-            if (terms.isEmpty()) {
-                throw new IllegalArgumentException(location + "[" + configuration.getKey() + "]：至少需要一个 conditionTerm");
-            }
+            List<ConditionOptionConfiguration> options = configuration.getConditionOptionConfigurations();
             Map<String, ConditionParamConfiguration> params = new HashMap<>();
             for (ConditionParamConfiguration param : configuration.getConditionParamConfigurations()) {
                 if (!stringHasValue(param.getName()) || params.put(param.getName(), param) != null) {
@@ -3877,20 +3914,100 @@ public class MyBatisGeneratorConfigurationParser {
                             + param.getName());
                 }
             }
-            for (ConditionTermConfiguration term : terms) {
-                validateConditionTerm(location + "[" + configuration.getKey() + "]", term, params);
+            String conditionLocation = location + "[" + configuration.getKey() + "]";
+            if (options.isEmpty()) {
+                if (terms.isEmpty()) {
+                    throw new IllegalArgumentException(conditionLocation + "：至少需要一个 conditionTerm 或 conditionOption");
+                }
+                for (ConditionTermConfiguration term : terms) {
+                    validateConditionTerm(conditionLocation, term, params);
+                }
+            } else {
+                if (!params.isEmpty() || !terms.isEmpty()) {
+                    throw new IllegalArgumentException(conditionLocation
+                            + "：conditionOption 与 conditionParam、直接 conditionTerm 互斥");
+                }
+                validateConditionOptions(conditionLocation, configuration, options, multipleWasSpecified);
             }
         } else {
             if (!stringHasValue(configuration.getColumn())) {
                 throw new IllegalArgumentException(location + "：queryType=field 时 column 必填");
             }
             if (!configuration.getConditionParamConfigurations().isEmpty()
-                    || !configuration.getConditionTermConfigurations().isEmpty()) {
-                throw new IllegalArgumentException(location + "[" + configuration.getColumn() + "]：field 项不支持 conditionParam/conditionTerm 子节点");
+                    || !configuration.getConditionTermConfigurations().isEmpty()
+                    || !configuration.getConditionOptionConfigurations().isEmpty()) {
+                throw new IllegalArgumentException(location + "[" + configuration.getColumn()
+                        + "]：field 项不支持 conditionParam/conditionTerm/conditionOption 子节点");
             }
             if (stringHasValue(configuration.getKey())) {
                 throw new IllegalArgumentException(location + "[" + configuration.getColumn() + "]：key 仅 queryType=condition 有效");
             }
+        }
+    }
+
+    private void validateConditionOptions(String location, QueryColumnConfiguration configuration,
+                                          List<ConditionOptionConfiguration> options,
+                                          boolean multipleWasSpecified) {
+        Set<String> values = new HashSet<>();
+        int clearCount = 0;
+        int ordinaryCount = 0;
+        for (ConditionOptionConfiguration option : options) {
+            if (!stringHasValue(option.getValue())) {
+                throw new IllegalArgumentException(location + "：conditionOption 的 value 必填且不能为空");
+            }
+            if (!values.add(option.getValue())) {
+                throw new IllegalArgumentException(location + "：conditionOption 的 value 重复: " + option.getValue());
+            }
+            List<ConditionTermConfiguration> optionTerms = option.getConditionTermConfigurations();
+            if (option.isClear()) {
+                clearCount++;
+                if (!optionTerms.isEmpty()) {
+                    throw new IllegalArgumentException(location + "：clear=true 的 conditionOption 不得配置 conditionTerm");
+                }
+            } else {
+                ordinaryCount++;
+                if (optionTerms.isEmpty()) {
+                    throw new IllegalArgumentException(location + "：普通 conditionOption 至少需要一个 conditionTerm: "
+                            + option.getValue());
+                }
+                for (ConditionTermConfiguration term : optionTerms) {
+                    if (term.hasParam()) {
+                        throw new IllegalArgumentException(location + "：conditionOption 的 conditionTerm 必须使用常量 value，不能使用 param");
+                    }
+                    validateConditionTerm(location + " 的 conditionOption[" + option.getValue() + "]", term,
+                            Collections.emptyMap());
+                }
+            }
+        }
+        if (clearCount != 1) {
+            throw new IllegalArgumentException(location + "：conditionOption 必须恰好配置一个 clear=true 选项");
+        }
+        if (ordinaryCount > 20) {
+            throw new IllegalArgumentException(location + "：普通 conditionOption 最多允许 20 个");
+        }
+
+        HtmlElementTagTypeEnum tagName = configuration.getTagName();
+        if (tagName == null || tagName == HtmlElementTagTypeEnum.UNKNOWN) {
+            configuration.setTagName(HtmlElementTagTypeEnum.SELECT);
+            tagName = HtmlElementTagTypeEnum.SELECT;
+        }
+        // 控件支持集合与 vgosoft-web2 的 resolveOptionControl 保持一致，非法控件在配置期显式失败
+        if (!OPTION_CONTROL_TAGS.contains(tagName)) {
+            throw new IllegalArgumentException(location + "：选项型条件不支持的 tagType: " + tagName.codeName());
+        }
+        if ((tagName == HtmlElementTagTypeEnum.RADIO || tagName == HtmlElementTagTypeEnum.SWITCH)
+                && configuration.isMultiple()) {
+            throw new IllegalArgumentException(location + "：tagType=" + tagName.codeName() + " 不支持 multiple=true");
+        }
+        if (tagName == HtmlElementTagTypeEnum.CHECKBOX) {
+            if (multipleWasSpecified && !configuration.isMultiple()) {
+                throw new IllegalArgumentException(location + "：tagType=checkbox 不支持 multiple=false");
+            }
+            configuration.setMultiple(true);
+        }
+        if (tagName == HtmlElementTagTypeEnum.SWITCH
+                && (options.size() != 2 || clearCount != 1 || ordinaryCount != 1)) {
+            throw new IllegalArgumentException(location + "：tagType=switch 必须恰好包含一个 clear 选项和一个普通选项");
         }
     }
 

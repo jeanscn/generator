@@ -35,6 +35,11 @@ public class QueryColumnConfiguration extends AbstractFilterConditionConfigurati
      */
     private List<ConditionTermConfiguration> conditionTermConfigurations = new ArrayList<>();
 
+    /**
+     * 选项型组合条件的选项列表。
+     */
+    private List<ConditionOptionConfiguration> conditionOptionConfigurations = new ArrayList<>();
+
     public QueryColumnConfiguration(TableConfiguration tc) {
         super(tc);
     }

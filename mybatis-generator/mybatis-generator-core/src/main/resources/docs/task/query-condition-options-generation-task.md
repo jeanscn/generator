@@ -1,8 +1,8 @@
 # 组合查询选项化生成支持任务书（E01）
 
-> 主体归属：`mybatis-generator-core`；协作：`vgosoft-basic`（vgosoft-core-annotation、vgosoft-web2）、`mpmm-ui / @vgosoft/framework`（E02 平行任务）。
+> 主体归属：`mybatis-generator-core`；协作：`vgosoft-basic`（vgosoft-core-annotation、vgosoft-web2）、`tmri-ui4 / packages/framework`（E02 平行任务）。
 > 上游契约：[列表组合查询选项化设计方案 §8 实现契约](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-web2\src\main\resources\docs\query-condition-options-design-overview.md)、[主体任务书](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-web2\src\main\resources\docs\task\query-condition-options-task.md)。
-> 整体状态：待执行；进度：0/4；更新时间：2026-11-17。
+> 整体状态：完成；进度：4/4；更新时间：2026-11-18。
 > 需求负责人已指派本会话维护者实施；生成器执行、共享工件安装、业务配置迁移与版本库提交均不在本任务书授权范围，另行批准。
 
 ## 1. 范围与依据
@@ -25,10 +25,10 @@
 
 | 编号 | 内容 | 依赖 | 状态 | 验收条件及结果 |
 |---|---|---|---|---|
-| G01 | DTD 与配置解析：`queryColumn` 内容模型增 `conditionOption` 分支，`conditionOption` 元素（`value` 必填、`remark`、`clear`），新增 `ConditionOptionConfiguration`，`QueryColumnConfiguration` 增选项集合；Parser 校验互斥、唯一 clear、常量 term、值唯一、控件基数与 switch 形态；按 core/DTD 一致规则处置版本 | 无 | 待执行 | 配置解析定向测试覆盖合法与非法矩阵 |
-| G02 | 注解输出：`QueryConditionDesc`/`ViewMetaAnnotationPlugin` 输出 `options/tagName/multiple` 与 `@QueryConditionOption`；`hasQueryConditions` 语义不变 | G01、上游注解成员可用（契约替身或已供应工件） | 待执行 | 注解输出断言覆盖选项、clear、控件与基数 |
-| G03 | 分组装配：`ExampleGenerator` 生成分组 Criterion 与装配方法；`ExampleWhereClauseElementGenerator` 抽取共享 `<sql>` 片段并新增嵌套 OR 渲染；`ListElementGenerator`/`ExportElementGenerator` 接入 `resolveConditions` 分派 | G02、`vgosoft-web2` 分组结果类型可用（替身或工件） | 待执行 | 生成物源码断言 + 内存编译；XML 渲染断言覆盖 OR 括号、值绑定、LIKE 方言分支与未支持方言门卫；不拼接用户值 |
-| G04 | 回归与文档：旧 condition 配置生成物不变回归；`generator-config-guide.md` §5.3.2.1 修订（移除"不支持 OR 分组"边界并补选项契约）；本任务书与索引映射收尾 | G01—G03 | 待执行 | 既有相关测试全量通过，文档与实现一致 |
+| G01 | DTD 与配置解析：`queryColumn` 内容模型增 `conditionOption` 分支，`conditionOption` 元素（`value` 必填、`remark`、`clear`），新增 `ConditionOptionConfiguration`，`QueryColumnConfiguration` 增选项集合；Parser 校验互斥、唯一 clear、常量 term、值唯一、控件基数与 switch 形态；按 core/DTD 一致规则处置版本 | 无 | 完成 | `QueryColumnConditionParserTest` 17 项通过，覆盖合法选项、互斥/唯一性、clear/term、选项上限、控件基数及非法控件拒绝 |
+| G02 | 注解输出：`QueryConditionDesc`/`ViewMetaAnnotationPlugin` 输出 `options/tagName/multiple` 与 `@QueryConditionOption`；`hasQueryConditions` 语义不变 | G01、上游注解成员可用（契约替身或已供应工件） | 完成 | `QueryConditionDescTest` 6 项、`ViewMetaAnnotationPluginTest` 2 项通过；`select` 省略 `tagName`、`multiple=false` 省略、`dropdownlist` 保留原值、`QueryConditionOption` 以字符串全类名登记 import 规避未安装工件 |
+| G03 | 分组装配：`ExampleGenerator` 生成分组 Criterion 与装配方法；`ExampleWhereClauseElementGenerator` 抽取共享 `<sql>` 片段并新增嵌套 OR 渲染；`ListElementGenerator`/`ExportElementGenerator` 接入 `resolveConditions` 分派 | G02、`vgosoft-web2` 分组结果类型可用（替身或工件） | 完成 | `ExampleGeneratorOptionGroupTest` 2 项源码断言并以 `BoundCondition` 契约替身内存编译；`ExampleWhereClauseDialectTest` 13 项内存 XML 渲染（组间 OR/组内 AND/绑定参数/LIKE 方言/守卫/`UpdateByExample` 复用共享片段）；`QueryConditionControllerElementsTest` 6 项及 `ExportElementGeneratorTest` 7 项覆盖 list/export `resolveConditions` 分派 |
+| G04 | 回归与文档：旧 condition 配置生成物不变回归；`generator-config-guide.md` §5.3.2.1 修订（移除"不支持 OR 分组"边界并补选项契约）；本任务书与索引映射收尾 | G01—G03 | 完成 | 八类定向测试合计 54 项全绿（含 `TableConfigurationQueryConditionsTest` 旧配置回归）；§5.3.2.1 已补选项模式契约、互斥校验矩阵与运行期语义，OR 边界改写为"仅声明式选项分组" |
 
 ## 4. 关键边界与待决
 
@@ -39,3 +39,8 @@
 ## 5. 记录
 
 - 2026-11-17：任务书创建；上游 T03/T04 本仓实施已完成（注解 `options/tagName/multiple`、`@QueryConditionOption`、`resolveConditions` 分组入口、`BoundConditionGroup`/`ResolvedConditions`）；待实施授权后启动 G01。
+- 2026-11-18：按需求负责人指派启动 E01 实施。当前 core 为 `1.8.0-SNAPSHOT`，当前配置 DTD 为 `mybatis-generator-config_1_8_0.dtd`；本轮不运行生成器、不安装共享工件、不迁移业务配置、不提交版本库。
+- 2026-11-18：G01 完成。当前版本 DTD、`ConditionOptionConfiguration`、`QueryColumnConfiguration`、Parser 结构/控件校验及合法/非法矩阵测试已具备；执行 `mvn -q -pl mybatis-generator-core "-Dtest=QueryColumnConditionParserTest" "-Dsurefire.failIfNoSpecifiedTests=false" test`，17 项通过。
+- 2026-11-18：G02 完成。`QueryConditionDesc` 输出 `options/tagName/multiple` 与 `@QueryConditionOption`；`ConditionOptionConfiguration` term 列校验复用 `assertTermColumn`；`QueryConditionDescTest` 6 项、`ViewMetaAnnotationPluginTest` 2 项通过。
+- 2026-11-18：G03 完成。`TableConfiguration.hasOptionQueryConditions()` 新增；`ExampleGenerator` 生成 `orGroups`/`groupValue` 谓词成员与 `andBoundConditionGroup(List<List<BoundCondition>>)` 装配方法；`ExampleWhereClauseElementGenerator` 抽取共享 `Example_Where_Clause_Criterion_Choose` 片段，无类型列表按 `groupValue` 分派嵌套 OR 渲染（UpdateByExample 变体复用同一片段、不重复登记）；list/export 按 `hasOptionQueryConditions()` 分派 `resolveConditions` 并将 `resolved.groups()` 装配为 OR 组谓词。`ExampleGeneratorOptionGroupTest` 2 项（含 `BoundCondition` 契约替身内存编译）、`ExampleWhereClauseDialectTest` 13 项、`QueryConditionControllerElementsTest` 6 项、`ExportElementGeneratorTest` 7 项通过。
+- 2026-11-18：G04 完成。`generator-config-guide.md` §5.3.2.1 增补选项模式契约（元素表、属性速查、互斥校验、请求载荷、语义边界与运行期规则）；八类定向测试合计 54 项全部通过：`mvn -q -pl mybatis-generator-core "-Dtest=QueryColumnConditionParserTest,QueryConditionDescTest,QueryConditionControllerElementsTest,ExampleWhereClauseDialectTest,ExampleGeneratorOptionGroupTest,ExportElementGeneratorTest,ViewMetaAnnotationPluginTest,TableConfigurationQueryConditionsTest" "-Dsurefire.failIfNoSpecifiedTests=false" test`。任务书已在 `.github/doc-index.md` 与 `.github/doc-map.md` 登记，无需改动索引映射。E01 收尾；业务表再生成与共享工件安装仍待另行授权。
