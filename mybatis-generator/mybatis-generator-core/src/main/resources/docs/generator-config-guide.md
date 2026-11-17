@@ -1022,6 +1022,7 @@ LIKE 谓词按执行语句所属 `Configuration` 的 `_databaseId` 选择方言�
 | `tagType=checkbox 不支持 multiple=false` | 显式声明了 `multiple="false"` | `checkbox` 恒为多选，删除该属性 |
 | `tagType=switch 必须恰好包含一个 clear 选项和一个普通选项` | switch 选项数 ≠ 2 | 恰为一个 `clear` + 一个普通选项 |
 | `conditionTerm 的 column 在表中未找到` / `配置了自定义 typeHandler`（生成期） | term 引用了不存在列或 typeHandler 列 | 修正列名；typeHandler 列暂不支持 |
+| `组合条件 key 不得与真实列名冲突`（生成期） | `key` 取了与本表某列同名的名字（如条件列即 `budget_year` 时 key 也写 `budget_year`） | key 加区分后缀（如 `budget_year_cond`）并同步 `queryColumns`；字段查询项才用列名 |
 | 条件项在 `innerListView` 下不生效 | 组合条件只支持 `viewVo` 主视图 | 移出 `innerListView` 或改用其他方案 |
 | 已保存方案恢复时报「未知选项」 | 选项 `value` 改名/删除后旧方案仍引用 | 属预期显式失败，迁移或丢弃旧方案 |
 | 向参数型条件提交 `options`（或反之）报错 | 提交形态与声明模式不符 | 参数模式提交 `params`；选项模式提交 `options` |
