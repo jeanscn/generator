@@ -1158,20 +1158,18 @@ src/main/resources/sql/init/data-menu-<moduleKeyword小写>.sql
 | `applyProperty` | 映射结果取值属性。 |
 | `enumClassFullName` | 枚举类全名。 |
 
-### 展示属性（`Text` 伴生字段）命名约定
+### 展示属性（`Text` 伴生字段）命名约定与列表配置要求
 
-字典类/引用类字段（`dataSource`/`annotationType` 为 `DictEnum`、`Dict`、`DictData`、`DictSys`、`DictModule`、`DictUser`、`YesNo` 等）在只读列表、详情与导出中不直接展示存储值，而是展示翻译后的伴生显示属性。属性名由 `ConfigUtil.getOverrideJavaProperty` 统一推导：
+字典类/引用类字段（`dataSource`/`annotationType` 为 `DictEnum`、`Dict`、`DictData`、`DictSys`、`DictModule`、`DictUser`、`YesNo` 等）在只读列表、详情与导出中不直接展示存储值，而是展示翻译后的伴生显示属性，由后端按 `@DictXxx`/`@DictEnum` 注解完成翻译，前端不做二次翻译。
 
-| 情形 | 推导规则 | 示例 |
-|---|---|---|
-| Java 属性以 `Id` 结尾（长度 > 2） | 去掉 `Id` 再加 `Text` | `moduleId` → `moduleText`、`userId` → `userText` |
-| 其他属性 | 属性名直接加 `Text` | `sendState` → `sendStateText`、`status` → `statusText` |
+**列表配置要求**：`viewVo` 的 `defaultDisplayFields`、`defaultHiddenFields`、`fieldOverrides` 等按 ViewVo 属性名匹配的入口，字典/引用类字段必须写展示属性名（`sendStateText`、`moduleText`），不得写原编码属性（`sendState`、`moduleId`）。写原属性会把编码列作为默认显示列（如列表直接显示 `0/1/2/3`），而翻译列被隐藏。原编码属性对应的数据库列仍用于排序/筛选，不需要展示时可保持隐藏（不列入 `defaultDisplayFields`）。
 
-优先级与例外：
+展示属性命名只有两种情况（实现见 `ConfigUtil.getOverrideJavaProperty`）：
 
-1. `htmlElementDescriptor@otherFieldName` 显式值优先；`overridePropertyValue@targetProperty` 显式值优先于默认推导。
-2. `tagType` 为 `input`、`date`、`time`、`datetime`、`title`、`number`、`color` 等"同名字段"控件时沿用原 Java 属性名，不产生 `Text` 伴生字段。
-3. 默认推导作用于 `viewVo`/普通 VO 的伴生属性与 `@ViewColumnMeta`/`@DictXxx(source=...)` 注解值，`excelVo` 亦按同一规则命名；列表列绑定 `...Text` 展示翻译值，原始编码保留在原字段。
+1. **默认推导**：Java 属性以 `Id` 结尾（长度 > 2）时去掉 `Id` 再加 `Text`（`moduleId` → `moduleText`、`userId` → `userText`）；其他属性直接加 `Text`（`sendState` → `sendStateText`、`status` → `statusText`）。
+2. **显式命名**：配置 `htmlElementDescriptor@otherFieldName` 或 `overridePropertyValue@targetProperty` 显式指定展示属性名，显式值优先于默认推导。
+
+生效范围：默认推导作用于 `viewVo`/普通 VO 的伴生属性与 `@ViewColumnMeta`/`@DictXxx(source=...)` 注解值，`excelVo` 亦按同一规则命名；列表列绑定 `...Text` 展示翻译值，原始编码保留在原字段。`input`/`date`/`time`/`datetime`/`title`/`number`/`color` 等控件字段本身即显示值，不产生伴生属性，不适用上述命名。
 
 ### 常见用法
 
