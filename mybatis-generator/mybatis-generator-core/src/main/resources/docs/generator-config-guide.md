@@ -561,6 +561,11 @@ for (Class<?> type = entityClass; type != null && type != Object.class; type = t
 | `importIncludeColumns` | 指定导入 VO 的数据库列集合 | 非空时只按所列物理列生成导入 VO 字段，并按配置顺序处理；不存在的列不生成。全局 VO 排除列仍然生效，不能通过 include 重新加入。 |
 | `importExcludeColumns` | 从导入 VO 排除数据库列 | 仅在 `importIncludeColumns` 为空时生效；配置 include 后此项不再筛选。 |
 | `importIgnoreFields` | 标记不参与 Excel 导入的导入 VO 属性 | 使用 Java 属性名；生成字段仍保留在 VO 中。启用 `EasyExcelAnnotationPlugin` 时，字段添加 `@ExcelIgnore`；生成的模板样例也跳过这些属性。它不等同于从 Entity 映射或数据库写入列中移除字段。 |
+| `includeFields` | 指定 Excel 导出 VO 的 Java 属性集合及顺序 | 非空时只生成所列属性，并按该列表顺序生成；字段不存在或重复时生成明确失败。它优先于 `excludeFields`。 |
+| `excludeFields` | 从 Excel 导出 VO 排除 Java 属性 | 仅在 `includeFields` 为空时生效；`generateVo` 全局排除列也会参与筛选。 |
+| `ignoreFields` | 将导出 VO 属性标记为 Excel 忽略字段 | 属性仍保留在生成的 VO 中，但由 Excel 忽略；适用于转换字段需要源属性但不应单独导出的情形。 |
+
+`includeFields` 同时限定范围并按列表顺序生成 Excel VO 字段；`ignoreFields` 标记的辅助字段如需保留在 VO 中，也应列入 `includeFields`。该顺序进入生成字段及列元数据；`viewVo.defaultDisplayFields` 只控制列表显示，不能代替导出顺序配置。
 
 除上述筛选外，`generateVo` 的全局排除列仍参与导入字段筛选；`excelVo` 自身的附加属性配置也可能增加导入 VO 字段。修改配置后应检查实际生成的 `ExcelImportVo`、模板字段和 mappings，不仅依据配置文本推断最终字段集合。
 

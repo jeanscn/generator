@@ -67,7 +67,7 @@ public class VoExcelGenerator extends AbstractVoGenerator {
         //添加属性
         List<Field> exportFields;
         if (!voExcelGeneratorConfiguration.getExportIncludeFields().isEmpty()) {
-            exportFields = allFields.stream().filter(f->voExcelGeneratorConfiguration.getExportIncludeFields().contains(f.getName())).collect(Collectors.toList());
+            exportFields = orderExportFields(allFields, voExcelGeneratorConfiguration.getExportIncludeFields());
         }else{
            Set<String> excludeFields = voExcelGeneratorConfiguration.getExportExcludeFields();
             voGeneratorConfiguration.getExcludeColumns().stream().map(c-> introspectedTable.getColumn(c).orElse(null)).filter(Objects::nonNull).forEach(c->excludeFields.add(c.getJavaProperty()));
@@ -94,6 +94,31 @@ public class VoExcelGenerator extends AbstractVoGenerator {
         mappingsInterface.addMethod(addMappingMethod(excelVoClass.getType(), entityType, false));
         mappingsInterface.addMethod(addMappingMethod(excelVoClass.getType(), entityType, true));
         return excelVoClass;
+    }
+
+    private List<Field> orderExportFields(List<Field> allFields, List<String> exportIncludeFields) {
+        Map<String, Field> fieldsByName = new LinkedHashMap<>();
+        for (Field field : allFields) {
+            if (fieldsByName.putIfAbsent(field.getName(), field) != null) {
+                throw new IllegalStateException("excelVo 生成属性重复，无法按 includeFields 排序: "
+                        + field.getName());
+            }
+        }
+
+        Set<String> includedNames = new LinkedHashSet<>(exportIncludeFields);
+        if (includedNames.size() != exportIncludeFields.size()) {
+            throw new IllegalStateException("excelVo includeFields 存在重复字段: " + exportIncludeFields);
+        }
+
+        Set<String> unknownNames = new LinkedHashSet<>(includedNames);
+        unknownNames.removeAll(fieldsByName.keySet());
+        if (!unknownNames.isEmpty()) {
+            throw new IllegalStateException("excelVo includeFields 包含不存在的导出属性: " + unknownNames);
+        }
+
+        return exportIncludeFields.stream()
+                .map(fieldsByName::get)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**

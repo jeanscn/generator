@@ -34,7 +34,7 @@
 | Controller 端点 | 基础 CRUD/list/get/view、按列/关系/树/选项/统计/字典/Excel/视图端点、权限 action 与系统日志声明 | `generateController`、查询节点 `genControllerMethod`、`generateOptions`（§3、权威说明 §2.1.2） |
 | VO 家族 | `ModelVo`/`CreateVo`/`UpdateVo`/`ViewVo`/`ExcelVo`/`ExcelImportVo`/`RequestVo` 及 MapStruct 映射方法 | `generateVo` 各子节点（§5） |
 | 列表视图元数据 | `@ViewTableMeta`/`@ViewColumnMeta`/`@CompositeQuery`/`@ViewFuzzyColumnMeta`/`@QueryCondition`：默认显示列、复合查询、过滤、模糊检索、自定义组合条件、工具栏/行操作、默认排序、分类树、菜单元数据 | `viewVo` 及 `queryColumn`/`filterColumn`/`fieldOverrides`/`htmlButton`（§5.3、§5.3.2.1） |
-| Excel 导入导出 | 旧 `GET export`、个性化 `GET export/options` + `POST export`（scope/排序/行数限制/主键范围）、旧式逐行 `POST import`、两阶段 `import/preview`+`import/confirm` 工作流（资源限额必填）、模板表头批注与固定枚举下拉 | `excelVo`、`excelImport`（§5.1–5.2） |
+| Excel 导入导出 | 旧 `GET export`、个性化 `GET export/options` + `POST export`（字段范围/顺序、scope/排序/行数限制/主键范围）、旧式逐行 `POST import`、两阶段 `import/preview`+`import/confirm` 工作流（资源限额必填）、模板表头批注与固定枚举下拉 | `excelVo.includeFields`、`excludeFields`、`ignoreFields`、`excelImport`（§5.1–5.2） |
 | 字典缓存 | `{Domain}CachePo`、`selectByKeysDict`（含预取排序）、`/dict` 查询端点、缓存注解 | `generateCachePo`（§13.5） |
 | 审计字段 | 实体/VO 审计字段约定输出、更新 SQL 审计列处理；运行时依赖宿主 `vgosoft.mybatis.audit.mode=strict` | 默认行为 + `rootClass`（§审计字段输出、§16） |
 
