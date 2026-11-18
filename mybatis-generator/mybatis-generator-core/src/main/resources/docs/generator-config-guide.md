@@ -1158,6 +1158,21 @@ src/main/resources/sql/init/data-menu-<moduleKeyword小写>.sql
 | `applyProperty` | 映射结果取值属性。 |
 | `enumClassFullName` | 枚举类全名。 |
 
+### 展示属性（`Text` 伴生字段）命名约定
+
+字典类/引用类字段（`dataSource`/`annotationType` 为 `DictEnum`、`Dict`、`DictData`、`DictSys`、`DictModule`、`DictUser`、`YesNo` 等）在只读列表、详情与导出中不直接展示存储值，而是展示翻译后的伴生显示属性。属性名由 `ConfigUtil.getOverrideJavaProperty` 统一推导：
+
+| 情形 | 推导规则 | 示例 |
+|---|---|---|
+| Java 属性以 `Id` 结尾（长度 > 2） | 去掉 `Id` 再加 `Text` | `moduleId` → `moduleText`、`userId` → `userText` |
+| 其他属性 | 属性名直接加 `Text` | `sendState` → `sendStateText`、`status` → `statusText` |
+
+优先级与例外：
+
+1. `htmlElementDescriptor@otherFieldName` 显式值优先；`overridePropertyValue@targetProperty` 显式值优先于默认推导。
+2. `tagType` 为 `input`、`date`、`time`、`datetime`、`title`、`number`、`color` 等"同名字段"控件时沿用原 Java 属性名，不产生 `Text` 伴生字段。
+3. 默认推导作用于 `viewVo`/普通 VO 的伴生属性与 `@ViewColumnMeta`/`@DictXxx(source=...)` 注解值，`excelVo` 亦按同一规则命名；列表列绑定 `...Text` 展示翻译值，原始编码保留在原字段。
+
 ### 常见用法
 
 ```xml
