@@ -45,6 +45,9 @@ public class Vue3FormFilesPlugin extends PluginAdapter {
         }
 
         Map<String, Object> freeMakerContext = getContextProps(introspectedTable, htmlGeneratorConfiguration);
+        if (htmlGeneratorConfiguration != getFormHtmlConfiguration(introspectedTable)) {
+            return answer;
+        }
         String modulesPath = getVueEndProjectBasePath(introspectedTable);
         String modelPath = introspectedTable.getTableConfiguration().getDomainObjectName().toLowerCase();
 

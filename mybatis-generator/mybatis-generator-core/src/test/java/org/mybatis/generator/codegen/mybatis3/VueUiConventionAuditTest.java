@@ -136,6 +136,50 @@ public class VueUiConventionAuditTest {
                 .contains("zIndex: 80");
     }
 
+    /** 编辑页后跟打印页时，同名表单组件只生成一次，且保留编辑页导航。 */
+    @Test
+    void pageNavigatorSurvivesFollowingPrintPageWithoutDuplicateFormFiles() throws Exception {
+        String xml = withPageNavigator(CasConsumerBaselineTest.consumerXml(null), "word_");
+        int htmlStart = xml.indexOf("<generateHtml", xml.indexOf("tableName=\"sensitive_word\""));
+        int htmlEnd = xml.indexOf("</generateHtml>", htmlStart) + "</generateHtml>".length();
+        xml = xml.substring(0, htmlEnd)
+                + "<generateHtml generate=\"true\" type=\"print\" viewPath=\"print_sensitive_word\"/>"
+                + xml.substring(htmlEnd);
+
+        assertSingleNavigableFormFiles(xml);
+    }
+
+    /** 打印页在前而编辑页显式 default 时，仍只采用默认编辑页的导航生成表单组件。 */
+    @Test
+    void pageNavigatorUsesDefaultFormPageAfterPrintPage() throws Exception {
+        String xml = withPageNavigator(CasConsumerBaselineTest.consumerXml(null), "word_");
+        int htmlStart = xml.indexOf("<generateHtml", xml.indexOf("tableName=\"sensitive_word\""));
+        xml = xml.substring(0, htmlStart)
+                + "<generateHtml generate=\"true\" type=\"print\" default=\"false\" viewPath=\"print_sensitive_word\"/>"
+                + xml.substring(htmlStart).replaceFirst("<generateHtml", "<generateHtml default=\"true\"");
+
+        assertSingleNavigableFormFiles(xml);
+    }
+
+    private static void assertSingleNavigableFormFiles(String xml) throws Exception {
+        var parser = new ConfigurationParser(new ArrayList<>());
+        Configuration config = parser.parseConfiguration(new StringReader(xml));
+        parser.customConfig(config);
+        var generator = new MyBatisGenerator(config, new DefaultShellCallback(true), new ArrayList<>());
+        generator.generate(null, null, null, false);
+
+        for (String fileName : List.of("SensitiveWordEdit.vue", "SensitiveWordDetail.vue")) {
+            List<GeneratedFile> files = generator.getOtherGeneratedFiles().stream()
+                    .filter(file -> fileName.equals(file.getFileName()))
+                    .toList();
+            assertThat(files).as(fileName + " 不应被其他页面配置重复生成").hasSize(1);
+            assertThat(files.get(0).getFormattedContent())
+                    .contains(":pageNavigator=\"pageNavigator\"")
+                    .contains("id: \"nav-word_\"")
+                    .contains("\"word\": \"nav-word_\"");
+        }
+    }
+
     @Test
     void pageNavigatorRejectsInvalidPageTypeColumnsAndLayoutTargets() throws Exception {
         String baseXml = CasConsumerBaselineTest.consumerXml(null);

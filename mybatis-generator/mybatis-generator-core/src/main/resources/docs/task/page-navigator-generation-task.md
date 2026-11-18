@@ -1,7 +1,7 @@
 # 页面导航器生成任务书
 
 > 主体归属：`mybatis-generator-core`；协作：`mpmm-ui / @vgosoft/framework`。
-> 整体状态：已完成；进度：3/3；更新时间：2026-11-16。
+> 整体状态：原任务已完成；进度：3/3；多页面覆盖修复离线验证完成，业务重新生成待另行确认；更新时间：2026-11-18。
 
 ## 1. 范围与确认
 
@@ -37,3 +37,13 @@
 - 浏览器验收修复（2026-11-16）：用户反馈弹窗内导航按视口定位且点击不滚动。Framework 改为由 `VgoForm` 自动解析表单实际滚动容器，`VgoPageNav` 对齐局部容器可视区并兼容拖拽弹窗 transform。本地开发服务（sysadmin）中“其他会议纪要”编辑弹窗与详情抽屉已验证：导航位于内容区内，点击后目标滚动至容器顶部或底部兜底，激活项同步；拖拽后位置仍正确。定向测试 20/20 通过，Vite 构建通过。
 - 贴边固定调整（2026-11-16）：按用户确认，局部滚动容器模式下导航水平方向改为贴宿主外框（弹窗/抽屉/页面主体）边缘并覆盖内容区滚动条，垂直方向仍对齐滚动容器可视区，内容滚动时导航固定不动；`edge` 默认值由 14 调整为 8（Framework 组件与生成器 `PageNavigatorConfiguration` 同步）。浏览器验证：编辑弹窗导航右缘距弹窗外框 14px（现有生成产物仍显式 `edge: 14`，重新生成后为 8），超出内容区右缘覆盖滚动条，内容滚动 200px 后导航纵向位置不变；详情抽屉导航右缘距抽屉外框 14px。生成器回归、Framework 定向测试 20/20 与 Vite 构建通过。
 - 滚动容器外预留调整（2026-11-16）：按用户进一步确认，以上“覆盖滚动条”方式替换为实际滚动容器在导航侧连同滚动条一起内缩 36px，导航移至滚动容器外，撤销此前误加的表单内部留白；宿主外框、标题栏和底部操作区不变，展开面板不再次挤压容器，隐藏或卸载时恢复原边距。浏览器实测详情抽屉宽度由 1170px 减至 1134px，左右切换均准确预留 36px，隐藏后恢复 1170px；调整视口后预留区仍为 36px，滚动 150px 时导航固定。编辑弹窗滚动区宽度由 1138px 减至 1102px，滚动 200px 时导航固定；首次拖拽产生 transform 后导航仍对齐预留区，锚点跳转及激活项正确。仅更新 Framework 实现与两仓相关说明，不改变生成器声明、默认值或生成逻辑，不重新生成业务页面、不保存业务数据。
+
+## 5. 多页面配置覆盖导航修复（2026-11-18）
+
+- 消费现象：tmri_v4 的 `tmri_requirements`、`tmri_bid_docs`、`tmri_supplier_confirm` 均在 editable 配置中声明导航，后接 print 配置；tmri-ui4 对应六个 Edit/Detail 组件均未包含 `pageNavigator` 绑定。
+- 根因：`Context.generateFiles` 对每个 `generateHtml` 调用插件，`Vue3FormFilesPlugin` 原先每次都输出同名 Edit/Detail，后置 print 配置会生成无导航版本。离线回归已复现同名 Edit 组件数量为 2。
+- 授权：用户确认仅修复生成器并做离线回归；不连接数据库、不安装或发布工件、不执行业务重新生成。业务三表重新生成范围另行确认。
+- 实现：core `1.8.0-SNAPSHOT`、当前 DTD `1.8.0` 不变；保留原配置校验，仅让与 VO 表单元数据一致的配置输出 Edit/Detail。未修改 Framework 或业务生成产物。
+- 回归：在既有 `VueUiConventionAuditTest` 增加 editable 后接 print、非默认 print 在前而默认 editable 在后两种顺序，断言每个 Edit/Detail 仅生成一次且包含导航绑定、导航项和字段锚点映射。使用只读元数据替身，禁止写盘生成。
+- 验证状态：修复前新增两例均因重复组件失败（退出码 1）；修复后 `mvn -o -q -pl mybatis-generator-core -Dtest=VueUiConventionAuditTest -Dsurefire.failIfNoSpecifiedTests=false test` 为 9 项中 8 项通过、1 项失败（退出码 1），唯一失败是已登记的 `pageNavigatorGeneratesMatchingEditAndDetailAnchorsWithComponentDefaults` 默认宽度/层级断言漂移（`generator-core-ISSUE-0012`），本轮未修改。显式选择其余 8 个测试方法重跑，8/8 通过、失败/错误/跳过均为 0（退出码 0）；包含新增两例、配置属性映射、无效配置拒绝、UI 约定、详情间距及 Markdown 两例。`git diff --check` 通过。
+- 验收边界：以上仅为生成器离线回归，不代表整体测试类通过或业务页面已修复上线；未连接业务数据库、未安装/发布工件、未改写六个业务组件，三表真实重新生成与浏览器导航显示/跳转尚未执行。

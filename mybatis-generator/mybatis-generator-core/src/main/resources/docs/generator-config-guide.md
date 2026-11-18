@@ -1235,6 +1235,8 @@ src/main/resources/sql/init/data-menu-<moduleKeyword小写>.sql
 3. 一个表存在多个 `generateHtml` 时，`pageNavigator` 必须配置在 Vue 表单元数据实际采用的页面配置上：第一个 `default="true"` 配置，若没有则为第一个配置。`VueHtmMetaAnnotationPlugin` 使用同一选择规则，因此不允许导航项与表单字段布局/隐藏配置脱节。
 4. `items` 由 `columns` 生成，`activeId` 由组件根据滚动位置维护，不单独提供 XML 配置。
 
+Vue3 的 Edit/Detail 组件只由上述选中的表单配置输出一次；同表的其他配置（例如后置 `print`）不会再输出同名组件并覆盖导航。已有业务组件须使用包含此修复的生成器重新生成后生效，不直接手改受保护产物。
+
 ### 7.2 页面布局
 
 #### 7.2.1 `layout`
