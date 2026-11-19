@@ -3,7 +3,7 @@
 > 所属项目：`generator/mybatis-generator`
 > 模块/范围：`mybatis-generator-core`
 > 规范：[非主线问题登记与后续处理规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\deferred-issue-management-standard.md)
-> 更新时间：2026-11-16
+> 更新时间：2026-11-20
 
 ## 1. 问题总览
 
@@ -18,9 +18,10 @@
 | generator-core-ISSUE-0007 | 低 | 测试与基线 | SensitiveGenerationTest 的 FreeMarker include 缺少模板加载器 | 已定位根因并修复（2026-11-07） | 已处理（render 补 ClassTemplateLoader） | — | 2026-10-28 | 无（同批生成器回归中的非主线问题） |
 | generator-core-ISSUE-0008 | 中 | 数据一致性 | 根实体结构同步 DDL 失败仅告警且生成继续 | 已复现 | 待处理（2026-11-07 确认保持登记，不实现 fail-fast） | — | 2026-10-29 | [根实体结构同步检查任务书](task/root-class-schema-sync-task.md) |
 | generator-core-ISSUE-0009 | 中 | 依赖兼容 | `vgosoft-tool:7.0.0-SNAPSHOT` 的 `VArrayUtil.merge` 新增受检异常导致生成器无法全量编译 | 已复现 | 已解决（生成器适配异常契约） | 复核通过 | 2026-11-07 | [审计字段自动填充任务书](task/audit-field-filling-task.md) T08 |
-| generator-core-ISSUE-0010 | 中 | 权限 | `generateController` 缺少按接口简称排除 `@PreAuthorize` 的配置 | 源码已定位 | 待处理（需求登记） | — | 2026-11-12 | 无（用户提出的生成器配置需求） |
+| generator-core-ISSUE-0010 | 中 | 权限 | `generateController` 缺少按接口简称排除 `@PreAuthorize` 的配置 | 已实现并回归 | 已处理（apiPermissions 白名单） | — | 2026-11-20 | [接口权限白名单任务书](task/api-permission-whitelist-task.md) |
 | generator-core-ISSUE-0011 | 中 | 测试与基线 | 全量测试中既有基线漂移与 Excel 导入夹具失败 | 已定位根因并修复（2026-11-15） | 已处理（基线重录 + 夹具固定快照 + 孤儿 import 生成逻辑修复） | — | 2026-11-15 | VgoTable 查询表单 W2 |
 | generator-core-ISSUE-0012 | 低 | 测试与基线 | `pageNavigatorGeneratesMatchingEditAndDetailAnchorsWithComponentDefaults` 期望 width 220/zIndex 60 与当前默认 150/120 不符 | 已复现 | 待处理（基线断言需随默认值演进更新） | — | 2026-11-16 | [表单 Markdown 字段支持任务书](task/markdown-form-field-task.md) |
+| generator-core-ISSUE-0013 | 中 | 测试与基线 | Service Impl 输出演进导致 CAS 基线 3 个 Impl 文件与两个哈希基线的服务实现层漂移 | 已复现并归因（合入提交 5c98f5e9 等） | 待处理（需负责人批准重录基线/摘要） | — | 2026-11-20 | [接口权限白名单任务书](task/api-permission-whitelist-task.md) 回归旁路发现 |
 
 ## 2. 问题详情
 
@@ -137,7 +138,7 @@
 - 与当前任务的关系：本次只将用户提出的能力需求登记到台账，不修改解析器、DTD、Controller 生成逻辑或接口清单。
 - 建议后续处理：在 `generateController` 下增加 property，值为逗号分隔的 Controller 生成方法简称；生成时将其与接口清单中的简称一致匹配，对命中接口省略 `@PreAuthorize`，未命中接口继续保持现有行为。后续实施时同步评估 DTD/property 解析、生成配置指南、权限 key 清单及覆盖默认行为的生成回归。
 - 责任与关联：`mybatis-generator-core` 配置解析及 Controller 生成能力维护方；需求来源为用户，本次未获授权实施功能。
-- 更新与关闭记录：2026-11-12 首次登记，中/源码已定位/待处理；当前仅记录需求，未实现或验证该能力。
+- 更新与关闭记录：2026-11-12 首次登记，中/源码已定位/待处理；当前仅记录需求，未实现或验证该能力。2026-11-20 按确认方案落地：接口权限改为默认不生成，`generateController` 新增 `apiPermissions` property 白名单（`all` 全量、逗号前缀、`relation` 保留值、动态 code 精确匹配），注解与权限 SQL 同生同灭；`PreAuthorize` import 按实际注解存在性引入；见[接口权限白名单任务书](task/api-permission-whitelist-task.md)，问题关闭。
 
 ### generator-core-ISSUE-0011 全量测试中既有基线漂移与 Excel 导入夹具失败
 
@@ -162,3 +163,14 @@
 - 根因与修复（2026-11-15 关闭）：8 项失败分三类。①基线漂移（2 项）：已提交的 query-condition 组合条件特性将 Example 的 `andXxxAnyCondition` 改为 `andXxxRegexp`、实体 `anyWhereCondition` 描述由「任意过滤条件」改为「受限条件表达式…」、Controller `andAnyCondition` 改为 `andRegexp`/`andTrustedCondition` 并引入 `parseCondition`/`parseFilterMap` 列白名单，属合法变更，按批准方案重录 `consumer-current-v1-parser-baseline.zip`（16 个文件逐项核对均属上述变更）与 `SensitiveGenerationTest.offlineOutputBaseline` 四个场景×三层摘要（实体层与 TS 层变化，服务实现层不变）。②Excel 夹具（6 项）：`ExcelImportWorkflowGenerationTest` 与 `ImportScopeAuditTest` 通过 `consumerXml` 读取漂移的实时消费配置（`sensitive_word` 的 `excelVo` 由 `generate="false"` 改为 `generate="true" includeFields="…"`），改为固定快照 `consumerSnapshotXml` 消除配置漂移。③孤儿 import（生成逻辑缺陷）：`VoExcelGenerator` 经 `buildOverrideColumn` 为派生转换字段（如 `categoryText`/`strategyText`）登记 `@Dict`/`@DictEnum` 导入后，字段又被 `exportIncludeFields` 过滤掉，遗留孤儿 import；修复为仅在 include 过滤下构建会被导出的转换属性。全量复跑 684 项 0 失败 5 跳过通过。
 - 后续约束：`DisabledServiceEntryGenerationTest` 与 `VueUiConventionAuditTest` 仍通过 `consumerXml` 读取实时消费配置，当前不失败但存在后续漂移风险，宜在后续统一固定到快照；`VoExcelGenerator` 孤儿 import 修复的确定性回归建议由既有 `ImportScopeAuditTest`（revision 场景含 `excelVo` 路径）覆盖，若消费配置再次关闭 `excelVo` 需另立固定夹具。
 - 更新与关闭记录：2026-11-15 首次登记，中/已复现/待处理；同日全量复跑 681 项，8 项失败仍为原失败集合，新增兼容测试及组合条件定向测试 28 项全部通过。2026-11-15 定位根因并按批准方案修复：重录 CAS 原始输出基线、更新敏感离线基线摘要、将 Excel/Import 审计夹具固定到快照配置、修复 `VoExcelGenerator` 孤儿 import；全量 684 项 0 失败 5 跳过通过，问题关闭。
+
+### generator-core-ISSUE-0013 Service Impl 输出演进导致 CAS 基线 3 个 Impl 文件与两个哈希基线的服务实现层漂移
+
+- 发现来源：2026-11-20 执行[接口权限白名单任务书](task/api-permission-whitelist-task.md) 全量回归时，`mvn -o -pl mybatis-generator-core test` 722 项中 4 项失败，其中 3 项与本任务无关。
+- 位置与证据：`CasWriteGenerationTest.retainsCompleteVersionedRawBaseline` 差异仅剩 `AbstractSensitiveCategoryImpl.java`、`AbstractSensitiveRuleRevisionImpl.java`、`AbstractSensitiveWordImpl.java` 三个 Service Impl 文件（权限 SQL 差异已按本任务批准的权限显示名方案对齐基线后消除）；`SelectForUpdateGenerationTest.offlineOutputBaseline` 场景 0 层 2（Service Impl）摘要不符；`SensitiveGenerationTest.offlineOutputBaseline` 场景 0 层 1（Service Impl）摘要不符。
+- 问题现象与触发条件：直接执行上述测试即失败。差异内容为 Service Impl 输出演进：写操作异常由 `throw new VgoException(ServiceCodeEnum.FAIL.code(), e.getMessage())` 变为 `throw new VgoException(e.getMessage(), e).setCode(...)`（已合入提交 `5c98f5e9 fix(generator): 保留服务写操作异常原因链`，2026-11-19）、`Example` 包迁至 `entity.example.*` 子包、生成文件头注释更新。三个失败用例的 Service Impl 生成路径与本任务（Controller 接口权限白名单）无交集，且两个哈希用例的夹具 `generateController="false"`，可确证为既有漂移。
+- 影响与分级依据：中。属既有基线/摘要漂移，不影响生成行为；但全量回归无法整体通过，且 CAS 基线 zip 与哈希摘要的更新均须先说明真实差异并经负责人确认（参照 generator-core-ISSUE-0004 关闭先例），本次未获授权，只登记不重录。
+- 与当前任务的关系：本任务在 `CasWriteGenerationTest.parse` 注入 `apiPermissions=all` 保持 CAS 夹具的历史全量权限输出语义，并按批准的权限显示名方案对齐了基线 zip 中两个 `data-permission-*.sql` 条目；剩余 3 个 Impl 差异与上述两个哈希用例失败均属本项漂移。`retainsAllDisabledOutputsAndLimitsOptInDiff` 与本任务相关用例全部通过。
+- 建议后续处理：独立核对三个 Impl 差异是否全部为 `5c98f5e9` 与 example 子包迁移/文件头演进的合法输出；确认后按批准范围重录 `consumer-current-v1-parser-baseline.zip` 对应 3 个条目及两个哈希基线的 Service Impl 层摘要，不回退生成逻辑掩盖。
+- 责任与关联：`mybatis-generator-core` 测试维护方；与 generator-core-ISSUE-0001（消费配置漂移）不同源，与 generator-core-ISSUE-0004（锁查询基线历史漂移）同测试。
+- 更新与关闭记录：2026-11-20 首次登记，中/已复现并归因/待处理；本轮只登记，不修改基线与断言。

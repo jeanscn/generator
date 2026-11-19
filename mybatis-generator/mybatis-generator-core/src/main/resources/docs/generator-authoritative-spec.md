@@ -152,7 +152,7 @@ MySQL、MariaDB、TiDB、PolarDB、TDSQL 的 JDBC 兜底也必须调用 core-db 
 
 `controllerBeanName` 为配置 `domainObjectName` 首字母小写后加 `Impl`；未配置时由表名转换为 lowerCamelCase 后加 `Impl`。`serviceApiBasePath` 默认取 `moduleKeyword`，缺省时回退到 HTML target package，再缺省为 `app`；配置解析时统一转为短横线格式。非空前缀时基础路径为 `<serviceApiBasePath>/<controllerBeanName-kebab>`，前缀为空时仅使用 Controller bean 名路径。表格中的“路径”是相对于该基础路径的后缀；`/` 表示基础路径本身，`{主键属性}` 表示按内省主键属性顺序生成的一个或多个路径段。所有行还受上述 Controller 总开关约束。
 
-“权限”列给出生成的 `@PreAuthorize("@uss.hasPermission('<key>')")` 中的 key。只有 `integrateSpringSecurity=true` 时才会生成这些注解；表中 `-` 表示对应 Controller element 未生成 `@PreAuthorize` 注解（不代表该路由在宿主运行时一定公开或无需其他访问控制）。模板中的模块关键字、Controller bean 名及配置方法名均按生成器的 `toLowerCase()` 规则计算。
+“权限”列给出生成的 `@PreAuthorize("@uss.hasPermission('<key>')")` 中的 key。仅在 `integrateSpringSecurity=true` 且 `<generateController>` 的 `apiPermissions` 白名单命中对应方法前缀小写 code（或值为 `all`；关系维护端点可由保留值 `relation`、选项端点可由保留值 `option` 整类放行）时，才生成注解及对应 `data-permission-*.sql` 权限数据；未配置 `apiPermissions` 时全部接口不生成。表中 `-` 表示对应 Controller element 未接入 `@PreAuthorize` 生成（不代表该路由在宿主运行时一定公开或无需其他访问控制）。模板中的模块关键字、Controller bean 名及配置方法名均按生成器的 `toLowerCase()` 规则计算。
 
 | HTTP 方法 | 完整路径（基础路径 + 后缀） | 简称（生成方法名） | 功能说明 | 生成条件 | 权限 |
 |---|---|---|---|---|---|

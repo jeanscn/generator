@@ -47,7 +47,7 @@ public class UpdateElementGenerator extends AbstractControllerElementGenerator {
 
         method.addAnnotation(new SystemLogDesc("更新了一条记录", introspectedTable), parentElement);
         method.addAnnotation(new RequestMappingDesc("", RequestMethodEnum.PUT), parentElement);
-        addSecurityPreAuthorize(method, methodPrefix, "更新");
+        addSecurityPreAuthorize(method, methodPrefix, "修改");
         method.addAnnotation(new OperationDesc("更新一条记录", "根据主键更新数据"), parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "根据主键更新实体对象");

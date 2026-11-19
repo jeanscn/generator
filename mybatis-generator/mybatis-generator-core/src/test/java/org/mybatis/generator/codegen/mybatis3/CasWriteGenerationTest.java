@@ -36,6 +36,14 @@ class CasWriteGenerationTest {
                 : CasConsumerBaselineTest.consumerSnapshotXml(value);
         var config = parser.parseConfiguration(new StringReader(xml));
         if (customize) { parser.customConfig(config); }
+        // 固化基线对应“全量接口权限”语义；快照未配置 apiPermissions 时按 all 注入，
+        // 使本类断言只覆盖 CAS 行为差异，不受接口权限白名单新默认影响。
+        config.getContexts().forEach(context -> context.getTableConfigurations().forEach(tc -> {
+            var controller = tc.getJavaControllerGeneratorConfiguration();
+            if (controller != null && controller.isGenerate()) {
+                controller.addProperty(PropertyRegistry.CONTROLLER_API_PERMISSIONS, "all");
+            }
+        }));
         return config;
     }
     static Map<String, String> generate(Configuration config) throws Exception {

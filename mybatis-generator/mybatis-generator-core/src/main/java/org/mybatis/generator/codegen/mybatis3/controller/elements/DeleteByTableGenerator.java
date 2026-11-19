@@ -57,7 +57,8 @@ public class DeleteByTableGenerator extends AbstractControllerElementGenerator {
                     method.addAnnotation(new SystemLogDesc("删除数据关联", introspectedTable),parentElement);
                     method.addAnnotation(new RequestMappingDesc("split/"+ toHyphenCase(c.getMethodSuffix())
                             , RequestMethodEnum.POST),parentElement);
-                    addSecurityPreAuthorize(method,c.getSplitMethodName(),"删除关系");
+                    addSecurityPreAuthorize(method, c.getSplitMethodName(),
+                            relationPermissionName(c, "删除"), "relation");
                     method.addAnnotation(new OperationDesc("删除数据关联关系", "删除中间表数据"),parentElement);
 
                     commentGenerator.addMethodJavaDocLine(method, "删除中间关系表数据（取消数据关联）");

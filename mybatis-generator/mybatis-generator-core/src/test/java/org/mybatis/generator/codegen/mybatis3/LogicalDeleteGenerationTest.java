@@ -48,6 +48,15 @@ class LogicalDeleteGenerationTest {
             }
             selectEnd += "</selectByColumn>".length();
             xml = xml.substring(0, selectStart) + select + xml.substring(selectEnd);
+            tableEnd = xml.indexOf("</table>", start);
+            int controllerStart = xml.indexOf("<generateController", start);
+            if (controllerStart < 0 || controllerStart > tableEnd) {
+                throw new IllegalStateException("固定消费快照缺少 " + table + " 的 generateController 配置");
+            }
+            int openEnd = xml.indexOf(">", controllerStart) + 1;
+            xml = xml.substring(0, openEnd)
+                    + "<property name=\"apiPermissions\" value=\"all\"/>"
+                    + xml.substring(openEnd);
         }
         var parser = new ConfigurationParser(new ArrayList<>());
         var result = parser.parseConfiguration(new StringReader(xml));

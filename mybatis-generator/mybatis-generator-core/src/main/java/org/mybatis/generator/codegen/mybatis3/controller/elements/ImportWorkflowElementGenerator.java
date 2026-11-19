@@ -47,7 +47,7 @@ public class ImportWorkflowElementGenerator extends AbstractControllerElementGen
         mapping.addConsumes("MediaType.MULTIPART_FORM_DATA_VALUE");
         mapping.addProduces("MediaType.APPLICATION_JSON_VALUE");
         method.addAnnotation(mapping, parentElement);
-        addSecurityPreAuthorize(method, "import", "导入预览");
+        addSecurityPreAuthorize(method, "import", "导入");
         method.addAnnotation(new OperationDesc("Excel 导入预览", "解析并校验 Excel 导入内容"), parentElement);
         commentGenerator.addMethodJavaDocLine(method, "预览 Excel 导入内容");
 
@@ -97,7 +97,7 @@ public class ImportWorkflowElementGenerator extends AbstractControllerElementGen
         mapping.addConsumes("MediaType.MULTIPART_FORM_DATA_VALUE");
         mapping.addProduces("MediaType.APPLICATION_JSON_VALUE");
         method.addAnnotation(mapping, parentElement);
-        addSecurityPreAuthorize(method, "import", "导入确认");
+        addSecurityPreAuthorize(method, "import", "导入");
         method.addAnnotation(new OperationDesc("Excel 导入确认", "重新解析文件并提交已校验的 Excel 导入预览"), parentElement);
         commentGenerator.addMethodJavaDocLine(method, "重新解析文件并确认 Excel 导入预览");
 

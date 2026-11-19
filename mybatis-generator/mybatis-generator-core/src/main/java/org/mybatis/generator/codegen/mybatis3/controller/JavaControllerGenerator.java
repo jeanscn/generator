@@ -80,9 +80,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         conTopClazz.addImportedType("org.springframework.web.bind.annotation.*");
         conTopClazz.addStaticImport(RESPONSE_RESULT + ".*");
         conTopClazz.addImportedType(new FullyQualifiedJavaType(API_CODE_ENUM));
-        if (introspectedTable.getRules().isIntegrateSpringSecurity()) {
-            conTopClazz.addImportedType("org.springframework.security.access.prepost.PreAuthorize");
-        }
+
         FullyQualifiedJavaType bizInfType = new FullyQualifiedJavaType(infName);
         Field field = new Field(introspectedTable.getControllerBeanName(), bizInfType);
         field.setVisibility(JavaVisibility.PRIVATE);
@@ -500,6 +498,13 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             }
         }
         if (controllerGenerated) {
+            // 白名单可能配置了但未命中任何端点（如仅 relation 而表无关系端点），
+            // 按方法上实际存在的注解决定是否引入 import，避免零权限输出残留未使用 import
+            if (conTopClazz.getMethods().stream()
+                    .flatMap(m -> m.getAnnotations().stream())
+                    .anyMatch(annotation -> annotation.contains("@PreAuthorize"))) {
+                conTopClazz.addImportedType("org.springframework.security.access.prepost.PreAuthorize");
+            }
             answer.add(conTopClazz);
         }
         //生成子类

@@ -43,7 +43,7 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
         method.setReturnRemark("结果对象列表");
         method.addAnnotation(new SystemLogDesc("查看数据列表", introspectedTable), parentElement);
         method.addAnnotation(new RequestMappingDesc("", RequestMethodEnum.GET), parentElement);
-        addSecurityPreAuthorize(method, methodPrefix, "数据列表");
+        addSecurityPreAuthorize(method, methodPrefix, "列表查询");
         method.addAnnotation(new OperationDesc("获得列表数据", "根据给定条件获取多条或所有数据列表，可以根据需要传入属性同名参数"), parentElement);
         commentGenerator.addMethodJavaDocLine(method, "获取条件实体对象列表");
         method.addBodyLine("if (actionType != null) '{'{0}.setActionType(actionType);'}'", introspectedTable.getRules().isGenerateRequestVo() ? entityRequestVoType.getShortNameFirstLowCase() :
@@ -71,7 +71,7 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
         postMethod.setReturnRemark("结果对象列表");
         postMethod.addAnnotation(new SystemLogDesc("查看数据列表", introspectedTable), parentElement);
         postMethod.addAnnotation(new RequestMappingDesc("list", RequestMethodEnum.POST), parentElement);
-        addSecurityPreAuthorize(postMethod, methodPrefix, "数据列表");
+        addSecurityPreAuthorize(postMethod, methodPrefix, "列表查询");
         postMethod.addAnnotation(new OperationDesc("获得列表数据", "根据给定条件获取多条或所有数据列表，可以根据需要传入属性同名参数"), parentElement);
         commentGenerator.addMethodJavaDocLine(postMethod, "获取条件实体对象列表");
         postMethod.addBodyLine("if (actionType != null) '{'{0}.setActionType(actionType);'}'", introspectedTable.getRules().isGenerateRequestVo() ? entityRequestVoType.getShortNameFirstLowCase() :

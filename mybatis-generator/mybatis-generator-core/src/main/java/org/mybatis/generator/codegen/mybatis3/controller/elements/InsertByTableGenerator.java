@@ -58,7 +58,8 @@ public class InsertByTableGenerator extends AbstractControllerElementGenerator {
                     method.addAnnotation(new SystemLogDesc("添加数据关联", introspectedTable), parentElement);
                     method.addAnnotation(new RequestMappingDesc("union/" + toHyphenCase(c.getMethodSuffix())
                             , RequestMethodEnum.POST), parentElement);
-                    addSecurityPreAuthorize(method, c.getUnionMethodName(), "添加关系");
+                    addSecurityPreAuthorize(method, c.getUnionMethodName(),
+                            relationPermissionName(c, "添加"), "relation");
                     method.addAnnotation(new OperationDesc("添加数据关联关系", "添加中间表数据"), parentElement);
 
                     commentGenerator.addMethodJavaDocLine(method, "添加中间关系表数据（添加数据关联）");

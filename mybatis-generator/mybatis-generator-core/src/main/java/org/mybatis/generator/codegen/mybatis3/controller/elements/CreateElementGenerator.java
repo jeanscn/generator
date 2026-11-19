@@ -50,7 +50,7 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
 
         method.addAnnotation(new SystemLogDesc("添加了一条记录", introspectedTable),parentElement);
         method.addAnnotation(new RequestMappingDesc("", RequestMethodEnum.POST),parentElement);
-        addSecurityPreAuthorize(method,methodPrefix,"创建");
+        addSecurityPreAuthorize(method,methodPrefix,"新增");
         method.addAnnotation(new OperationDesc("新增一条记录", "新增一条记录,返回json，包含影响条数及消息"),parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "新增一条记录");

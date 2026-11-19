@@ -58,7 +58,7 @@ public class StatisticsTotalElementGenerator extends AbstractControllerElementGe
             Method method = new Method(configuration.getMethodName());
             method.setVisibility(JavaVisibility.PROTECTED);
             method.addAnnotation(new RequestMappingDesc(VStringUtil.toHyphenCase(configuration.getMethodName()), RequestMethodEnum.GET),parentElement);
-            addSecurityPreAuthorize(method,"statistics","统计数据");
+            addSecurityPreAuthorize(method,"statistics","统计查询");
             method.addAnnotation(new OperationDesc("获取汇总数据",remark),parentElement);
 
             FullyQualifiedJavaType response = getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_LIST, returnDto, parentElement);

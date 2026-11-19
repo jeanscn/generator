@@ -5,6 +5,8 @@ import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 
+import java.util.Set;
+
 /**
  * This class can be used by plugins to easily implement a custom rules
  * implementation. Plugins should respect the rules implementation calculated by
@@ -246,6 +248,15 @@ public class RulesDelegate implements Rules {
     @Override
     public boolean isIntegrateSpringSecurity() {
         return false;
+    }
+
+    /**
+     * 接口权限白名单与被代理规则保持一致；即使 {@link #isIntegrateSpringSecurity()}
+     * 在代理层固定关闭，白名单语义仍如实透传。
+     */
+    @Override
+    public Set<String> getApiPermissionPrefixes() {
+        return rules.getApiPermissionPrefixes();
     }
 
     @Override

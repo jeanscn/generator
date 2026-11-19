@@ -48,7 +48,7 @@ public class CreateBatchElementGenerator extends AbstractControllerElementGenera
 
         method.addAnnotation(new SystemLogDesc("添加了多条记录", introspectedTable),parentElement);
         method.addAnnotation(new RequestMappingDesc("batch", RequestMethodEnum.POST),parentElement);
-        addSecurityPreAuthorize(method, methodPrefix, "批量创建");
+        addSecurityPreAuthorize(method, methodPrefix, "批量新增");
         method.addAnnotation(new OperationDesc("新增多条记录", "新增多条记录,返回影响条数及消息"),parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "新增多条记录");

@@ -16,6 +16,9 @@ import org.mybatis.generator.config.RelationGeneratorConfiguration;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.Arrays;
+import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.vgosoft.core.constant.enums.view.HtmlDocumentTypeEnum.*;
 
@@ -56,6 +59,12 @@ public abstract class BaseRules implements Rules {
 
     protected final boolean integrateSpringSecurity;
 
+    /**
+     * Controller 接口权限白名单（小写方法前缀集合），来自 {@code generateController} 的
+     * {@code apiPermissions} property；空集合表示不生成接口权限
+     */
+    protected final Set<String> apiPermissionPrefixes;
+
     protected final boolean generateUnitTest;
 
     public BaseRules(AbstractIntrospectedTable introspectedTable) {
@@ -91,6 +100,8 @@ public abstract class BaseRules implements Rules {
         this.integrateMybatisPlus = introspectedTable.getContext().isIntegrateMybatisPlus();
 
         this.integrateSpringSecurity = introspectedTable.getContext().isIntegrateSpringSecurity();
+
+        this.apiPermissionPrefixes = parseApiPermissionPrefixes(javaControllerGeneratorConfiguration);
 
         this.generateUnitTest = true;
     }
@@ -561,6 +572,24 @@ public abstract class BaseRules implements Rules {
     @Override
     public boolean isIntegrateSpringSecurity() {
         return integrateSpringSecurity;
+    }
+
+    @Override
+    public Set<String> getApiPermissionPrefixes() {
+        return apiPermissionPrefixes;
+    }
+
+    private static Set<String> parseApiPermissionPrefixes(JavaControllerGeneratorConfiguration configuration) {
+        String property = configuration != null
+                ? configuration.getProperty(PropertyRegistry.CONTROLLER_API_PERMISSIONS) : null;
+        if (!StringUtility.stringHasValue(property)) {
+            return Set.of();
+        }
+        return Arrays.stream(property.split(","))
+                .map(String::trim)
+                .filter(StringUtility::stringHasValue)
+                .map(value -> value.toLowerCase(Locale.ROOT))
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override

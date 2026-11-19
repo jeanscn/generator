@@ -11,6 +11,7 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractGenerator;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
+import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
@@ -20,7 +21,9 @@ import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_PAGEHELPER_RESULT;
@@ -275,7 +278,18 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
     }
 
     protected void addSecurityPreAuthorize(Method method, String methodPrefix, String nameKey) {
-        if (introspectedTable.getRules().isIntegrateSpringSecurity()) {
+        addSecurityPreAuthorize(method, methodPrefix, nameKey, methodPrefix);
+    }
+
+    /**
+     * 生成接口权限注解与权限数据，两者同生同灭。
+     * 权限 code 第三段取 methodPrefix 小写值；permissionKey 为白名单匹配键：动态方法名端点
+     * （关系维护、选项）传入保留值（"relation"/"option"）使同类端点可统一放行，
+     * 白名单同时仍可按 methodPrefix 小写 code 精确命中单个端点。
+     */
+    protected void addSecurityPreAuthorize(Method method, String methodPrefix, String nameKey, String permissionKey) {
+        if (introspectedTable.getRules().isIntegrateSpringSecurity()
+                && isApiPermissionEnabled(methodPrefix, permissionKey)) {
             String l1 = introspectedTable.getContext().getModuleKeyword().toLowerCase();
             String l2 = serviceBeanName.toLowerCase();
             String l3 = methodPrefix.toLowerCase();
@@ -296,6 +310,25 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
             map.put(l3, nameKey);
             Mb3GenUtil.setPermissionSqlData(introspectedTable, map);
         }
+    }
+
+    /**
+     * 白名单判定：包含 "all" 放行全部接口；permissionKey（保留值）或 methodPrefix
+     * 小写 code 任一命中即放行
+     */
+    private boolean isApiPermissionEnabled(String methodPrefix, String permissionKey) {
+        Set<String> prefixes = introspectedTable.getRules().getApiPermissionPrefixes();
+        return prefixes.contains("all")
+                || prefixes.contains(permissionKey.toLowerCase(Locale.ROOT))
+                || prefixes.contains(methodPrefix.toLowerCase(Locale.ROOT));
+    }
+
+    /**
+     * 关系维护端点的权限显示名，取对方列短备注拼为 "{动作}{备注}关联"；无备注时回退 "{动作}关联"
+     */
+    protected String relationPermissionName(SelectByTableGeneratorConfiguration configuration, String action) {
+        String remarks = configuration.getOtherColumn().getRemarks(true);
+        return "--".equals(remarks) ? action + "关联" : action + remarks + "关联";
     }
 
     protected void addCacheEvictAnnotation(Method method, TopLevelClass parentElement) {

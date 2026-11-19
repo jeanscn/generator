@@ -58,7 +58,7 @@ public class TemplateElementGenerator extends AbstractControllerElementGenerator
         requestMappingDesc.addProduces("MediaType.APPLICATION_OCTET_STREAM_VALUE");
         method.addAnnotation(requestMappingDesc,parentElement);
         parentElement.addImportedType("org.springframework.http.MediaType");
-        addSecurityPreAuthorize(method,methodPrefix,"导入模板");
+        addSecurityPreAuthorize(method,methodPrefix,"下载导入模板");
         method.addAnnotation(new OperationDesc("Excel导入模板", "下载Excel导入模板接口"),parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "下载数据导入模板");

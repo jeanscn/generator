@@ -41,7 +41,7 @@ public class SelectBySqlMethodElementGenerator extends AbstractControllerElement
 
         method.addAnnotation(new SystemLogDesc("获取上级或下级标识", introspectedTable),parentElement);
         method.addAnnotation(new RequestMappingDesc("", RequestMethodEnum.GET),parentElement);
-        addSecurityPreAuthorize(method, methodPrefix, "调用获取上级或下级标识接口");
+        addSecurityPreAuthorize(method, methodPrefix, "上级/下级标识查询");
         method.addAnnotation(new OperationDesc("集成sql方法的查询", "获取所有父级或子级记录"),parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "获取上级或下级标识");

@@ -168,7 +168,7 @@ YAML 值按文件中的 YAML 标量读取；生成器不会启动 Spring 容器�
 | `jdkVersion` | JDK 版本 | 必填，取值 `8/9/11/17/21`。 |
 | `targetRuntime` | 生成运行时 | 当前 1.8.0：省略、null、空字符串或纯空白默认 `MyBatis3`；显式内置名称忽略大小写，其他非空值按实现类名解析。 |
 | `integrateMybatisPlus` | 当前 `context` 下生成物是否包含 MyBatis-Plus 相关内容 | 默认 `true`；仅控制生成输出，不决定宿主工程是否集成 MyBatis-Plus。 |
-| `integrateSpringSecurity` | 是否集成安全组件 | 默认 `true`。 |
+| `integrateSpringSecurity` | 是否集成安全组件 | 默认 `true`；仅为总开关，接口级 `@PreAuthorize` 与 `data-permission-*.sql` 权限数据的生成范围由 `<generateController>` 的 `apiPermissions` 白名单控制（未配置不生成）。 |
 | `forceUpdateScalableElement` | 是否强制覆盖可扩展元素 | 配合 `forceUpdateElementList` 使用。 |
 | `parentMenuId` | 菜单父级 | 生成 view 时可继承。 |
 | `updateModuleData` | 是否更新模块数据 | 默认 `false`。 |
@@ -254,6 +254,37 @@ DTD 属性仍为 `#IMPLIED`，仅当前 `mybatis-generator-config_1_8_0.dtd` 增
 查询列必须存在且能映射到生成实体属性；当前 `OptionElementGenerator` 在找不到 `nameColumn` 时会跳过该方法，因此生成后须检查路由确实存在。该端点返回 `FormSelectOption` / `FormSelectTreeOption` 列表，包含 ID、显示名称及可选 `selected` 回显；平面选项在存在 `sort_` 时排序，树选项递归使用 `sort` 排序，须确保对应模型属性存在。分页响应取决于 RequestVo 的 `includePageParam` 和请求分页参数。控制器方法会生成独立的数据选项权限 action（权限键由模块、Controller Bean 名及小写化的方法前缀组成，如 `optionname`）；静态权限 SQL 生成不等于权限数据已部署或用户已获权。接口本身不意味着响应来自 `generateCachePo` 缓存。
 
 `generateController` 下所有已接入的 HTTP 路由、生成方法简称、用途和逐项生成条件，见[生成器权威说明 §2.1.2 Controller 可生成接口清单](generator-authoritative-spec.md#212-controller-可生成接口清单)。该清单覆盖基础 CRUD、按列/关系查询、树、统计、视图及 Excel 接口；未接入 Controller 装配流程的 Mapper 能力不算 Controller 路由。配置型路径可能冲突，生成后应以实际 Controller 的 Spring Mapping 注解核对最终路径。
+
+#### `generateController` 的 `apiPermissions` 接口权限白名单
+
+`<property name="apiPermissions" value="..."/>` 控制接口级 `@PreAuthorize` 注解与 `data-permission-<table>.sql` 权限数据的生成范围，仅在 `integrateSpringSecurity=true` 时生效：
+
+- 未配置或为空（默认）：不生成任何接口权限注解与权限数据，Controller 不登记 `PreAuthorize` import。
+- `all`：全部已接入权限的接口生成。
+- 逗号白名单（匹配不区分大小写）：仅命中前缀的接口生成，注解与权限 SQL 同生同灭。保留值 `relation` 覆盖全部 union/split 关系维护端点、`option` 覆盖全部选项接口；动态方法名端点也可直接写其小写权限 code 段（如 `insertbytable{suffix}`、`option{属性}`）精确放行单个端点。
+
+| `apiPermissions` 值 | 权限 code 段 | 权限显示名 |
+|---|---|---|
+| `list` | `list` | 列表查询 |
+| `get` | `get` | 查看详情 |
+| `create` | `create` | 新增 |
+| `createBatch` | `createbatch` | 批量新增 |
+| `update` | `update` | 修改 |
+| `updateBatch` | `updatebatch` | 批量修改 |
+| `delete` | `delete` | 删除（含按列删除） |
+| `deleteBatch` | `deletebatch` | 批量删除 |
+| `recycleBatch` | `recyclebatch` | 移入回收站 |
+| `export` | `export` | 导出 |
+| `import` | `import` | 导入 |
+| `template` | `template` | 下载导入模板 |
+| `upload` | `upload` | 上传 |
+| `option` | `option{属性}` | 选项查询 |
+| `getDict` | `getdict` | 字典查询 |
+| `getDefaultView` | `getdefaultview` | 默认视图查询 |
+| `getDefaultViewConfig` | `getdefaultviewconfig` | 默认视图配置查询 |
+| `statistics` | `statistics` | 统计查询 |
+| `relation` | 各关系方法 code | 添加/删除{对方列备注}关联 |
+| `all` | 全部接口 | - |
 
 ### 表级歧义修正
 

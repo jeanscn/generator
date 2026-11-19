@@ -5,6 +5,8 @@ import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 
+import java.util.Set;
+
 /**
  * This interface centralizes all the rules related to code generation -
  * including the methods and objects to create, and certain attributes related
@@ -299,6 +301,16 @@ public interface Rules {
      * @return true if Spring Security is integrated
      * */
     boolean isIntegrateSpringSecurity();
+
+    /**
+     * Controller 接口权限生成白名单（小写方法前缀集合）。
+     * 仅在 {@link #isIntegrateSpringSecurity()} 生效时参与判定：集合包含 "all" 时对全部接口生成
+     * {@code @PreAuthorize} 注解与权限数据；否则仅命中前缀的接口生成；未配置时返回空集合（默认不生成）。
+     * 保留值 "relation" 匹配关系维护类端点。
+     *
+     * @return 小写方法前缀集合，未配置返回空集合
+     */
+    Set<String> getApiPermissionPrefixes();
 
     /**
      * 是否集成spring security。默认为true

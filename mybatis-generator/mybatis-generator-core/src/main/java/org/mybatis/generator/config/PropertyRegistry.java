@@ -99,6 +99,7 @@ public class PropertyRegistry {
     public static final String ANY_HTML_DISPLAY_ONLY_FIELDS = "htmlDisplayOnlyFields";
     public static final String ANY_EQUALS_AND_HASH_CODE = "equalsAndHashCodeColumns";
     public static final String CONTROLLER_ENABLE_SYSLOG_ANNOTATION = "enableSysLogAnnotation";
+    public static final String CONTROLLER_API_PERMISSIONS = "apiPermissions";
     public static final String ANY_NO_SWAGGER_ANNOTATION = "noSwaggerAnnotation";
     public static final String SERVICE_NO_SERVICE_ANNOTATION = "noServiceAnnotation";
     public static final String ANY_NO_META_ANNOTATION = "noMetaAnnotation";

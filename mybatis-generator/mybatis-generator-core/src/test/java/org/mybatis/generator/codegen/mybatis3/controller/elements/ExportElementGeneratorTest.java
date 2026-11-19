@@ -8,7 +8,9 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.IntrospectedTableMyBatis3Impl;
 import org.mybatis.generator.config.Context;
+import org.mybatis.generator.config.JavaControllerGeneratorConfiguration;
 import org.mybatis.generator.config.ModelType;
+import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.internal.DefaultCommentGenerator;
 import org.mybatis.generator.internal.rules.ConditionalModelRules;
@@ -101,10 +103,78 @@ class ExportElementGeneratorTest {
     }
 
     @Test
-    void shouldShareExportPermissionAcrossAllEndpoints() {
+    void shouldShareExportPermissionAcrossAllEndpointsWhenWhitelisted() {
         Fixture fixture = fixture(true);
         fixture.context.setModuleKeyword("sample");
         fixture.context.setModuleName("测试");
+        enableSecurity(fixture, "export");
+        fixture.generator.addElements(fixture.output);
+        for (String name : List.of("exportRecord", "exportOptionsRecord", "exportPostRecord")) {
+            assertThat(method(fixture, name).getAnnotations()).contains(
+                    "@PreAuthorize(\"@uss.hasPermission('sample:service:export')\")");
+        }
+        assertThat(fixture.table.getPermissionDataScriptLines().values())
+                .anyMatch(sql -> sql.contains("sample:service:export") && sql.contains("导出"));
+    }
+
+    @Test
+    void shouldShareExportPermissionAcrossAllEndpointsWithAll() {
+        Fixture fixture = fixture(true);
+        fixture.context.setModuleKeyword("sample");
+        fixture.context.setModuleName("测试");
+        enableSecurity(fixture, "all");
+        fixture.generator.addElements(fixture.output);
+        for (String name : List.of("exportRecord", "exportOptionsRecord", "exportPostRecord")) {
+            assertThat(method(fixture, name).getAnnotations()).contains(
+                    "@PreAuthorize(\"@uss.hasPermission('sample:service:export')\")");
+        }
+    }
+
+    @Test
+    void shouldOmitPreAuthorizeWhenApiPermissionsUnset() {
+        Fixture fixture = fixture(true);
+        fixture.context.setModuleKeyword("sample");
+        fixture.context.setModuleName("测试");
+        enableSecurity(fixture, null);
+        fixture.generator.addElements(fixture.output);
+        for (Method m : fixture.output.getMethods()) {
+            assertThat(m.getAnnotations().toString()).doesNotContain("@PreAuthorize");
+        }
+        assertThat(fixture.table.getPermissionDataScriptLines()).isEmpty();
+    }
+
+    @Test
+    void shouldOmitPreAuthorizeForPrefixesOutsideWhitelist() {
+        Fixture fixture = fixture(true);
+        fixture.context.setModuleKeyword("sample");
+        fixture.context.setModuleName("测试");
+        enableSecurity(fixture, "list,relation");
+        fixture.generator.addElements(fixture.output);
+        for (Method m : fixture.output.getMethods()) {
+            assertThat(m.getAnnotations().toString()).doesNotContain("@PreAuthorize");
+        }
+        assertThat(fixture.table.getPermissionDataScriptLines()).isEmpty();
+    }
+
+    @Test
+    void shouldMatchApiPermissionPrefixesCaseInsensitively() {
+        Fixture fixture = fixture(true);
+        fixture.context.setModuleKeyword("sample");
+        fixture.context.setModuleName("测试");
+        enableSecurity(fixture, " EXPORT ");
+        fixture.generator.addElements(fixture.output);
+        assertThat(method(fixture, "exportRecord").getAnnotations()).contains(
+                "@PreAuthorize(\"@uss.hasPermission('sample:service:export')\")");
+    }
+
+    private static void enableSecurity(Fixture fixture, String apiPermissions) {
+        if (apiPermissions != null) {
+            JavaControllerGeneratorConfiguration controllerConfiguration =
+                    new JavaControllerGeneratorConfiguration(fixture.context,
+                            fixture.table.getTableConfiguration());
+            controllerConfiguration.addProperty(PropertyRegistry.CONTROLLER_API_PERMISSIONS, apiPermissions);
+            fixture.table.getTableConfiguration().setJavaControllerGeneratorConfiguration(controllerConfiguration);
+        }
         fixture.table.setRules(new ConditionalModelRules(fixture.table) {
             @Override
             public boolean isGenerateRequestVo() { return true; }
@@ -112,11 +182,6 @@ class ExportElementGeneratorTest {
             @Override
             public boolean isIntegrateSpringSecurity() { return true; }
         });
-        fixture.generator.addElements(fixture.output);
-        for (String name : List.of("exportRecord", "exportOptionsRecord", "exportPostRecord")) {
-            assertThat(method(fixture, name).getAnnotations()).contains(
-                    "@PreAuthorize(\"@uss.hasPermission('sample:service:export')\")");
-        }
     }
 
     @Test
