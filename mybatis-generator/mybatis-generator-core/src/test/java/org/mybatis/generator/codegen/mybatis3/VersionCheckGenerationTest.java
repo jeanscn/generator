@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3;
 
+import com.github.javaparser.StaticJavaParser;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
@@ -132,6 +133,21 @@ class VersionCheckGenerationTest {
                 "TransactionAspectSupport.currentTransactionStatus().setRollbackOnly()",
                 "ServiceResult.failure(ServiceCodeEnum.WARN, \"版本冲突，请刷新后重试\")",
                 "ServiceResult.failure(ServiceCodeEnum.WARN, \"批量更新存在版本冲突，请刷新后重试\")");
+    }
+
+    /** 校验各类生成写方法保留失败码、原始消息及同一异常 cause。 */
+    @Test
+    void generatedWriteFailuresPreserveCodeMessageAndCause() throws Exception {
+        String service = output(generate(parse(null)), "AbstractSensitiveCategoryImpl.java");
+        var type = StaticJavaParser.parse(service).getClassByName("AbstractSensitiveCategoryImpl").orElseThrow();
+
+        for (String methodName : List.of("insert", "insertSelective", "insertOrUpdate",
+                "updateBatchByPrimaryKey", "updateByPrimaryKey", "updateByPrimaryKeySelective")) {
+            var method = type.getMethodsByName(methodName).stream().findFirst().orElseThrow();
+            assertThat(method.getBody().orElseThrow().toString())
+                    .as("生成方法 %s 的失败包装", methodName)
+                    .contains("new VgoException(e.getMessage(), e).setCode(ServiceCodeEnum.FAIL.code())");
+        }
     }
 
     @ParameterizedTest

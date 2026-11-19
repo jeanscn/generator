@@ -70,7 +70,7 @@ public class InsertSelectiveElement extends AbstractServiceElementGenerator {
         insertSelectiveMethod.addBodyLine("}");
 
         insertSelectiveMethod.addBodyLine("} catch (Exception e) {");
-        insertSelectiveMethod.addBodyLine("throw new VgoException(ServiceCodeEnum.FAIL.code(), e.getMessage());");
+        insertSelectiveMethod.addBodyLine("throw new VgoException(e.getMessage(), e).setCode(ServiceCodeEnum.FAIL.code());");
         insertSelectiveMethod.addBodyLine("}");
         parentElement.addMethod(insertSelectiveMethod);
     }

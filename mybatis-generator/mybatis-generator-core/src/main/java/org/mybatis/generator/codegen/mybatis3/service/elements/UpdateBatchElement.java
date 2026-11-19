@@ -75,7 +75,7 @@ public class UpdateBatchElement extends AbstractServiceElementGenerator {
         }
         method.addBodyLine("return ServiceResult.success({0}, i);", entityType.getShortNameFirstLowCase() + "s");
         method.addBodyLine("} catch (Exception e) {");
-        method.addBodyLine("throw new VgoException(ServiceCodeEnum.FAIL.code(), e.getMessage());");
+        method.addBodyLine("throw new VgoException(e.getMessage(), e).setCode(ServiceCodeEnum.FAIL.code());");
         method.addBodyLine("}");
         parentElement.addMethod(method);
         parentElement.addImportedType("com.vgosoft.core.exception.VgoException");

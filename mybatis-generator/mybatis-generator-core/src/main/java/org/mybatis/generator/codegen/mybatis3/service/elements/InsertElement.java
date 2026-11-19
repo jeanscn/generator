@@ -67,7 +67,7 @@ public class InsertElement extends AbstractServiceElementGenerator {
         insertMethod.addBodyLine("}");
 
         insertMethod.addBodyLine("} catch (Exception e) {");
-        insertMethod.addBodyLine("throw new VgoException(ServiceCodeEnum.FAIL.code(), e.getMessage());");
+        insertMethod.addBodyLine("throw new VgoException(e.getMessage(), e).setCode(ServiceCodeEnum.FAIL.code());");
         insertMethod.addBodyLine("}");
         parentElement.addMethod(insertMethod);
     }
