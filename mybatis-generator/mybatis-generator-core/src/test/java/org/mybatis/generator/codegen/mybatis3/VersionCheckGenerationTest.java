@@ -13,14 +13,12 @@ import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.GeneratedFile;
 import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.api.PluginAdapter;
-import org.mybatis.generator.codegen.mybatis3.VersionCheckGenerationValidator;
 import org.mybatis.generator.config.Configuration;
 import org.mybatis.generator.config.PluginConfiguration;
 import org.mybatis.generator.config.xml.ConfigurationParser;
 import org.mybatis.generator.internal.DefaultShellCallback;
 
 import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;

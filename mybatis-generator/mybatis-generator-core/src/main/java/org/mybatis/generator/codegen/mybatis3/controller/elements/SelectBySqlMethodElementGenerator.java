@@ -11,6 +11,9 @@ import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 
+/**
+ * @author cen_c
+ */
 public class SelectBySqlMethodElementGenerator extends AbstractControllerElementGenerator {
 
     public SelectBySqlMethodElementGenerator() {
