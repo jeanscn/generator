@@ -48,7 +48,7 @@ public class Mb3GenUtil {
     }
 
     public static String getParentMenuId(AbstractIntrospectedTable introspectedTable, VoViewGeneratorConfiguration voViewGeneratorConfiguration) {
-        String parentMenuId = voViewGeneratorConfiguration.getParentMenuId();
+        String parentMenuId = voViewGeneratorConfiguration != null ? voViewGeneratorConfiguration.getParentMenuId() : null;
         String contextParentMenuId = introspectedTable.getContext().getParentMenuId();
         return VStringUtil.stringHasValue(parentMenuId)?parentMenuId:VStringUtil.stringHasValue(contextParentMenuId)?contextParentMenuId:null;
     }
@@ -283,23 +283,35 @@ public class Mb3GenUtil {
 
     /**
      * 设置权限数据sql脚本
+     * 指定 parentMenuId 时仅产末级权限行并直挂菜单节点（code/name 仍按 module:bean:action 累计），
+     * 避免菜单树层级过深及同模块行重复产出；未指定时按 module→bean→action 逐级产出，
+     * module 行 parent_id 为 '0'。
      * @param introspectedTable IntrospectedTable 内省表对象
      * @param levels 权限数据
+     * @param parentMenuId 父级菜单ID，可为空
      */
-    public static void setPermissionSqlData(AbstractIntrospectedTable introspectedTable, Map<String, String> levels) {
+    public static void setPermissionSqlData(AbstractIntrospectedTable introspectedTable, Map<String, String> levels, String parentMenuId) {
         int index = 0;
+        int lastIndex = levels.size() - 1;
+        boolean menuRooted = VStringUtil.stringHasValue(parentMenuId);
         List<String> keys = new ArrayList<>();
         List<String> names = new ArrayList<>();
         for (Map.Entry<String, String> entry : levels.entrySet()) {
             String code = index == 0 ? entry.getKey() : keys.get(index - 1) + ":" + entry.getKey();
-            String id = VMD5Util.MD5_15(code);
             keys.add(code);
             String name = index == 0 ? entry.getValue() : names.get(index - 1) + ":" + entry.getValue();
             names.add(name);
+            if (menuRooted && index < lastIndex) {
+                index++;
+                continue;
+            }
+            String id = VMD5Util.MD5_15(code);
             InsertSqlBuilder sqlBuilder = GenerateSqlTemplate.insertSqlForPermission();
             sqlBuilder.updateStringValues("id_", id);
             sqlBuilder.updateValues("sort_", String.valueOf(introspectedTable.getPermissionDataScriptLines().size() + 1));
-            if (index > 0) {
+            if (menuRooted) {
+                sqlBuilder.updateStringValues("parent_id", parentMenuId);
+            } else if (index > 0) {
                 sqlBuilder.updateStringValues("parent_id", VMD5Util.MD5_15(keys.get(index - 1)));
             } else {
                 sqlBuilder.updateStringValues("parent_id", "0");

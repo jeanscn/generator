@@ -39,6 +39,21 @@ class ApiPermissionWhitelistGenerationTest {
         assertThat(table.getPermissionDataScriptLines().values())
                 .anyMatch(sql -> sql.contains(unionCode) && sql.contains("添加角色关联"))
                 .anyMatch(sql -> sql.contains(splitCode) && sql.contains("删除角色关联"));
+        // 未配置 parentMenuId：按 module→bean→action 逐级产出，module 行 parent_id 为 '0'
+        assertThat(table.getPermissionDataScriptLines().values()).hasSize(4);
+    }
+
+    @Test
+    void parentMenuIdHangsLeafPermissionRowDirectlyUnderMenu() {
+        IntrospectedTableMyBatis3Impl table = fixture("relation");
+        table.getContext().setParentMenuId("1777340268517920770");
+        TopLevelClass controller = controller(table);
+        assertThat(controller.getMethods()).hasSize(2);
+        // 指定 parentMenuId：仅产末级权限行直挂菜单，不再产出 module/bean 中间行
+        assertThat(table.getPermissionDataScriptLines().values()).hasSize(2)
+                .allSatisfy(sql -> assertThat(sql)
+                        .contains("'1777340268517920770'")
+                        .contains("system:sysmenuimpl:"));
     }
 
     @Test

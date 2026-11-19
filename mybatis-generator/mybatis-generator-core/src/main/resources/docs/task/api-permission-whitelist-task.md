@@ -37,4 +37,5 @@
 - `all` 模式产物（快照临时注入验证后已还原）：15 处注解、接口权限 SQL 按新显示名产出、code/id 不变。
 - 全量回归 722 项：失败 4 项全部归因——`retainsCompleteVersionedRawBaseline`（3 个 Service Impl 既有漂移，登记 generator-core-ISSUE-0013）、`SelectForUpdateGenerationTest.offlineOutputBaseline` 与 `SensitiveGenerationTest.offlineOutputBaseline`（Service Impl 层摘要漂移，同属 ISSUE-0013，两夹具 `generateController="false"` 与本任务无交集）、`VueUiConventionAuditTest`（generator-core-ISSUE-0012 已登记）。`retainsAllDisabledOutputsAndLimitsOptInDiff` 通过。
 - 基线对齐：`consumer-current-v1-parser-baseline.zip` 中两个 `data-permission-*.sql` 按批准的显示名方案更新（sensitive_category 经 logical-delete 路径、sensitive_word 经 raw 路径生成核对）；3 个 Impl 漂移文件未改，登记待负责人批准重录。
+- 2026-11-20 追加需求并落地：①权限 `id_` 为 `MD5_15(code)` 确定性哈希，重复生成 id 不变（既有行为，确认无需改动）；②指定 `parentMenuId` 时接口权限仅产末级行直挂菜单（menu→action，code/name 仍按三级累计），未指定时保持 `module→bean→action` 且 module `parent_id='0'`——`setPermissionSqlData` 增 `parentMenuId` 参数、`getParentMenuId` 改 null-safe、发射点解析 view→context 兜底。新增 `parentMenuIdHangsLeafPermissionRowDirectlyUnderMenu` 用例，定向 4/4 通过；sc03 快照配 `parentMenuId` 基线两个权限 SQL 已按新形态重录（id_ 与旧末级行一致）。
 - 下游待办（不在本任务执行）：业务项目需在 `<generateController>` 配置 `apiPermissions` 后重新生成 Controller 与权限 SQL，并同步权限数据入库。

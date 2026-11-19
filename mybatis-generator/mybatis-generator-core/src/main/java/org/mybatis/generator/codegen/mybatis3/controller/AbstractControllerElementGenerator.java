@@ -11,6 +11,8 @@ import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.config.TableConfiguration;
+import org.mybatis.generator.config.VoGeneratorConfiguration;
+import org.mybatis.generator.config.VoViewGeneratorConfiguration;
 import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.custom.annotations.IAnnotation;
 import org.mybatis.generator.custom.enums.ReturnTypeEnum;
@@ -305,7 +307,10 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
             map.put(l1, introspectedTable.getContext().getModuleName());
             map.put(l2, introspectedTable.getRemarks(true));
             map.put(l3, nameKey);
-            Mb3GenUtil.setPermissionSqlData(introspectedTable, map);
+            VoGeneratorConfiguration voConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration();
+            VoViewGeneratorConfiguration viewConfiguration = voConfiguration != null ? voConfiguration.getVoViewConfiguration() : null;
+            Mb3GenUtil.setPermissionSqlData(introspectedTable, map,
+                    Mb3GenUtil.getParentMenuId(introspectedTable, viewConfiguration));
         }
     }
 

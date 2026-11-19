@@ -262,6 +262,7 @@ DTD 属性仍为 `#IMPLIED`，仅当前 `mybatis-generator-config_1_8_0.dtd` 增
 - 未配置或为空（默认）：不生成任何接口权限注解与权限数据，Controller 不登记 `PreAuthorize` import。
 - `all`：全部已接入权限的接口生成。
 - 逗号白名单（匹配不区分大小写）：仅命中前缀的接口生成，注解与权限 SQL 同生同灭。保留值 `relation` 覆盖全部 union/split 关系维护端点、`option` 覆盖全部选项接口；动态方法名端点也可直接写其小写权限 code 段（如 `insertbytable{suffix}`、`option{属性}`）精确放行单个端点。
+- 权限数据形态：`id_` 为权限 code 的确定性哈希（重复生成不变）。配置 `parentMenuId`（view 配置优先、context 兜底）时仅产末级权限行，`parent_id` 直挂该菜单节点（menu→action，code/name 仍按 `module:bean:action` 累计）；未配置时按 `module→bean→action` 逐级产出且 module 行 `parent_id='0'`。按钮级 `data-permission-action-*.sql` 同样以 `parentMenuId` 为父节点。
 
 | `apiPermissions` 值 | 权限 code 段 | 权限显示名 |
 |---|---|---|
@@ -285,6 +286,16 @@ DTD 属性仍为 `#IMPLIED`，仅当前 `mybatis-generator-config_1_8_0.dtd` 增
 | `statistics` | `statistics` | 统计查询 |
 | `relation` | 各关系方法 code | 添加/删除{对方列备注}关联 |
 | `all` | 全部接口 | - |
+
+**配置规则**：未列入白名单不代表接口公开，`integrateSpringSecurity` 下接口仍受认证链保护，白名单只决定哪些接口需要按角色单独授权；白名单越长，权限配置界面待分配条目越多。因此默认按"写严读宽"的典型最小集配置，其余按具体业务单独追加：
+
+- 典型最小集（默认口径）：`create,update,delete`；表启用批量、回收站、导入、上传或关系端点时再追加对应项 `createBatch,updateBatch,deleteBatch,recycleBatch,import,upload,relation`。
+- 敏感数据表追加 `export`（读操作但属批量数据外泄面）；含敏感字段的查询表再追加 `list,get`。
+- 查询类 `list,get,option,getDict,getDefaultView,getDefaultViewConfig,template,statistics` 默认不加（菜单/页面权限与行级数据过滤已覆盖）。
+- 与按钮权限保持一致：凡按钮 `isConfigurable` 管控的写操作，对应接口必须进白名单，否则前端隐藏按钮是唯一防线；未进白名单的接口也不应配置按钮权限，避免"按钮可见但接口 403"。
+- 工作流审批表整体不加：提交/审批/驳回等流转操作由工作流引擎的任务分配与节点权限控制，接口权限与之重叠；且各参与角色都要高频调用这些接口，配置权限项只会增加逐角色分配的负担。
+- 按表分档：基础配置/字典/参数表写面全加；审计/权限管理类核心表可用 `all`；纯只读报表不加。
+- 反模式：为"保险"给只读查询加白名单（每加一项都要在角色管理中逐条分配，漏配即 403）；`import` 与 `template` 是两个独立 code 按需取舍；保留值与精确 code 不重复书写（`relation` 已含全部 `insert/deleteByTable{Suffix}`）。
 
 ### 表级歧义修正
 
