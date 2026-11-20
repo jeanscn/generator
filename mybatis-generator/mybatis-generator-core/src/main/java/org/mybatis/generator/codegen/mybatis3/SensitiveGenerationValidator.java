@@ -64,22 +64,6 @@ public final class SensitiveGenerationValidator {
             if ("true".equalsIgnoreCase(table.getTableConfiguration().getProperty("modelOnly"))) {
                 throw failure(table, "*", "modelOnly 不生成受管写方法，不能启用敏感字段");
             }
-            if (table.getTableConfiguration().isUpdateByExampleStatementEnabled()) {
-                throw failure(table, "*", "updateByExample 影响范围未受控；请关闭 enableUpdateByExample 后另行评审接入");
-            }
-            if (table.getTableConfiguration().isCasWriteContractEnabled()
-                    && table.getRules().generateUpdateBatch()
-                    && !isDisabled(table, "updateBatchByPrimaryKey(java.util.List)")) {
-                throw failure(table, "*", "敏感检测与受管 CAS 同时启用时没有受支持的 CAS 批量更新；"
-                        + "须通过 disabledMethod 封闭入口");
-            }
-            requireDisabled(table, "insertBatch(java.util.List)", table.getRules().generateInsertBatch());
-            requireDisabled(table, "updateBatchByPrimaryKey(java.util.List)", table.getRules().generateUpdateBatch());
-            if (!table.getTableConfiguration().isCasWriteContractEnabled()) {
-                requireDisabled(table, "insertOrUpdate(" + table.getBaseRecordType() + ")",
-                        table.getRules().generateInsertOrUpdate());
-                requireDisabled(table, "insertOrUpdateSelective(" + table.getBaseRecordType() + ")", true);
-            }
             if (table.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                     .anyMatch(relation -> relation.isEnableInsert() || relation.isEnableUpdate() || relation.isEnableInsertOrUpdate())) {
                 throw failure(table, "*", "主子表级联包含多实体写入，须先提供全部实体的写前检测适配");
@@ -90,17 +74,5 @@ public final class SensitiveGenerationValidator {
     private static IllegalArgumentException failure(AbstractIntrospectedTable table, String column, String message) {
         return new IllegalArgumentException("表 " + table.getTableConfiguration().getTableName()
                 + "，列/方法 " + column + "：" + message);
-    }
-
-    private static void requireDisabled(AbstractIntrospectedTable table, String signature, boolean generated) {
-        if (generated && !isDisabled(table, signature)) {
-            throw failure(table, signature.substring(0, signature.indexOf('(')),
-                    "敏感检测不支持 batch/upsert 写方法，须在 generateService 中配置 disabledMethod 封闭入口");
-        }
-    }
-
-    private static boolean isDisabled(AbstractIntrospectedTable table, String signature) {
-        return org.mybatis.generator.codegen.mybatis3.service.DisabledServiceEntries.configurations(table).stream()
-                .anyMatch(configuration -> signature.equals(configuration.signature()));
     }
 }

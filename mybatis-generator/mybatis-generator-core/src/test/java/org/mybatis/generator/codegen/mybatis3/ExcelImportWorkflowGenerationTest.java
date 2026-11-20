@@ -258,7 +258,7 @@ class ExcelImportWorkflowGenerationTest {
     }
 
     private static String consumerXmlWithoutWorkflow() throws Exception {
-        return CasConsumerBaselineTest.consumerSnapshotXml(null)
+        return CasConsumerBaselineTest.consumerSnapshotXml()
                 .replaceAll("(?s)<excelImport\\b[^>]*/>", "");
     }
 

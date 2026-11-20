@@ -12,7 +12,7 @@
 |---|---|---|---|
 | 根 | `properties`、`classPathEntry` | 外部属性/凭据文件、JDBC 驱动扩展 | §1 |
 | context | `context` 属性、`jdbcConnection`、`javaTypeResolver`、`javaModelGenerator`、`sqlMapGenerator`、`javaClientGenerator`、`reusableElements` | 数据库连接与方言、模块/菜单/生成范围开关、输出根、跨表复用元素池 | §2 |
-| table | `table` 属性、`enableCasWriteContract`、`enableSelectForUpdate`、`sensitiveCheck`、`rootClass` property、各 `generateXxx` 开关 | CRUD/批量/upsert 开关、受管 CAS、锁查询、敏感写检测、实体父类约定 | §3、§16 |
+| table | `table` 属性、`enableSelectForUpdate`、`sensitiveCheck`、`rootClass` property、各 `generateXxx` 开关 | CRUD/批量/upsert 开关、锁查询、敏感写检测、实体父类约定 | §3、§16 |
 | 列级 | `columnOverride`、`ignoreColumn`、`ignoreColumnsByRegex`、`generatedKey` | 列重命名/类型/逻辑 JSON、忽略列、主键生成策略 | §4 |
 | 模型/VO | `generateModel`、`generateVo`（六个 VO 子节点）、`generateCachePo`、`overridePropertyValue`、`additionalProperty` | Entity/Example、各类 VO 与映射、字典缓存、值转换展示字段 | §5、§6、§13.5 |
 | 查询/关联 | `selectByColumn`、`selectByTable`、`selectBySqlMethod`、`javaModelAssociation`、`javaModelCollection`、`generateTreeViewCate`、`generateOptions`、`generateDateDimStatistics`、`generateCustomStatistics` | 按列/关系表/SQL 方法查询、一对一与一对多关联级联、树、下拉选项、统计接口 | §8、§13.2 |
@@ -28,7 +28,7 @@
 | 实体与查询模型 | Entity/主键类/WithBLOBs/Example；`@TableMeta`/`@ColumnMeta` 表列元数据注解，供运行期反射读取表与列映射 | `generateModel`、`rootClass` |
 | Mapper 与 SQL | Mapper 接口、Mapper XML；标准 CRUD/批量/upsert/按列/关系/子查询语句，按 `additionalDbTypes` 产出多方言 `databaseId` 分支 | `generateDao`、`generateSqlMap`、`additionalDbTypes`、各 `selectByXxx` |
 | Service | 接口与抽象/具体实现、可选单测；CRUD、关系维护、统计、Excel 工作流方法；事务/缓存/事件注解模板 | `generateService` |
-| 受管写入与并发控制 | 受管 CAS 乐观锁 `updateByPrimaryKey(Selective)Cas` 与写契约清单；`versionCheck` 旧链乐观锁；按列逻辑删除（`selectByColumn` 的 `isLogicalDelete` property）；显式停用入口 `disabledMethod`（公开拒绝 + 可选 protected 内部原语） | `enableCasWriteContract`、table `versionCheck` property、`selectByColumn`/`generateService` 子配置；详见 §受管 CAS 输出、§3.1、§8.1、停用入口 |
+| 写入与并发控制 | `versionCheck` 旧链乐观锁；按列逻辑删除（`selectByColumn` 的 `isLogicalDelete` property）；显式停用入口 `disabledMethod`（公开拒绝 + 可选 protected 内部原语） | table `versionCheck` property、`selectByColumn`/`generateService` 子配置；详见 §3.1、§8.1、停用入口（受管 CAS 契约已删除） |
 | 敏感字段写检测 | 实体敏感注解、受管写方法 `@SensitiveWrite` 标记、事务模板、前端敏感字段常量；batch/upsert 入口须以 `disabledMethod` 封闭 | `sensitiveCheck`（§3.1） |
 | 锁定查询 | `selectByPrimaryKeyForUpdate` / `selectByExampleForUpdate`（Mapper+XML+Service）及事务/条件/分页/缓存门禁类；多方言锁语法 | `enableSelectForUpdate`（§3.2） |
 | Controller 端点 | 基础 CRUD/list/get/view、按列/关系/树/选项/统计/字典/Excel/视图端点、权限 action 与系统日志声明 | `generateController`、查询节点 `genControllerMethod`、`generateOptions`（§3、权威说明 §2.1.2） |

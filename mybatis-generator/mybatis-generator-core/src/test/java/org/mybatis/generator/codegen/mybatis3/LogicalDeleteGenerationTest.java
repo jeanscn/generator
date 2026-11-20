@@ -33,8 +33,8 @@ import static org.assertj.core.api.Assertions.*;
 class LogicalDeleteGenerationTest {
     private static final String METHOD = "deleteByColumnIdAndVersion";
 
-    private static Configuration parse(String value, boolean managed, String columns, String parameterType) throws Exception {
-        String xml = CasConsumerBaselineTest.consumerSnapshotTestXml(managed ? "true" : null);
+    private static Configuration parse(String value, String columns, String parameterType) throws Exception {
+        String xml = CasConsumerBaselineTest.consumerSnapshotTestXml();
         String property = value == null ? "" : "<property name=\"isLogicalDelete\" value=\"" + value + "\"/>";
         String select = "<selectByColumn column=\"" + columns + "\" parameterType=\"" + parameterType
                 + "\" enableDelete=\"true\" genControllerMethod=\"true\">" + property + "</selectByColumn>";
@@ -90,8 +90,8 @@ class LogicalDeleteGenerationTest {
     /** 省略与显式 false 的所有输出逐文件相同，既有物理删除 SQL 和 GET 路由不变。 */
     @Test
     void preservesCompletePhysicalDeleteOutputs() throws Exception {
-        var omitted = generate(parse(null, false, "id_,version_", "single"));
-        assertThat(generate(parse("false", false, "id_,version_", "single"))).isEqualTo(omitted);
+        var omitted = generate(parse(null, "id_,version_", "single"));
+        assertThat(generate(parse("false", "id_,version_", "single"))).isEqualTo(omitted);
         assertThat(file(omitted, "SensitiveCategoryMapper.xml")).contains("<delete id=\"" + METHOD + "\"");
         assertThat(file(omitted, "AbstractSensitiveCategoryController.java"))
                 .contains("@GetMapping", "delete-by-column-id-and-version");
@@ -101,14 +101,14 @@ class LogicalDeleteGenerationTest {
     @ParameterizedTest
     @ValueSource(strings = {"", " ", "TRUE", "False", "yes", "1", " true "})
     void rejectsInvalidLogicalDeleteProperty(String value) {
-        assertThatThrownBy(() -> parse(value, false, "id_,version_", "single"))
+        assertThatThrownBy(() -> parse(value, "id_,version_", "single"))
                 .hasMessageContaining("isLogicalDelete");
     }
 
     /** 普通版本表输出 POST、显式 Mapper 参数和同条 UPDATE 中的标志与版本递增。 */
     @Test
     void generatesVersionedLogicalDeleteAcrossAllLayers() throws Exception {
-        var output = generate(parse("true", false, "id_,version_", "single"));
+        var output = generate(parse("true", "id_,version_", "single"));
         assertThat(file(output, "SensitiveCategoryMapper.xml"))
                 .contains("<update id=\"" + METHOD + "\"", "set delete_flag = 1, version_ = version_ + 1",
                         "delete_flag = 0", "version_ &gt; 0 and version_ &lt; 2147483647");
@@ -126,14 +126,14 @@ class LogicalDeleteGenerationTest {
     @ParameterizedTest
     @ValueSource(strings = {"id_", "version_", "id_,missing_", "", "id_,id_,version_"})
     void rejectsIncompleteVersionedConditions(String columns) {
-        assertThatThrownBy(() -> generate(parse("true", false, columns, "single")))
+        assertThatThrownBy(() -> generate(parse("true", columns, "single")))
                 .hasMessageContaining("isLogicalDelete");
     }
 
     /** 多列列表是各列 IN 的交集，不是逐项 id/version 配对，因此版本表不允许这种批量删除。 */
     @Test
     void rejectsIndependentVersionLists() {
-        assertThatThrownBy(() -> generate(parse("true", true, "id_,version_", "list")))
+        assertThatThrownBy(() -> generate(parse("true", "id_,version_", "list")))
                 .hasMessageContaining("不支持独立多值列表");
     }
 
@@ -141,7 +141,7 @@ class LogicalDeleteGenerationTest {
     @ParameterizedTest
     @ValueSource(strings = {"single", "list"})
     void supportsNonVersionedTables(String parameterType) throws Exception {
-        var config = parse("true", false, "id_", parameterType);
+        var config = parse("true", "id_", parameterType);
         var plugin = new PluginConfiguration();
         plugin.setConfigurationType(LogicalDeletePlugin.class.getName());
         plugin.addProperty("mode", "no-version");
@@ -164,52 +164,10 @@ class LogicalDeleteGenerationTest {
     /** 逻辑删除不能脱离 enableDelete 单独配置，防止用户误以为产生了受控删除入口。 */
     @Test
     void requiresDeleteGenerationToBeEnabled() throws Exception {
-        var config = parse("true", false, "id_,version_", "single");
+        var config = parse("true", "id_,version_", "single");
         config.getContexts().get(0).getTableConfigurations().get(0)
                 .getSelectByColumnGeneratorConfigurations().get(0).setEnableDelete(false);
         assertThatThrownBy(() -> generate(config)).hasMessageContaining("enableDelete=true");
-    }
-
-    /** 受管模式只增加明确允许的逻辑删除，原物理删除继续拒绝，完整输出供跨仓真实执行验证。 */
-    @Test
-    void capturesManagedLogicalDeleteOutputs() throws Exception {
-        var config = parse("true", true, "id_,version_", "single");
-        config.getContexts().get(0).getTableConfigurations().stream().limit(2)
-                .forEach(t -> t.getAdditionalDbTypes().add(com.vgosoft.core.db.query.DatabaseType.H2));
-        var output = generate(config);
-        assertThat(file(output, "sensitive.xml")).contains("operation=\"LOGICAL_DELETE\"");
-        assertThat(file(output, "AbstractSensitiveCategoryImpl.java"))
-                .contains("mapper." + METHOD + "(id, version)", "LOGICAL_DELETE_CONFLICT");
-        String mapper = file(output, "SensitiveCategoryMapper.xml");
-        assertThat(mapper).contains("id=\"" + METHOD + "\"", "and delete_flag = 0", "ENTRY_DISABLED");
-        Path root = Path.of("target", "logical-delete-generated");
-        for (var entry : output.entrySet()) {
-            Path target = root.resolve("output").resolve(entry.getKey());
-            Files.createDirectories(target.getParent());
-            Files.writeString(target, entry.getValue());
-        }
-        String ddl = CasConsumerBaselineTest.snapshotSchema();
-        var tables = java.util.regex.Pattern.compile(
-                "(?s)(CREATE TABLE `sensitive_(?:category|word)` \\(.*?)\\) ENGINE=.*?;").matcher(ddl);
-        StringBuilder schema = new StringBuilder();
-        while (tables.find()) {
-            schema.append(tables.group(1).replaceAll(" CHARACTER SET \\w+", "")
-                    .replaceAll(" COLLATE \\w+", "")).append(");\n");
-        }
-        Files.writeString(root.resolve("h2-schema.sql"), schema);
-        Files.write(root.resolve("manifest.txt"), output.keySet());
-    }
-
-    /** 插件不能把受管逻辑删除改回普通更新、移除未删除条件或吞掉冲突。 */
-    @ParameterizedTest
-    @ValueSource(strings = {"sql", "service", "column", "missing-flag", "generated-flag", "version-type"})
-    void rejectsPluginChangesToLogicalDelete(String mode) throws Exception {
-        var config = parse("true", true, "id_,version_", "single");
-        var plugin = new PluginConfiguration();
-        plugin.setConfigurationType(LogicalDeletePlugin.class.getName());
-        plugin.addProperty("mode", mode);
-        config.getContexts().get(0).addPluginConfiguration(plugin);
-        assertThatThrownBy(() -> generate(config)).hasMessageContaining("sensitive_category");
     }
 
     /**

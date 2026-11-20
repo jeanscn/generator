@@ -509,11 +509,7 @@ public class Context extends PropertyHolder {
         for (var table : introspectedTables) {
             org.mybatis.generator.codegen.mybatis3.service.DisabledServiceEntries.validateFinal(table, generatedJavaFiles);
         }
-        var casTables = introspectedTables.stream().filter(t -> t.getTableConfiguration().isCasWriteContractEnabled()).toList();
-        if (!casTables.isEmpty()) {
-            otherGeneratedFiles.add(new org.mybatis.generator.codegen.mybatis3.CasWriteContractGeneratedFile(
-                    casTables, generatedJavaFiles, generatedXmlFiles));
-        }
+
 
     }
 

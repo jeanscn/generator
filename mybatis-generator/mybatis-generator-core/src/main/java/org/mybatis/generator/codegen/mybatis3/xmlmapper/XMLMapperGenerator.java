@@ -105,7 +105,6 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
         // 统计相关
         addStatisticsTotalElements(answer);
         addStatisticsCustomElements(answer);
-        initializeAndExecuteGenerator(new CasWriteElementGenerator(), answer);
         return answer;
     }
 

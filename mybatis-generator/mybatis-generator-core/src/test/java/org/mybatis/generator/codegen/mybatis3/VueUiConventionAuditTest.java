@@ -50,7 +50,7 @@ public class VueUiConventionAuditTest {
 
     @Test
     void generatedVueFilesCarryNoHardCodedSizeOrDensitySpacing() throws Exception {
-        assertThat(audit(CasConsumerBaselineTest.consumerXml(null)))
+        assertThat(audit(CasConsumerBaselineTest.consumerXml()))
                 .as("生成的 .vue 产物不得写死组件尺寸（规范 6.1）或密度档位间距 px（规范 2.4）")
                 .isEmpty();
     }
@@ -61,7 +61,7 @@ public class VueUiConventionAuditTest {
      */
     @Test
     void detailFormItemSpacingConsumesDensityVariable() throws Exception {
-        Map<String, String> contents = generateVueFiles(CasConsumerBaselineTest.consumerXml(null));
+        Map<String, String> contents = generateVueFiles(CasConsumerBaselineTest.consumerXml());
         List<String> detailFiles = contents.keySet().stream()
                 .filter(name -> name.endsWith("Detail.vue"))
                 .sorted()
@@ -78,7 +78,7 @@ public class VueUiConventionAuditTest {
     @Test
     void pageNavigatorGeneratesMatchingEditAndDetailAnchorsWithComponentDefaults() throws Exception {
         Map<String, String> contents = generateVueFiles(withPageNavigator(
-                CasConsumerBaselineTest.consumerXml(null), "word_"));
+                CasConsumerBaselineTest.consumerXml(), "word_"));
 
         for (String fileName : List.of("SensitiveWordEdit.vue", "SensitiveWordDetail.vue")) {
             String generated = contents.entrySet().stream()
@@ -113,7 +113,7 @@ public class VueUiConventionAuditTest {
                 + "width=\"300\" railWidth=\"42\" tickGap=\"18\" maxHeight=\"500\" edge=\"20\" "
                 + "theme=\"dark\" showTitle=\"false\" scrollContainer=\".drawer-body\" zIndex=\"80\"";
         Map<String, String> contents = generateVueFiles(withPageNavigator(
-                CasConsumerBaselineTest.consumerXml(null), "word_", attributes));
+                CasConsumerBaselineTest.consumerXml(), "word_", attributes));
         String generated = contents.entrySet().stream()
                 .filter(entry -> entry.getKey().endsWith("SensitiveWordEdit.vue"))
                 .map(Map.Entry::getValue)
@@ -139,7 +139,7 @@ public class VueUiConventionAuditTest {
     /** 编辑页后跟打印页时，同名表单组件只生成一次，且保留编辑页导航。 */
     @Test
     void pageNavigatorSurvivesFollowingPrintPageWithoutDuplicateFormFiles() throws Exception {
-        String xml = withPageNavigator(CasConsumerBaselineTest.consumerXml(null), "word_");
+        String xml = withPageNavigator(CasConsumerBaselineTest.consumerXml(), "word_");
         int htmlStart = xml.indexOf("<generateHtml", xml.indexOf("tableName=\"sensitive_word\""));
         int htmlEnd = xml.indexOf("</generateHtml>", htmlStart) + "</generateHtml>".length();
         xml = xml.substring(0, htmlEnd)
@@ -152,7 +152,7 @@ public class VueUiConventionAuditTest {
     /** 打印页在前而编辑页显式 default 时，仍只采用默认编辑页的导航生成表单组件。 */
     @Test
     void pageNavigatorUsesDefaultFormPageAfterPrintPage() throws Exception {
-        String xml = withPageNavigator(CasConsumerBaselineTest.consumerXml(null), "word_");
+        String xml = withPageNavigator(CasConsumerBaselineTest.consumerXml(), "word_");
         int htmlStart = xml.indexOf("<generateHtml", xml.indexOf("tableName=\"sensitive_word\""));
         xml = xml.substring(0, htmlStart)
                 + "<generateHtml generate=\"true\" type=\"print\" default=\"false\" viewPath=\"print_sensitive_word\"/>"
@@ -182,7 +182,7 @@ public class VueUiConventionAuditTest {
 
     @Test
     void pageNavigatorRejectsInvalidPageTypeColumnsAndLayoutTargets() throws Exception {
-        String baseXml = CasConsumerBaselineTest.consumerXml(null);
+        String baseXml = CasConsumerBaselineTest.consumerXml();
         assertThatThrownBy(() -> new ConfigurationParser(new ArrayList<>())
                 .parseConfiguration(new StringReader(withPageNavigator(baseXml, "word_")
                         .replace("type=\"editable\" viewPath=\"sensitive_word\"",
@@ -218,7 +218,7 @@ public class VueUiConventionAuditTest {
     void markdownFieldEmitsMarkdownComponentInGeneratedVo() throws Exception {
         var parser = new ConfigurationParser(new ArrayList<>());
         Configuration config = parser.parseConfiguration(new StringReader(withMarkdownField(
-                CasConsumerBaselineTest.consumerXml(null))));
+                CasConsumerBaselineTest.consumerXml())));
         parser.customConfig(config);
         var generator = new MyBatisGenerator(config, new DefaultShellCallback(true), new ArrayList<>());
         generator.generate(null, null, null, false);
@@ -237,7 +237,7 @@ public class VueUiConventionAuditTest {
      */
     @Test
     void markdownFieldRejectedOnPrintPages() throws Exception {
-        String xml = withMarkdownField(CasConsumerBaselineTest.consumerXml(null))
+        String xml = withMarkdownField(CasConsumerBaselineTest.consumerXml())
                 .replace("type=\"editable\" viewPath=\"sensitive_word\"",
                         "type=\"print\" viewPath=\"sensitive_word\"");
         assertThatThrownBy(() -> new ConfigurationParser(new ArrayList<>())

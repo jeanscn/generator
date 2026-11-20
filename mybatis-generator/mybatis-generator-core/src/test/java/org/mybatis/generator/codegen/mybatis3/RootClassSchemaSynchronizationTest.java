@@ -50,7 +50,7 @@ class RootClassSchemaSynchronizationTest {
     private static GenerationResult generate(Class<?> rootClass) throws Exception {
         var parser = new ConfigurationParser(new ArrayList<>());
         Configuration configuration = parser.parseConfiguration(
-                new StringReader(CasConsumerBaselineTest.consumerSnapshotXml(null)));
+                new StringReader(CasConsumerBaselineTest.consumerSnapshotXml()));
         parser.customConfig(configuration);
         var context = configuration.getContexts().get(0);
         context.getTableConfigurations().removeIf(table -> !table.getTableName().equals("sensitive_rule_revision"));

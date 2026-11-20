@@ -62,10 +62,6 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
             bizInf.addMethod(serviceMethods.getPreviewExcelImportMethod(bizInf, true));
             bizInf.addMethod(serviceMethods.getConfirmExcelImportMethod(bizInf, true));
         }
-        if (introspectedTable.getRules().generateCasWriteContract()) {
-            bizInf.addMethod(serviceMethods.getCasWriteMethod(bizInf, false, true, true));
-            bizInf.addMethod(serviceMethods.getCasWriteMethod(bizInf, true, true, true));
-        }
         if (introspectedTable.getRules().generateSelectByPrimaryKeyForUpdate()) {
             bizInf.addMethod(serviceMethods.getSelectByPrimaryKeyForUpdateMethod(bizInf, true, true));
         }

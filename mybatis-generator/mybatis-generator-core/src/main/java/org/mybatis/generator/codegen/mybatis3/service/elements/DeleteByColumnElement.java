@@ -32,7 +32,7 @@ public class DeleteByColumnElement extends AbstractServiceElementGenerator {
             method.addAnnotation("@Override");
             method.addAnnotation("@org.springframework.transaction.annotation.Transactional("
                     + "propagation = org.springframework.transaction.annotation.Propagation."
-                    + (tc.isCasWriteContractEnabled() ? "MANDATORY" : "REQUIRED")
+                    + "REQUIRED"
                     + ", rollbackFor = Exception.class)");
             method.getBodyLines().addAll(logicalBody(introspectedTable, configuration));
             addMutationCacheEviction(method, parentElement);

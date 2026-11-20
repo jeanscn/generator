@@ -83,19 +83,6 @@ class AuditFieldInitGenerationTest {
         assertThat(rendered).contains("this.applyDate = \"2026-01-01\";");
     }
 
-    @Test
-    void managedCasEntityKeepsRequiredVersionInitializer() throws Exception {
-        var table = fixture(true);
-        var version = table.getColumn("version_").orElseThrow();
-        version.setFullyQualifiedJavaType(new FullyQualifiedJavaType("java.lang.Integer"));
-        version.setJdbcType(Types.INTEGER);
-        version.setJdbcTypeName("INTEGER");
-        var entity = generateEntity(table, new ProgressCallback() { }, new ArrayList<>());
-
-        assertThat(format(entity)).contains("this.version = 1;")
-                .doesNotContain("this.created =", "this.modified =", "this.createdId =", "this.tenantId =");
-    }
-
     /** ColumnMetaDesc 只对命中 DbFiledDefaultValueEnum 的列输出规范化 defaultValue（去单引号）。 */
     @Test
     void columnMetaDescEmitsNormalizedDefaultValue() {
@@ -138,10 +125,6 @@ class AuditFieldInitGenerationTest {
 
     /** 构造离线内省替身，覆盖 A 类、A' 主键、B 约定默认与普通字段，rootClass 沿用配置中的 AbstractEntity。 */
     private IntrospectedTableMyBatis3Impl fixture() throws Exception {
-        return fixture(false);
-    }
-
-    private IntrospectedTableMyBatis3Impl fixture(boolean managedCas) throws Exception {
         String xml;
         try (var stream = getClass().getResourceAsStream("/dict-prefetch-generator.xml")) {
             assertThat(stream).as("离线生成配置资源").isNotNull();
@@ -185,7 +168,6 @@ class AuditFieldInitGenerationTest {
         table.addColumn(column("name_", "name", ""));
         table.addPrimaryKeyColumn("id_");
         table.initialize();
-        tableConfiguration.setCasWriteContractEnabled(managedCas);
         table.setRules(new FlatModelRules(table));
         return table;
     }

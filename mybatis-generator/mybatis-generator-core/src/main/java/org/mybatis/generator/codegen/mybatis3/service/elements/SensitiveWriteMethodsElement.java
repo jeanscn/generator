@@ -16,20 +16,20 @@ import java.util.Set;
 import static org.mybatis.generator.codegen.mybatis3.SensitiveFieldResolver.isEnabled;
 
 /**
- * 装配敏感受管写方法，在服务插件执行后校验参数、代理和事务并添加注解。
+ * 装配敏感写方法的 {@code @SensitiveWrite} 注解，在服务插件执行后校验参数、代理和事务。
  *
  * @author vgosoft
  */
 public class SensitiveWriteMethodsElement extends AbstractServiceElementGenerator {
     private static final String ANNOTATION_PACKAGE = "com.vgosoft.core.annotation.sensitive.";
-    private static final Set<String> SINGLE_WRITES = Set.of("insert", "insertSelective",
-            "updateByPrimaryKey", "updateByPrimaryKeySelective");
-    private static final Set<String> UNSUPPORTED_WRITES = Set.of("insertBatch", "updateBatchByPrimaryKey",
-            "insertOrUpdate", "insertOrUpdateSelective");
-    private static final Set<String> CAS_WRITES =
-            Set.of("updateByPrimaryKeyCas", "updateByPrimaryKeySelectiveCas");
-    private static final Set<String> CAS_DISABLED_WRITES = Set.of("updateByPrimaryKey",
-            "updateByPrimaryKeySelective", "updateBatchByPrimaryKey", "insertOrUpdate", "insertOrUpdateSelective");
+    /** 需要装配 {@code @SensitiveWrite} 的写方法，entityArgumentIndex 恒为 0。 */
+    private static final Set<String> ANNOTATED_WRITES = Set.of(
+            "insert", "insertSelective", "updateByPrimaryKey", "updateByPrimaryKeySelective",
+            "insertBatch", "updateBatchByPrimaryKey", "insertOrUpdate", "insertOrUpdateSelective",
+            "updateByExample", "updateByExampleSelective", "updateByExampleSelectiveAndSelect");
+    private static final Set<String> BATCH_WRITES = Set.of("insertBatch", "updateBatchByPrimaryKey");
+    private static final Set<String> EXAMPLE_WRITES = Set.of(
+            "updateByExample", "updateByExampleSelective", "updateByExampleSelectiveAndSelect");
 
     @Override
     public void addElements(TopLevelClass parentElement) {
@@ -37,7 +37,7 @@ public class SensitiveWriteMethodsElement extends AbstractServiceElementGenerato
     }
 
     public static void addInheritedWriteMethods(TopLevelClass service, AbstractIntrospectedTable table) {
-        if (!isEnabled(table) || table.getTableConfiguration().isCasWriteContractEnabled()) {
+        if (!isEnabled(table)) {
             return;
         }
         FullyQualifiedJavaType entity = new FullyQualifiedJavaType(table.getBaseRecordType());
@@ -62,42 +62,39 @@ public class SensitiveWriteMethodsElement extends AbstractServiceElementGenerato
         }
         SensitiveGenerationValidator.validate(table);
         addInheritedWriteMethods(service, table);
-        boolean casContract = table.getTableConfiguration().isCasWriteContractEnabled();
         FullyQualifiedJavaType entity = new FullyQualifiedJavaType(table.getBaseRecordType());
+        FullyQualifiedJavaType example = new FullyQualifiedJavaType(table.getExampleType());
         Set<String> found = new java.util.HashSet<>();
         for (Method method : service.getMethods()) {
             if (org.mybatis.generator.codegen.mybatis3.service.DisabledServiceEntries.isDisabled(table, method)) {
                 found.add(method.getName());
                 continue;
             }
-            if (casContract && CAS_DISABLED_WRITES.contains(method.getName())) {
+            if (!ANNOTATED_WRITES.contains(method.getName())) {
                 continue;
             }
-            if (UNSUPPORTED_WRITES.contains(method.getName())) {
-                throw failure(table, method.getName(), "敏感确认摘要不支持 batch/upsert 写方法，须通过 disabledMethod 封闭入口");
-            }
-            boolean cas = CAS_WRITES.contains(method.getName());
-            if (!cas && !SINGLE_WRITES.contains(method.getName())) {
-                continue;
-            }
-            int expectedParameters = cas ? 2 : 1;
+            boolean byExample = EXAMPLE_WRITES.contains(method.getName());
+            boolean batch = BATCH_WRITES.contains(method.getName());
+            int expectedParameters = byExample ? 2 : 1;
             if (!found.add(method.getName()) || method.getParameters().size() != expectedParameters) {
-                throw failure(table, method.getName(), "受管写方法重复或实体参数角色不明确");
+                throw failure(table, method.getName(), "受检写方法重复或实体参数角色不明确");
             }
             if (method.getVisibility() != JavaVisibility.PUBLIC || method.isStatic() || method.isFinal() || method.isAbstract()) {
-                throw failure(table, method.getName(), "受管写方法必须是可代理的 public 非静态、非 final 具体方法");
+                throw failure(table, method.getName(), "受检写方法必须是可代理的 public 非静态、非 final 具体方法");
             }
-            FullyQualifiedJavaType parameter = method.getParameters().get(0).getType();
-            boolean supported = cas
-                    ? entity.equals(parameter)
-                    && "java.lang.Integer".equals(method.getParameters().get(1).getType().getFullyQualifiedName())
-                    : entity.equals(parameter);
+            List<Parameter> parameters = method.getParameters();
+            boolean supported = batch
+                    ? "java.util.List".equals(
+                            parameters.get(0).getType().getFullyQualifiedNameWithoutTypeParameters())
+                    : entity.equals(parameters.get(0).getType())
+                            && (!byExample || example.equals(parameters.get(1).getType()));
             if (!supported) {
-                throw failure(table, method.getName(), "只支持单实体参数或受管 CAS 的 (Entity, Integer) 参数");
+                throw failure(table, method.getName(),
+                        "只支持 (Entity)、(List<Entity>) 或 (Entity, Example) 参数形态");
             }
             String operationKey = entity.getFullyQualifiedName() + ":" + method.getName();
             if (operationKey.length() > 256) {
-                throw failure(table, method.getName(), "operationKey 超出确认存储的 256 字符上限");
+                throw failure(table, method.getName(), "operationKey 超出审计存储的 256 字符上限");
             }
             String annotation = "@SensitiveWrite(operationKey = \"" + operationKey + "\", entityArgumentIndex = 0)";
             if (!method.getAnnotations().contains(annotation)) {
@@ -107,34 +104,20 @@ public class SensitiveWriteMethodsElement extends AbstractServiceElementGenerato
             List<String> transactions = method.getAnnotations().stream().filter(value ->
                     value.startsWith("@Transactional")
                             || value.startsWith("@org.springframework.transaction.annotation.Transactional")).toList();
-            if (transactions.isEmpty() && !casContract) {
+            if (transactions.isEmpty()) {
                 Mb3GenUtil.addTransactionalAnnotation(service, method, "READ_COMMITTED");
-            } else if (transactions.size() != 1 || !supportedTransaction(transactions.get(0), casContract)) {
+            } else if (transactions.size() != 1 || !supportedTransaction(transactions.get(0))) {
                 throw failure(table, method.getName(), "事务声明不是已验证的 REQUIRED/Exception 回滚模板，须单独评审");
             }
         }
-        Set<String> requiredWrites = casContract
-                ? Set.of("insert", "insertSelective", "updateByPrimaryKeyCas", "updateByPrimaryKeySelectiveCas")
-                : Set.of("insert", "insertSelective", "updateByPrimaryKey",
-                    "updateByPrimaryKeySelective");
+        Set<String> requiredWrites = Set.of("insert", "insertSelective", "updateByPrimaryKey",
+                "updateByPrimaryKeySelective");
         if (!found.containsAll(requiredWrites)) {
             throw failure(table, "*", "标准单实体写方法未完整装配");
         }
-        if (table.getRules().generateInsertBatch() && !found.contains("insertBatch")
-                || !casContract && table.getRules().generateUpdateBatch()
-                        && !found.contains("updateBatchByPrimaryKey")
-                || !casContract && table.getRules().generateInsertOrUpdate()
-                        && !found.contains("insertOrUpdate")) {
-            throw failure(table, "*", "已启用的批量或 upsert 方法未装配");
-        }
     }
 
-    private static boolean supportedTransaction(String annotation, boolean casContract) {
-        if (casContract) {
-            return annotation.equals("@org.springframework.transaction.annotation.Transactional("
-                    + "propagation = org.springframework.transaction.annotation.Propagation.MANDATORY, "
-                    + "rollbackFor = Exception.class)");
-        }
+    private static boolean supportedTransaction(String annotation) {
         String normalized = annotation
                 .replace("@org.springframework.transaction.annotation.Transactional(", "@Transactional(")
                 .replace("org.springframework.transaction.annotation.Isolation.", "Isolation.");
@@ -144,7 +127,7 @@ public class SensitiveWriteMethodsElement extends AbstractServiceElementGenerato
 
     public static void requireServiceGenerated(AbstractIntrospectedTable table) {
         if (isEnabled(table)) {
-            throw failure(table, "*", "插件禁止生成 Service，无法落地受管写方法标记");
+            throw failure(table, "*", "插件禁止生成 Service，无法落地受检写方法标记");
         }
     }
 

@@ -147,14 +147,6 @@ public abstract class BaseRules implements Rules {
 
 
     @Override
-    public boolean generateCasWriteContract() {
-        if (isModelOnly) {
-            return false;
-        }
-        return tc.isCasWriteContractEnabled();
-    }
-
-    @Override
     public boolean generateInsertOrUpdate() {
         if (isModelOnly) {
             return false;

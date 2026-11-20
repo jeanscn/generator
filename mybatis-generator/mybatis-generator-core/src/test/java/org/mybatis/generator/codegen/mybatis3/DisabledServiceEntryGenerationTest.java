@@ -50,7 +50,7 @@ public class DisabledServiceEntryGenerationTest {
     }
 
     private static Configuration configuration(String entries, boolean customize) throws Exception {
-        String xml = CasConsumerBaselineTest.consumerXml(null);
+        String xml = CasConsumerBaselineTest.consumerSnapshotXml();
         int start = xml.indexOf("<table ignore=\"false\" tableName=\"sensitive_rule_revision\"");
         int end = xml.indexOf("</table>", start);
         String revision = xml.substring(start, end);
@@ -456,79 +456,6 @@ public class DisabledServiceEntryGenerationTest {
                 .equals("SensitiveRuleRevisionImplTest.java"));
     }
 
-    /** 两表各十六项停用及三个原语通过 CAS 最终校验，Mapper、XML 和受管契约保持逐字一致。 */
-    @Test
-    void preservesManagedMapperStatementsAndResourcesForSixteenEntryMigration() throws Exception {
-        var before = generate(managedMigrationConfiguration(false));
-        var after = generate(managedMigrationConfiguration(true));
-        assertThat(managedPersistenceOutputs(after)).isEqualTo(managedPersistenceOutputs(before));
-        for (String model : List.of("SensitiveCategory", "SensitiveWord")) {
-            var implementation = output(after, "Abstract" + model + "Impl.java");
-            var localInsert = output(before, "Abstract" + model + "Impl.java").getMethods().stream()
-                    .filter(m -> m.getName().equals("insert")).findFirst();
-            assertThat(method(implementation, "insertInternal").getBodyLines()).isEqualTo(
-                    localInsert.map(Method::getBodyLines).orElse(List.of("return super.insert(arg0);")));
-            assertThat(method(implementation, "updateByPrimaryKeyCasInternal").getBodyLines()).containsExactly(
-                    "int affected = mapper.updateByPrimaryKeyCas(record, expectedVersion);",
-                    "return ServiceResult.success(record, affected);");
-            assertThat(String.join("\n", method(implementation, "insertBatchInternal").getBodyLines()))
-                    .contains("mapper.insertBatch(");
-            for (String name : List.of("insertInternal", "updateByPrimaryKeyCasInternal", "insertBatchInternal")) {
-                assertThat(method(implementation, name).getVisibility()).isEqualTo(JavaVisibility.PROTECTED);
-                assertThat(method(implementation, name).getAnnotations()).isEmpty();
-            }
-        }
-    }
-
-    private static Configuration managedMigrationConfiguration(boolean disabled) throws Exception {
-        var parser = new ConfigurationParser(new ArrayList<>());
-        var config = parser.parseConfiguration(new StringReader(CasConsumerBaselineTest.consumerXml("true")));
-        parser.customConfig(config);
-        var context = config.getContexts().get(0);
-        context.setRootClassSchemaSynchronizationEnabled(false);
-        context.getTableConfigurations().removeIf(t -> !List.of("sensitive_category", "sensitive_word")
-                .contains(t.getTableName()));
-        for (var table : context.getTableConfigurations()) {
-            table.getJavaServiceImplGeneratorConfiguration().setGenerateUnitTest(false);
-            if (!disabled) { continue; }
-            String entity = "com.vgosoft.sensitive.entity." + table.getDomainObjectName();
-            String example = "com.vgosoft.sensitive.entity.example." + table.getDomainObjectName() + "Example";
-            var signatures = List.of("insert(" + entity + ")", "insertSelective(" + entity + ")",
-                    "insertOrUpdateSelective(" + entity + ")", "updateByExampleSelective(" + entity + "," + example + ")",
-                    "updateByExampleSelectiveAndSelect(" + entity + "," + example + ")",
-                    "updateByExample(" + entity + "," + example + ")", "updateByPrimaryKey(" + entity + ")",
-                    "insertBySql(com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder)",
-                    "updateBySql(com.vgosoft.mybatis.sqlbuilder.UpdateSqlBuilder)", "insertBatch(java.util.List)",
-                    "updateDeleteFlag(" + entity + ",int)", "insertOrUpdate(" + entity + ")",
-                    "updateByPrimaryKeyCas(" + entity + ",java.lang.Integer)",
-                    "updateByPrimaryKeySelectiveCas(" + entity + ",java.lang.Integer)",
-                    "deleteByPrimaryKey(java.lang.String)", "deleteByExample(" + example + ")");
-            for (String signature : signatures) {
-                String name = signature.substring(0, signature.indexOf('('));
-                String internal = List.of("insert", "insertBatch", "updateByPrimaryKeyCas").contains(name)
-                        ? name + "Internal" : null;
-                table.getJavaServiceGeneratorConfiguration().addDisabledMethod(
-                        new DisabledServiceMethodConfiguration(signature, REASON, internal));
-            }
-        }
-        return config;
-    }
-
-    private static java.util.Map<String, String> managedPersistenceOutputs(MyBatisGenerator generator) throws Exception {
-        var outputs = new java.util.TreeMap<String, String>();
-        generator.getGeneratedJavaFiles().stream().filter(f -> f.getFileName().endsWith("Mapper.java"))
-                .forEach(f -> outputs.put(f.getFileName(), f.getFormattedContent()));
-        generator.getGeneratedXmlFiles().forEach(f -> outputs.put(f.getFileName(), f.getFormattedContent()));
-        var additional = MyBatisGenerator.class.getDeclaredField("otherGeneratedFiles");
-        additional.setAccessible(true);
-        for (var file : (List<?>) additional.get(generator)) {
-            if (file instanceof CasWriteContractGeneratedFile contract) {
-                outputs.put(contract.getFileName(), contract.getFormattedContent());
-            }
-        }
-        assertThat(outputs).containsKey("sensitive.xml");
-        return outputs;
-    }
 
     /** 即使关闭测试生成，最终插件也不能改写继承委托、给原语加拦截注解或暴露到接口。 */
     @ParameterizedTest
@@ -749,18 +676,6 @@ public class DisabledServiceEntryGenerationTest {
         };
     }
 
-    /** 未显式配置停用时 CAS 仍输出原 ENTRY_DISABLED，不引入新异常或内部旁路。 */
-    @Test
-    void preservesLegacyCasDefaultRejection() throws Exception {
-        var config = configuration("");
-        config.getContexts().get(0).getTableConfigurations().get(0).setCasWriteContractEnabled(true);
-        var implementation = output(generate(config), "AbstractSensitiveCategoryImpl.java");
-        assertThat(method(implementation, "updateByPrimaryKey").getBodyLines())
-                .containsExactly("throw new IllegalStateException(\"ENTRY_DISABLED\");");
-        assertThat(implementation.getMethods()).noneMatch(m -> m.getBodyLines().stream()
-                .anyMatch(line -> line.contains("VgoServiceEntryDisabledException")));
-    }
-
     /** 原因中的引号、反斜杠和换行在拒绝体与映射中一致转义，不破坏生成 Java。 */
     @Test
     void escapesReasonConsistently() throws Exception {
@@ -819,28 +734,6 @@ public class DisabledServiceEntryGenerationTest {
         config.getContexts().get(0).addPluginConfiguration(plugin);
         assertThatThrownBy(() -> generate(config)).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("disabledMethod");
-    }
-
-    /** 显式拒绝可增强既有 CAS 拒绝，但不得保留被 CAS 禁止的内部旁路。 */
-    @Test
-    void strengthensCasRejectionWithoutReopening() throws Exception {
-        var config = configuration("");
-        var table = config.getContexts().get(0).getTableConfigurations().get(0);
-        table.setCasWriteContractEnabled(true);
-        table.getJavaServiceImplGeneratorConfiguration().setGenerateUnitTest(true);
-        table.getJavaServiceGeneratorConfiguration().addDisabledMethod(new DisabledServiceMethodConfiguration(
-                "updateByPrimaryKey(com.vgosoft.sensitive.entity.SensitiveCategory)", "只允许 CAS", null));
-        var generator = generate(config);
-        assertThat(method(output(generator, "AbstractSensitiveCategoryImpl.java"), "updateByPrimaryKey").getBodyLines())
-                .singleElement().asString().contains("VgoServiceEntryDisabledException", "只允许 CAS");
-        var unsafe = configuration("");
-        var unsafeTable = unsafe.getContexts().get(0).getTableConfigurations().get(0);
-        unsafeTable.setCasWriteContractEnabled(true);
-        unsafeTable.getJavaServiceImplGeneratorConfiguration().setGenerateUnitTest(true);
-        unsafeTable.getJavaServiceGeneratorConfiguration().addDisabledMethod(new DisabledServiceMethodConfiguration(
-                "updateByPrimaryKeySelective(com.vgosoft.sensitive.entity.SensitiveCategory)",
-                "只允许 CAS", "unsafeInternal"));
-        assertThatThrownBy(() -> generate(unsafe)).hasMessageContaining("CAS");
     }
 
     /**

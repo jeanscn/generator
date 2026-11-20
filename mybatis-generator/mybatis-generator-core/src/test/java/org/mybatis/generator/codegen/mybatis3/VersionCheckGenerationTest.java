@@ -41,7 +41,7 @@ class VersionCheckGenerationTest {
     private static final String MAPPER_FILE = "SensitiveCategoryMapper.xml";
 
     private static Configuration parse(String value) throws Exception {
-        String xml = CasConsumerBaselineTest.consumerSnapshotTestXml(null);
+        String xml = CasConsumerBaselineTest.consumerSnapshotTestXml();
         if (value != null) {
             for (String tableName : List.of("sensitive_category", "sensitive_word")) {
                 int tableStart = xml.indexOf("tableName=\"" + tableName + "\"");

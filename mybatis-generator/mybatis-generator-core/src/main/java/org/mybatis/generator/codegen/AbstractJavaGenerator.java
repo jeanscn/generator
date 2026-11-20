@@ -150,12 +150,10 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
             if (DbFiledDefaultValueEnum.ofCode(defaultValue) != null) {
                 return;
             }
-            // 普通实体的 A/A' 类字段跳过初始化；受管 CAS 实体保留 version = 1，以维持其既有写入契约
+            // 普通实体的 A/A' 类字段跳过初始化；
             // deleteFlag 仍保留 = 0 初始化语义（方案 §5.2/§6.2）
             DefaultColumnNameEnum columnEnum = DefaultColumnNameEnum.ofColumnName(c.getActualColumnName()).orElse(null);
-            boolean managedCasVersion = columnEnum == DefaultColumnNameEnum.VERSION
-                    && introspectedTable.getTableConfiguration().isCasWriteContractEnabled();
-            if (!managedCasVersion && columnEnum != null && columnEnum != DefaultColumnNameEnum.DELETE_FLAG
+            if (columnEnum != null && columnEnum != DefaultColumnNameEnum.DELETE_FLAG
                     && (columnEnum.auditRole() == AuditRole.A || columnEnum.auditRole() == AuditRole.A_PRIME)) {
                 return;
             }

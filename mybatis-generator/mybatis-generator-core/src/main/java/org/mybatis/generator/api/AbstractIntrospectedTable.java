@@ -381,7 +381,6 @@ public abstract class AbstractIntrospectedTable {
 
         context.getPlugins().initialized(this);
         org.mybatis.generator.codegen.mybatis3.SensitiveGenerationValidator.validate(this);
-        org.mybatis.generator.codegen.mybatis3.CasWriteGenerationValidator.validate(this);
         org.mybatis.generator.codegen.mybatis3.LogicalDeleteGenerationValidator.validate(this);
         org.mybatis.generator.codegen.mybatis3.SelectForUpdateValidator.validate(this);
         org.mybatis.generator.codegen.mybatis3.VersionCheckGenerationValidator.validate(this);

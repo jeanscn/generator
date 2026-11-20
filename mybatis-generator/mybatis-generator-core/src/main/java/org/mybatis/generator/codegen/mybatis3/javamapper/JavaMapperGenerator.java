@@ -95,7 +95,6 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         }
 
         addInsertBatchMethod(interfaze);
-        addCasWriteContractMethod(interfaze);
         addInsertOrUpdateMethod(interfaze);
         addSelectByExampleWithRelationMethod(interfaze);
         addSelectByExampleWithChildrenCountMethod(interfaze);
@@ -214,13 +213,6 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
     protected void addInsertBatchMethod(Interface interfaze) {
         if (introspectedTable.getRules().generateInsertBatch()) {
             AbstractJavaMapperMethodGenerator methodGenerator = new InsertBatchMethodGenerator(false);
-            initializeAndExecuteGenerator(methodGenerator, interfaze);
-        }
-    }
-
-    protected void addCasWriteContractMethod(Interface interfaze) {
-        if (introspectedTable.getRules().generateCasWriteContract()) {
-            AbstractJavaMapperMethodGenerator methodGenerator = new CasWriteMethodGenerator();
             initializeAndExecuteGenerator(methodGenerator, interfaze);
         }
     }

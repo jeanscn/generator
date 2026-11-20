@@ -4,16 +4,9 @@
 
 AI 验收/测试所需的数据库、浏览器和 API 地址及用户名、密码/token 统一且仅从 `D:\java\achievable_connection_information.yml` 读取；文件缺项时停止相关验收并沟通，不得回退读取其他本机配置。本文描述的 `generatorConfig.xml`、properties/YAML 和 JDBC 属性仅属于生成器实际运行配置，不是 AI 验收凭据的其他读取入口。
 
-## 受管 CAS 输出（1.8.0）
+## 受管 CAS 输出（已删除）
 
-- 当前 DTD 的 table 属性 `enableCasWriteContract="true"` 为显式 opt-in；省略或 false 保持旧输出。DTD 空白归一化前再按统一表规则严格校验，空字符串、纯空白、`TRUE`、` true ` 均拒绝。该开关与 context Plus 生成开关及宿主工厂无控制关系。
-- 首期只接受可变 MyBatis3/XMLMAPPER、已核验的 `AbstractPersistenceLockEntity` / `AbstractPersistenceLockSortableEntity`、单非自增 String/VARCHAR id_、Integer/INTEGER 非空 version_、LocalDateTime/TIMESTAMP 审计时间、String/VARCHAR 审计身份，以及 mysql/h2。缺 Model/Mapper/XML/Service、generatedKey、未知父类、复合主键、关系级联、错误类型及其他方言预检失败，不静默修正配置。
-- 复用实际 Maven 入口调用的 `ConfigurationParser.customConfig`（既有插件、JSR310 等）；只调用原始 Parser 的输出不是完整 Maven 自定义链。测试分别保留这两条路径，不能临时补 runtime 或输出开关伪装消费者配置。
-- 增加 `updateByPrimaryKeyCas(record, expectedVersion)` / `updateByPrimaryKeySelectiveCas(record, expectedVersion)`；Mapper 返回 int 并使用两 `@Param`，Service 返回 `ServiceResult<T>`。旧版本从 Update VO 独立传入，不从 Entity 默认 1 推导。Update 校验组为 version 生成 `@NotNull`，Update 不初始化、Create 保留 1；完整 NULL/selective 非空语义不改。
-- insert/insertSelective/insertBatch 保留签名且 SQL 固定版本 1。CAS 服务用 MANDATORY 事务、不吞冲突；旧 Example/CASE/upsert/删除/无版本写服务显式拒绝，Mapper 所有其他写节点均变为受管固定 `ENTRY_DISABLED`。MyBatis BatchExecutor 仍不支持，insertBatch 是一条多值 SQL。
-- 显式 `selectByColumn/property isLogicalDelete=true` 可增加受管 `LOGICAL_DELETE`，仅允许单值 id_/version_；其他删除仍拒绝。配置、Controller 参数形状、默认兼容和运行依赖要求见第 8.1 节。
-- 按 context.moduleKeyword 聚合唯一 `META-INF\vgosoft\write-contracts\<moduleKeyword>.xml`，协议 `managed-cas-1`，不硬编码业务名。逐表和 context 插件回调之后验证必需 Java 文件/签名、服务事务与异常传播及全部非 SELECT SQL；插件否决、重复、未知写或语义篡改失败。资源须在原工厂显式装载，没有生产扫描或审计自动装配。
-- `CasWriteGenerationTest` 对比完整原始输出基线及默认/false 全输出，检验真实 metadata 替身和插件负例。`CasConsumerBaselineTest` 保留实际八表配置及开关形状，去敏替换连接/驱动、重定向输出，`generate(..., false)` 后仅捕获 target 产物。`sc03.cas=true`、`sc03.h2=true`、`sc03.baseline.name=sc03-final-generated` 用于两步跨仓测试；业务配置不加 H2、不运行业务生成入口。精确证据见 [Sensitive SC03 任务书](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\sensitive-functional-implementation-task.md)；运行契约见 [basic 能力 §6.4](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-mybatis\src\main\resources\docs\vgosoft-mybatis-capability-overview.md#64-生成器受管-cas-契约managed-cas-1未发布)。
+受管 CAS 写契约生成能力已随敏感词精简重构（`sensitive-simplification-task.md` G02）整体删除：`enableCasWriteContract` 表属性、`updateByPrimaryKey(Selective)Cas` 方法、`META-INF\vgosoft\write-contracts\<moduleKeyword>.xml` 契约文件、`CasWriteContractGeneratedFile`/`CasWriteGenerationValidator`/`CasWriteMethodGenerator`/`CasWriteElement`/`CasWriteElementGenerator` 及 `checkCasAttributeLiterals` 预检全部移除；乐观锁改由基础包 MyBatis-Plus `@Version` + `OptimisticLockerInnerInterceptor` 承担。旧配置中含 `enableCasWriteContract` 属性的 `generatorConfig.xml` 将在 DTD 校验期失败，须删除该属性后再生成。
 
 ## 显式 Service 入口停用（1.8.0）
 
@@ -38,7 +31,7 @@ AI 验收/测试所需的数据库、浏览器和 API 地址及用户名、密�
 |---|---|
 | `signature` | 必填，方法名与**准确全限定、擦除后的参数类型**，不含参数名或任何空格；数组用 `[]`，集合用 `java.util.List` 而不是泛型。短类名、错误重载、未知、重复、歧义及不可覆盖方法显式失败，不做猜测或宽松匹配。 |
 | `reason` | 必填且非空白，原样进入异常与生成测试映射；字符串中的引号、反斜杠及换行按 Java 字符串转义。 |
-| `internalMethod` | 可选，合法 Java 标识符且不能与公开、受保护继承方法或本地生成方法同名。本地生成方法原样复制**尚未被 CAS 拒绝**的方法体；没有本地生成体时，仅对真实可调用的具体父类公开实例方法生成 `protected` 的 `return super.原方法(参数);` 委托（void 不带 return）。抽象覆盖、仅接口声明/默认实现及 final/static/方法级泛型入口不支持内部原语，明确失败；不以空方法体猜测可调用性，不暴露到接口，不自动创建其他旁路。 |
+| `internalMethod` | 可选，合法 Java 标识符且不能与公开、受保护继承方法或本地生成方法同名。本地生成方法原样复制既有方法体；没有本地生成体时，仅对真实可调用的具体父类公开实例方法生成 `protected` 的 `return super.原方法(参数);` 委托（void 不带 return）。抽象覆盖、仅接口声明/默认实现及 final/static/方法级泛型入口不支持内部原语，明确失败；不以空方法体猜测可调用性，不暴露到接口，不自动创建其他旁路。 |
 
 **输出与使用：** 停用入口生成 public、非 final 的 `@Override`，唯一执行语句为 `throw new com.vgosoft.core.exception.VgoServiceEntryDisabledException(signature, reason)`；不保留原有事务、缓存、敏感写或事件等方法注解。内部复制只保留原签名与方法体，设为 protected 并清除全部方法注解，包括 `@Override`、缓存、事务和事件拦截注解；不改变原类的 private final Mapper 字段。上例内部递增保留原 `return mapper.incrementRevisionByPrimaryKey(id);` 原语，业务扩展的 `advance` 可在明确事务和业务门禁中调用 `super.incrementRevisionInternal(id)`，事务、缓存及事件编排由业务入口显式负责。业务扩展依然按原覆盖保护规则接管，禁止手改 codegen Java/XML；非 final 是为了允许业务重写，不代表允许绕过验收。
 
@@ -48,7 +41,7 @@ AI 验收/测试所需的数据库、浏览器和 API 地址及用户名、密�
 
 运行依赖必须提供基础 `VgoServiceEntryDisabledException` 及 `vgosoft-test` 的 `disabledServiceEntries/assertDisabledServiceEntry` 契约；helper 校验精确异常类型、operation、reason、FAIL 以及无 Mapper 交互。基类覆盖清单与生成侧补充测试清单须同步维护；仅生成映射不代表实际业务 Service 已通过测试。最后一个 context 附加文件回调之后统一校验接口继承/签名、拒绝体、protected 原语及测试契约；插件删除、否决、重新开放、增加拒绝方法注解或更改测试对象均失败。
 
-**兼容边界：** 未配置时沿用原生成条件、接口、Service、测试及 CAS 默认输出，不自动停用任何方法。配置只关闭 Service 路径，不改变 SQL 方言和 Mapper 许可；已有 CAS `ENTRY_DISABLED` 可显式增强为上述异常，但不能复制其被禁原语重新开放写操作。
+**兼容边界：** 未配置时沿用原生成条件、接口、Service、测试输出，不自动停用任何方法。配置只关闭 Service 路径，不改变 SQL 方言和 Mapper 许可。
 
 **实现与验证入口：** 配置解析归 `DisabledServiceMethodConfiguration`/Parser，`ServiceMethods` 共用完整签名与继承泛型解析，`DisabledServiceEntriesElement` 沿既有 elements 装配，`DisabledServiceEntries` 的有效策略供服务、测试和最终校验共用。正式回归：
 
@@ -76,7 +69,7 @@ mvn -q -o -pl mybatis-generator-core "-Denforcer.skip=true" "-Dtest=DisabledServ
 
 **实体、VO 与映射：**
 
-- Entity、CreateVo、ExcelImportVo 不再为服务端审计字段生成当前用户 getter 回退或字段初始化；`deleteFlag` 等非受保护字段保留既有初始化。受管 CAS 表仍为 `version` 保留初始化值 1，以满足 CAS 写入契约。
+- Entity、CreateVo、ExcelImportVo 不再为服务端审计字段生成当前用户 getter 回退或字段初始化；`deleteFlag` 等非受保护字段保留既有初始化。
 - 命中 `DbFiledDefaultValueEnum` 的字段由 Entity `@ColumnMeta.defaultValue` 暴露规范化约定值，不再以生成 getter 懒加载。
 - VO→Entity 映射忽略创建/修改审计字段、租户、删除标记等 A 类字段；CreateVo、ExcelImportVo 同时忽略 `version`，UpdateVo 保留 `version` 作为旧版本输入。仅对目标实体实际具有的属性生成忽略声明。
 
@@ -97,7 +90,7 @@ mvn -q -o -pl mybatis-generator-core "-Denforcer.skip=true" "-Dtest=DisabledServ
 
 省略或设为 `false` 时保持未启用版本检查的既有输出；只接受小写字面量 `true`/`false`，空值、空白、大小写变体及其他字符串均在生成时失败。启用时要求 MyBatis3 `XMLMAPPER`、唯一非空可写且非生成列的 `Integer/INTEGER` 或 `Long/BIGINT` 版本列，以及主键更新；启用批量更新时仅支持单一 `id_` 主键。单条主键更新按主键与旧版本匹配，批量更新按每行主键与旧版本匹配；影响行数不足时 Service 返回 `WARN` 冲突结果并将事务标记回滚。此开关不为 Example、upsert 或原始 SQL 增加乐观锁条件。
 
-启用表的消费运行时必须配置 `vgosoft.mybatis.audit.mode=strict`；生成器不读取或校验消费项目的运行时配置，也不会自动安装审计拦截器。版本检查回归覆盖 `VersionCheckGenerationTest` 的 H2 Mapper SQL 执行、配置失败及生成输出检查；综合输出回归见 `AuditFieldGenerationTest`。完整生成基线与 CAS 输出边界分别由 `CasWriteGenerationTest`、`CasConsumerBaselineTest` 验证；这些隔离测试不替代业务再生成、目标数据库或宿主验收。
+启用表的消费运行时必须配置 `vgosoft.mybatis.audit.mode=strict`；生成器不读取或校验消费项目的运行时配置，也不会自动安装审计拦截器。版本检查回归覆盖 `VersionCheckGenerationTest` 的 H2 Mapper SQL 执行、配置失败及生成输出检查；综合输出回归见 `AuditFieldGenerationTest`，消费配置快照与产物捕获由 `CasConsumerBaselineTest` 保留。这些隔离测试不替代业务再生成、目标数据库或宿主验收。
 
 ## 1. 根结构
 
@@ -305,12 +298,12 @@ DTD 属性仍为 `#IMPLIED`，仅当前 `mybatis-generator-config_1_8_0.dtd` 增
 | `enableSelectByIds` | 实际属性是 `enableSelectByPrimaryKeys`。 |
 | `excludedTable` | 实际属性是 `excludedTables`。 |
 
-### 3.1 敏感字段与受管写方法（1.8.0）
+### 3.1 敏感字段与受检写方法标记（1.8.0）
 
 `table` 末尾的可重复 `sensitiveCheck` 子节点按**精确物理列名**声明字段；不接受 Java 属性名、别名、通配符或大小写模糊匹配。节点与 `columnOverride`/忽略列节点共享末尾位置，字段重命名仍由 `columnOverride.property` 完成。不同声明不得重复引用同一列，包括 enable 值不同的声明。
 
 ```xml
-<table tableName="article_" domainObjectName="Article" enableUpdateByExample="false">
+<table tableName="article_" domainObjectName="Article">
     <generateModel generate="true"/>
     <generateService generate="true"/>
     <columnOverride column="content_" property="bodyText"/>
@@ -343,11 +336,8 @@ DTD 属性仍为 `#IMPLIED`，仅当前 `mybatis-generator-config_1_8_0.dtd` 增
 | 模型形态不支持 | 非 MyBatis3 可变单实体，或分层主键/BLOB/immutable | 切回单实体可变模型，或暂不启用 |
 | 父类字段承载 | 目标字段在 rootClass 父类中 | 将字段留在当前实体类，确保可落注解 |
 | Service 不可落地 | 未生成 ServiceImpl 或 `modelOnly=true` | 启用 Service 生成并关闭 `modelOnly` |
-| 写入口未受控 | 开启 `enableUpdateByExample` | 关闭后再启用敏感检测 |
 | 多实体级联写 | relation 开启 insert/update/upsert | 先拆分为可受控单实体写，或补齐多实体检测方案 |
-| 方法签名异常 | 写方法重复/不可代理；受支持单条方法参数不是实体，或受管 CAS 参数不是 `(Entity, Integer expectedVersion)` | 保持标准方法签名；batch/upsert 不支持确认，须按下方配置封闭 |
-| batch/upsert 入口未封闭 | Sensitive opt-in 且启用 `insertBatch`、`updateBatchByPrimaryKey`、`insertOrUpdate` 或 `insertOrUpdateSelective`，但未以完整签名配置 `disabledMethod` | 在 `generateService` 中为每个启用入口配置 `disabledMethod`；生成公开拒绝覆盖且不生成敏感标记 |
-| CAS 与 update batch 冲突 | Sensitive opt-in 与受管 CAS 同时启用，且要求生成 `updateBatchByPrimaryKey` 但未配置停用 | 通过 `disabledMethod` 封闭 update batch；当前没有受管 CAS 批量更新入口 |
+| 方法签名异常 | 写方法重复/不可代理；单条方法参数不是 `(Entity)`，批量方法不是 `(List<Entity>)`，按例更新不是 `(Entity, Example)` | 保持标准方法签名 |
 | 事务声明不在白名单 | 已有 `@Transactional` 非已验证模板 | 统一为受支持事务模板后再启用 |
 | 方法矩阵不完整 | 标准写方法未完整装配 | 保证标准写方法生成开关与规则一致 |
 
@@ -361,18 +351,15 @@ DTD 属性仍为 `#IMPLIED`，仅当前 `mybatis-generator-config_1_8_0.dtd` 增
 
 | 方法 | 实体参数索引 | 生成行为 |
 |---|---:|---|
-| `insert`、`insertSelective` | 0 | 为 opt-in 表装配具体 override 并标记 |
-| `updateByPrimaryKey`、`updateByPrimaryKeySelective` | 0 | CAS 关闭时为 opt-in 表装配具体 override 并标记；受管 CAS 开启时旧方法为 `ENTRY_DISABLED` 且不加标记 |
-| `updateByPrimaryKeyCas`、`updateByPrimaryKeySelectiveCas` | 0（`expectedVersion` 为 1） | 仅受管 CAS 开启时标记真实单行方法；要求 `(Entity, Integer expectedVersion)`，使用 CAS 已生成的 MANDATORY 事务模板 |
-| `insertBatch` | — | Sensitive opt-in 时必须以 `disabledMethod` 封闭，不生成敏感标记；漏配则生成期拒绝 |
-| `updateBatchByPrimaryKey` | — | Sensitive opt-in 时必须以 `disabledMethod` 封闭，不生成敏感标记；CAS 与 Sensitive 同时启用时同样适用 |
-| `insertOrUpdate`、`insertOrUpdateSelective` | — | Sensitive opt-in 时必须以 `disabledMethod` 封闭，不生成敏感标记；受管 CAS 已禁用的旧 upsert 保持不标记 |
-| `updateByExample*` | — | 未证实受限影响范围，生成期拒绝启用该配置；须关闭 `enableUpdateByExample` 后单独评审接入 |
+| `insert`、`insertSelective`、`updateByPrimaryKey`、`updateByPrimaryKeySelective` | 0 | 为 opt-in 表装配具体 override 并标记 `(Entity)` |
+| `insertBatch`、`updateBatchByPrimaryKey` | 0 | 生成时标记 `(List<Entity>)`；批量命中策略由敏感运行时聚合处理 |
+| `insertOrUpdate`、`insertOrUpdateSelective` | 0 | 生成时标记 `(Entity)` |
+| `updateByExample`、`updateByExampleSelective`、`updateByExampleSelectiveAndSelect` | 0 | 实际生成时标记 `(Entity, Example)`；此类服务方法仅在存在缓存同步目标或关联更新时生成 |
 | select/delete/纯关系维护、SQL builder、直接 Mapper/JDBC | — | 不生成敏感标记；非标准内容写入口必须显式适配或限制入口 |
 
-`operationKey = 实体全限定名 + ":" + 实际方法名`，同一输入重生成稳定，长度不超过 256；实体包名/方法名改变时必须重新核对操作注册和未过期确认凭证。CAS 方法仍以 `entityArgumentIndex=0` 标记实体，独立 `expectedVersion` 位于参数索引 1；Sensitive 运行时必须把该参数一并绑定到确认请求。当前确认摘要只支持单实体及受管 CAS 单行更新；敏感检测启用表的 batch/upsert 必须配置完整签名 `disabledMethod`，以生成拒绝覆盖关闭 Service 写入口，不加 `@SensitiveWrite`；缺项时生成失败。对应 Controller 路由仍可存在，但调用被停用 Service 方法时会立即抛出 `VgoServiceEntryDisabledException`，不进入 Mapper。重复方法、参数角色不明确或不能被 Spring 代理的受管写方法，以及已启用但未完整装配的方法均生成失败。当前 opt-in 基线要求单条标准方法完整装配；CAS 模式必须生成两个 CAS 单行更新方法，不得把 disabled 旧方法标记为可写。
+`operationKey = 实体全限定名 + ":" + 实际方法名`，同一输入重生成稳定，长度不超过 256；实体包名/方法名改变时必须重新核对运行时操作注册。不再要求以 `disabledMethod` 封闭 batch/upsert 入口，也不再要求关闭 `enableUpdateByExample`；这些入口生成后即带 `@SensitiveWrite`，由运行时切面统一检测。重复方法、参数角色不明确或不能被 Spring 代理的受检写方法，以及已启用但未完整装配的方法均生成失败。当前 opt-in 基线要求 `insert`、`insertSelective`、`updateByPrimaryKey`、`updateByPrimaryKeySelective` 四个单实体写方法完整装配。
 
-CAS 关闭时，每个受标记方法在没有已有事务声明时添加 `@Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)`；已有受支持的 REQUIRED/Exception 回滚模板事务声明保留，不重复添加，其他自定义事务声明明确失败并要求评审。受管 CAS 方法保留 CAS 生成器提供的 `MANDATORY`、`rollbackFor = Exception.class` 事务声明，拒绝其他模板。既有缓存失效、关系元数据和事件语句保留，标记只加在具体方法而不是仅接口。事务 Advisor 必须在检测 Aspect 外层；批次原子性、失败结果、缓存提交时序和事件处理仍须宿主集成验收，生成元数据不是已安装敏感运行时。
+每个受标记方法在没有已有事务声明时添加 `@Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)`；已有受支持的 REQUIRED/Exception 回滚模板事务声明保留，不重复添加，其他自定义事务声明明确失败并要求评审。既有缓存失效、关系元数据和事件语句保留，标记只加在具体方法而不是仅接口。事务 Advisor 必须在检测 Aspect 外层；批次原子性、失败结果、缓存提交时序和事件处理仍须宿主集成验收，生成元数据不是已安装敏感运行时。
 
 满足既有 Vue3 TypeScript 类型生成条件时，在 `T{Domain}.ts` 附加只读 `T{Domain}SensitiveFields` 常量，包含 `table/entity/property/label/contentType`，字符串采用 JS 转义。映射仅辅助显示，不授权客户端覆盖后端策略；没有 Vue 目标路径/VO 类型产物时不强行创建前端项目。没有敏感配置的表不改变输出；全部 disabled 时 Service/前端映射保持无配置输出。增量/强制覆盖仍遵守原覆盖规则，标记重建由生成器完成，不能手改受保护产物。
 
@@ -385,7 +372,7 @@ CAS 关闭时，每个受标记方法在没有已有事务声明时添加 `@Tran
 | 唯一跨层共享字段解析 | `codegen.mybatis3.SensitiveFieldResolver`，仅解析启用配置、精确物理列及最终 Java 字段，保持配置顺序和原失败文本 |
 | 注解文本和 imports 描述 | `custom.annotations.SensitiveCheckDesc`，从 `SensitiveCheckConfiguration` 读取注解属性；`toAnnotation()` 不修改实例状态，可重复渲染 |
 | 实体字段验证、注解装配与插件否决保护 | `codegen.mybatis3.model.SensitiveModelAnnotations`，由 `BaseRecordGenerator` 的模型插件回调后执行；负责匹配实际字段、校验类型和可写性并去重，不承担注解描述渲染 |
-| 受管写方法和注解 | `codegen.mybatis3.service.elements.SensitiveWriteMethodsElement`；`JavaServiceImplGenerator` 在关系注解/服务插件前补继承方法，插件通过后沿既有 elements 初始化流程验证实际方法并添加敏感及事务注解，否决时仍显式失败 |
+| 受检写方法标记 | `codegen.mybatis3.service.elements.SensitiveWriteMethodsElement`；`JavaServiceImplGenerator` 在关系注解/服务插件前补继承方法，插件通过后沿既有 elements 初始化流程验证实际方法并添加敏感及事务注解，否决时仍显式失败 |
 | 前端字段元数据 | `plugins.vue3.Vue3OtherFilesPlugin.frontendFields` 在既有 TS 生成入口填充模板上下文，交由 `vue_module_type.ts.ftl` 转义并渲染；不独立创建前端项目 |
 
 模型注解描述职责调整见[正式任务书第 8 节](task\select-for-update-task.md#8-敏感实体注解描述职责拆分2026-10-14)。仅拆分文本/imports 描述与字段验证/装配，不改变配置、生成产物、方法签名、开关、执行顺序及插件安全门禁；不保留兼容装配空壳。当前 DTD 仍为 `mybatis-generator-config_1_8_0.dtd`，历史 DTD 未修改。
@@ -567,7 +554,7 @@ for (Class<?> type = entityClass; type != null && type != Object.class; type = t
 
 适用场景包括：需求/设计阶段盘点既有 Entity 的表列映射和列说明；实现通用的实体元数据展示或依据持久化字段作字段级处理；检查某实体是否具备所需列描述。基础包已有 `AbstractMybatisBGService` 作为复用实例：查询构建器未显式指定时，从实体注解取得表与字段默认映射。若类/字段缺少注解（例如在 `generateModel` 上配置 `noMetaAnnotation=true`），明确转查生成配置、生成源码或数据库权威元数据，不从 Java 命名规则猜测。
 
-**能力边界：** 这些注解是表/列元数据快照，不是完整生成配置或数据库 schema。它们不能单独说明 catalog/schema、索引/唯一约束、外键、identity/generated-always、所有 table/context 开关、最终 SQL、`databaseId`、插件变更或 Mapper statement 的 allow/reject 执行规则。判断要生成哪些文件/方法、实际写入列、CAS/逻辑删除行为、SQL 执行许可时，仍须检查实际 `generatorConfig.xml`、生成产物及运行契约；判断数据库真实结构或目标环境状态时，仍以 DDL/数据库权威来源与获准核验为准。页面展示/编辑/过滤/排序布局应读 View VO 上的 `ViewTableMeta`/`ViewColumnMeta` 与视图配置，不从 Entity 的 `ColumnMeta` 推导。
+**能力边界：** 这些注解是表/列元数据快照，不是完整生成配置或数据库 schema。它们不能单独说明 catalog/schema、索引/唯一约束、外键、identity/generated-always、所有 table/context 开关、最终 SQL、`databaseId`、插件变更或 Mapper statement 的 allow/reject 执行规则。判断要生成哪些文件/方法、实际写入列、逻辑删除行为、SQL 执行许可时，仍须检查实际 `generatorConfig.xml`、生成产物及运行契约；判断数据库真实结构或目标环境状态时，仍以 DDL/数据库权威来源与获准核验为准。页面展示/编辑/过滤/排序布局应读 View VO 上的 `ViewTableMeta`/`ViewColumnMeta` 与视图配置，不从 Entity 的 `ColumnMeta` 推导。
 
 | 节点 | 含义 | 备注 |
 |---|---|---|
@@ -1781,13 +1768,11 @@ Vue3 列表、编辑、详情、Hooks 和列插槽文件，仅当既有目标文
 | 事务/缓存/事件 | 普通逻辑删除 Service 为 REQUIRED、Exception 回滚；沿用 mutation cache eviction。新分支不发布旧物理 PRE_DELETE/DELETED 事件，业务如需要应在扩展层单独编排 |
 | 默认兼容 | 不修改普通删除、旧 GET/POST 物理删除、其他表及查询语义；历史 DTD 不变。不要以省略新开关误启用逻辑删除 |
 
-SQL 使用普通 UPDATE、等值/IN 和算术自增，无方言专属函数，不需新增方言分组；受管 CAS 仍按原有 mysql/h2 支持范围逐 `additionalDbTypes` 输出，不扩大运行支持矩阵。
+SQL 使用普通 UPDATE、等值/IN 和算术自增，无方言专属函数，不需新增方言分组；各表按 `additionalDbTypes` 输出，不扩大运行支持矩阵。
 
-当 table 同时启用 `enableCasWriteContract=true` 时，仅允许 id_/version_ 两个单值条件（配置顺序可以调整），新方法输出明确的 `LOGICAL_DELETE` 声明、StaticWriteLanguageDriver 及 MANDATORY 服务事务；在既有工厂显式装载更新后的契约/门禁，审计由服务端 Provider 提供。SQL 固定 `delete_flag=1`、version 自增、可信修改信息，并以 id/旧 version/`delete_flag=0` 限定一行。原物理删除和其他危险写仍为 ENTRY_DISABLED；直接 Mapper/statementId 同样核验版本、参数隔离、行数及整事务回滚。**该组合需要包含 LOGICAL_DELETE 支持的当前 `vgosoft-mybatis` 工件**，旧 SNAPSHOT 运行包不支持新操作；不能只更新 generator。
+通用逻辑删除不计算墓碑摘要、不推进领域 revision、不检查业务引用。业务墓碑/恢复、批量配对及权限部署由消费方扩展层编排验收。
 
-通用逻辑删除不计算墓碑摘要、不推进领域 revision、不检查业务引用。Sensitive 后续须在已接管覆盖标记的 Service 扩展壳重写同名方法：统一事务中先取得 revision 门禁、读取并校验，再构造含墓碑的记录，通过既有完整/选择性 CAS 一次写入摘要和删除状态；不能先调用通用逻辑删除再补第二条无版本摘要 UPDATE。Controller 调用的是服务接口，重写后仍可复用路由；业务墓碑/恢复、旧删除路由迁移、批量配对及权限部署另行验收。
-
-源码归属：`SelectByColumnGeneratorConfiguration` / Parser 负责配置，`LogicalDeleteGenerationValidator` 负责实际列/模型预检；沿用 `DeleteByColumnGenerator`、`DeleteByColumnElement`、`JavaMapperGenerator`、`DeleteByColumnElementGenerator` 的分层输出；受管声明与最终插件校验仍由既有 CAS classes 负责。正式回归为 `LogicalDeleteGenerationTest`、basic `LogicalDeleteContractTest` 及 Plus `GeneratedLogicalDeletePlusTest`；隔离生成不代表用户业务生成或宿主已经验收。
+源码归属：`SelectByColumnGeneratorConfiguration` / Parser 负责配置，`LogicalDeleteGenerationValidator` 负责实际列/模型预检；沿用 `DeleteByColumnGenerator`、`DeleteByColumnElement`、`JavaMapperGenerator`、`DeleteByColumnElementGenerator` 的分层输出。正式回归为 `LogicalDeleteGenerationTest`、basic `LogicalDeleteContractTest` 及 Plus `GeneratedLogicalDeletePlusTest`；隔离生成不代表用户业务生成或宿主已经验收。
 
 ### 8.2 关系查询说明
 
@@ -2276,7 +2261,7 @@ SQL、CachePo 和 `ServiceMethods` 注解共用有效排序解析。生成器将
 |---|---|---|---|
 | `AbstractEntity` | —（`IPersistenceBasic`） | `id_`（PK，VARCHAR 36）；`persistenceBeanName`、`modelTempId`、`persistenceStatus`（非持久） | 最小根类：仅主键，无逻辑删除/审计/版本。Parser 默认值；适合只需 `id_` 的极简表（如 tmri-core `tmri_main_budget_freeze`）。注意：DTD 旧注释称其含 `delete_flag`，与源码不符，需要逻辑删除时应选下游类。 |
 | `AbstractPersistenceObjectEntity` | `AbstractEntity` | + `delete_flag`（INT）、`created_`、`modified_`、`created_id`、`modified_id` | `IPersistenceObject`；逻辑删除 + 创建/修改时间与操作人审计基线。 |
-| `AbstractPersistenceLockEntity` | `AbstractPersistenceObjectEntity` | + `version_`（INT，乐观锁） | `IPersistenceLock`；版本列是 CAS/版本校验类服务前提，tmri `tmri_recycle_bin`、`tmri_format_contract_setting` 使用。 |
+| `AbstractPersistenceLockEntity` | `AbstractPersistenceObjectEntity` | + `version_`（INT，乐观锁） | `IPersistenceLock`；版本列是 MyBatis-Plus `@Version`/`versionCheck` 版本校验类服务前提，tmri `tmri_recycle_bin`、`tmri_format_contract_setting` 使用。 |
 | `AbstractPersistenceLockSortableEntity` | `AbstractPersistenceLockEntity` | + `sort_`（INT） | `ISortableEntity`（`compareTo`）；主数据、明细、设置等需排序的普通业务表，tmri 非流程表的主力根类（含 `tmri_main_project`）。 |
 | `AbstractPersistenceLockNumberableEntity` | `AbstractPersistenceLockEntity` | + `reg_doc_number`（VARCHAR 64，单号）、`number_rule`（255）、`fld_ser_number`（INT，流水号） | `INumberable`；需单号/编号规则但不需 `sort_` 的非流程单据。未登记 `EntityAbstractParentEnum`，字段去重与结构同步不受影响，但枚举驱动的初始化/VO 字段清单分支不覆盖。 |
 | `AbstractPersistenceSimpleEntity` | `AbstractPersistenceLockSortableEntity` | + `apply_dept_id`、`apply_org_id`、`reg_doc_number`、`number_rule`、`fld_ser_number`、`apply_user_id`、`apply_date`、`apply_handler_id`、`apply_contact`（50） | 非流程“简单申请”模型：申请人套件 + 单号套件 + `sort_`，一次带齐。源码声明为 `public class`（非 abstract），仍可用作 rootClass。 |

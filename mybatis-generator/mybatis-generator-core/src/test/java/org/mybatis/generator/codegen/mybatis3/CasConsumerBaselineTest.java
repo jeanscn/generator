@@ -42,7 +42,7 @@ class CasConsumerBaselineTest {
     // 保留八表全部输出层和默认运行时，仅替换连接、驱动路径和输出根目录。
     @Test
     void capturesCompleteConsumerOutputWithoutExternalWrites() throws Exception {
-        String xml = consumerSnapshotXml(System.getProperty("sc03.cas"));
+        String xml = consumerSnapshotXml();
         Path root = Path.of("target", System.getProperty("sc03.baseline.name", "sc03-after-omitted"));
         Files.createDirectories(root);
         Files.writeString(root.resolve("sanitized-config.xml"), xml);
@@ -115,7 +115,7 @@ class CasConsumerBaselineTest {
                         "$1" + "2000-01-01 00:00:00");
     }
 
-    static String consumerXml(String enabled) throws Exception {
+    static String consumerXml() throws Exception {
         String xml = Files.readString(CONSUMER.resolve("generatorConfig.xml"));
         xml = xml.replaceAll("(?s)<classPathEntry\\b[^>]*/>", "")
                 .replaceAll("(?s)<jdbcConnection\\b.*?</jdbcConnection>",
@@ -123,32 +123,26 @@ class CasConsumerBaselineTest {
                                 "<connectionFactory type=\"" + MetadataFactory.class.getName() + "\"/>"));
         xml = xml.replaceAll("targetProject=\"[^\"]*\"", "targetProject=\"target/sc03-baseline\"");
         xml = xml.replaceAll("vueEndProjectPath=\"[^\"]*\"", "vueEndProjectPath=\"target/sc03-baseline/web\"");
-        xml = xml.replaceAll(" enableCasWriteContract=\"(?:true|false)\"", "");
+        xml = xml.replaceAll(" enableCasWriteContract=\"(?:true|false)\"", "")
+                .replaceAll("(?s)\\s*<disabledMethod signature=\"[^\"]*Cas\\([^\"]*\\)\"[^>]*/>", "");
         if (!Boolean.getBoolean("sc03.disabled")) {
             xml = xml.replaceAll("(?s)\\s*<disabledMethod\\b[^>]*/>", "");
-        }
-        if (enabled != null) {
-            xml = xml.replace("tableName=\"sensitive_category\"", "tableName=\"sensitive_category\" enableCasWriteContract=\"" + enabled + "\"")
-                    .replace("tableName=\"sensitive_word\"", "tableName=\"sensitive_word\" enableCasWriteContract=\"" + enabled + "\"");
         }
         return xml;
     }
 
-    static String consumerSnapshotXml(String enabled) throws Exception {
+    static String consumerSnapshotXml() throws Exception {
         String xml = snapshotFile("generatorConfig.xml")
-                .replaceAll(" enableCasWriteContract=\"(?:true|false)\"", "");
+                .replaceAll(" enableCasWriteContract=\"(?:true|false)\"", "")
+                .replaceAll("(?s)\\s*<disabledMethod signature=\"[^\"]*Cas\\([^\"]*\\)\"[^>]*/>", "");
         if (!Boolean.getBoolean("sc03.disabled")) {
             xml = xml.replaceAll("(?s)\\s*<disabledMethod\\b[^>]*/>", "");
-        }
-        if (enabled != null) {
-            xml = xml.replace("tableName=\"sensitive_category\"", "tableName=\"sensitive_category\" enableCasWriteContract=\"" + enabled + "\"")
-                    .replace("tableName=\"sensitive_word\"", "tableName=\"sensitive_word\" enableCasWriteContract=\"" + enabled + "\"");
         }
         return xml;
     }
 
-    static String consumerSnapshotTestXml(String enabled) throws Exception {
-        String xml = consumerSnapshotXml(enabled).replaceAll(
+    static String consumerSnapshotTestXml() throws Exception {
+        String xml = consumerSnapshotXml().replaceAll(
                 "(?s)<generateHtml\\b(?=[^>]*\\bgenerate=\"true\")[^>]*>.*?</generateHtml>",
                 "<generateHtml generate=\"false\"/>");
         return xml.replaceAll("(<excelImport\\b[^>]*?)generate=\"true\"", "$1generate=\"false\"");

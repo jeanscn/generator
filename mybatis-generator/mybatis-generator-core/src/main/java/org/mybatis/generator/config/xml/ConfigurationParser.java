@@ -94,7 +94,6 @@ public class ConfigurationParser {
     private Configuration parseConfiguration(InputSource inputSource)
             throws IOException, XMLParserException {
         parseErrors.clear();
-        inputSource = checkCasAttributeLiterals(inputSource);
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
         factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
@@ -147,67 +146,11 @@ public class ConfigurationParser {
         }
     }
 
-    /**
-     * 在枚举 DTD 将属性空白折叠之前，按统一表配置规则检查原始 CAS 属性值。
-     *
-     * @param source 原始输入
-     * @return 内容不变、可供正常验证解析的输入
-     * @throws IOException 读取配置失败
-     * @throws XMLParserException 原始配置不是合法 XML
-     */
-    private InputSource checkCasAttributeLiterals(InputSource source) throws IOException, XMLParserException {
-        InputSource probe;
-        InputSource original;
-        if (source.getCharacterStream() != null) {
-            var writer = new java.io.StringWriter();
-            source.getCharacterStream().transferTo(writer);
-            String text = writer.toString();
-            original = copyInputSource(source, new java.io.StringReader(text), null);
-            if (!text.contains(PropertyRegistry.TABLE_ENABLE_CAS_WRITE_CONTRACT)) { return original; }
-            probe = copyInputSource(source, new java.io.StringReader(text), null);
-        } else {
-            byte[] bytes = source.getByteStream().readAllBytes();
-            original = copyInputSource(source, null, new java.io.ByteArrayInputStream(bytes));
-            probe = copyInputSource(source, null, new java.io.ByteArrayInputStream(bytes));
-        }
-        try {
-            var factory = DocumentBuilderFactory.newInstance();
-            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-            var tables = factory.newDocumentBuilder().parse(probe).getElementsByTagName("table");
-            for (int i = 0; i < tables.getLength(); i++) {
-                var table = (Element) tables.item(i);
-                if (table.hasAttribute(PropertyRegistry.TABLE_ENABLE_CAS_WRITE_CONTRACT)) {
-                    var configuration = new TableConfiguration(new Context(null), warnings);
-                    configuration.setTableName(table.getAttribute("tableName"));
-                    configuration.parseEnableCasWriteContract(table.getAttribute(PropertyRegistry.TABLE_ENABLE_CAS_WRITE_CONTRACT));
-                }
-            }
-            return original;
-        } catch (ParserConfigurationException | SAXException exception) {
-            throw new XMLParserException(java.util.List.of(exception.getMessage()));
-        }
-    }
-
     private Configuration parseMyBatisGeneratorConfiguration(Element rootNode, String configurationSystemId)
             throws XMLParserException {
         MyBatisGeneratorConfigurationParser parser = new MyBatisGeneratorConfigurationParser(
                 extraProperties, warnings, configurationSystemId);
         return parser.parseConfiguration(rootNode);
-    }
-
-    private InputSource copyInputSource(InputSource source, Reader characterStream, InputStream byteStream) {
-        InputSource copy = characterStream == null
-                ? new InputSource(byteStream)
-                : new InputSource(characterStream);
-        copy.setPublicId(source.getPublicId());
-        copy.setSystemId(source.getSystemId());
-        copy.setEncoding(source.getEncoding());
-        return copy;
     }
 
     public void customConfig(Configuration config) {

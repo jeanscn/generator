@@ -65,12 +65,6 @@ public final class LogicalDeleteGenerationValidator {
                     throw failure(table, "版本表要求非空可写 Integer/Long version_、单值完整主键和旧版本条件；不支持独立多值列表");
                 }
             }
-            if (table.getTableConfiguration().isCasWriteContractEnabled()
-                    && (config.getColumns().size() != 2
-                    || !Set.copyOf(config.getColumns()).equals(Set.of(table.getPrimaryKeyColumns().get(0),
-                    table.getColumn("version_").orElseThrow())))) {
-                throw failure(table, "受管 CAS 逻辑删除仅支持 id_,version_ 单值条件");
-            }
             if (table.getTableConfiguration().getSelectByColumnGeneratorConfigurations().stream()
                     .filter(c -> c.isEnableDelete() && c.getDeleteMethodName().equals(config.getDeleteMethodName())).count() != 1) {
                 throw failure(table, "删除方法配置重复：" + config.getDeleteMethodName());

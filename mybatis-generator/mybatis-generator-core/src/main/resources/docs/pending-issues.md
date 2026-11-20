@@ -174,3 +174,11 @@
 - 建议后续处理：独立核对三个 Impl 差异是否全部为 `5c98f5e9` 与 example 子包迁移/文件头演进的合法输出；确认后按批准范围重录 `consumer-current-v1-parser-baseline.zip` 对应 3 个条目及两个哈希基线的 Service Impl 层摘要，不回退生成逻辑掩盖。
 - 责任与关联：`mybatis-generator-core` 测试维护方；与 generator-core-ISSUE-0001（消费配置漂移）不同源，与 generator-core-ISSUE-0004（锁查询基线历史漂移）同测试。
 - 更新与关闭记录：2026-11-20 首次登记，中/已复现并归因/待处理；本轮只登记，不修改基线与断言。
+
+### generator-core-ISSUE-0014 消费配置精简重构触发 consumerXml 夹具漂移
+
+- 发现来源：2026-11-20 敏感词精简重构（sensitive-simplification-task）G01 全量回归时，`DisabledServiceEntryGenerationTest` 56 项错误、`ImportScopeAuditTest` 1 项错误。
+- 位置与证据：`DisabledServiceEntryGenerationTest.configuration` 与 `managedMigrationConfiguration` 通过 `CasConsumerBaselineTest.consumerXml` 读取实时消费配置，依赖已被精简基线删除的 `sensitive_rule_revision` 表；`StringIndexOutOfBounds` 由 `indexOf` 返回 -1 触发。
+- 处理（已修复）：按 generator-core-ISSUE-0012 关闭先例将两处固定到已提交快照 `consumerSnapshotXml`，57+1 项全部通过；`VueUiConventionAuditTest` 保留 `consumerXml` 实时审计语义不动（其唯一失败 `pageNavigatorGeneratesMatchingEditAndDetailAnchorsWithComponentDefaults` 为干净树遗留，已见 width/zIndex 条目）。
+- 遗留未决：`SelectForUpdateGenerationTest.offlineOutputBaseline`、`CasWriteGenerationTest.retainsCompleteVersionedRawBaseline` 在干净树上同样失败，属 generator-core-ISSUE-0013 已登记的既有基线漂移，重录需负责人授权；后者属 G02 删除范围。
+- 更新与关闭记录：2026-11-20 首次登记并同日修复夹具漂移部分，低/已修复。

@@ -61,7 +61,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
- * 在内存中验证敏感配置、实体、受管写方法和前端映射，不连接数据库或写业务产物。
+ * 在内存中验证敏感配置、实体、受检写方法标记和前端映射，不连接数据库或写业务产物。
  *
  * @author vgosoft
  */
@@ -91,16 +91,6 @@ class SensitiveGenerationTest {
               </context>
             </generatorConfiguration>
             """;
-    private static final String DISABLED_WRITES = """
-            <disabledMethod signature="insertBatch(java.util.List)" reason="敏感确认摘要不支持批量写入"/>
-            <disabledMethod signature="updateBatchByPrimaryKey(java.util.List)" reason="敏感确认摘要不支持批量更新"/>
-            <disabledMethod signature="insertOrUpdate(sample.entity.Article)" reason="敏感确认摘要不支持 upsert"/>
-            <disabledMethod signature="insertOrUpdateSelective(sample.entity.Article)" reason="敏感确认摘要不支持 upsert"/>
-            """;
-    private static final String CAS_DISABLED_INSERT_BATCH =
-            "<disabledMethod signature=\"insertBatch(java.util.List)\" reason=\"敏感确认摘要不支持批量写入\"/>";
-    private static final String CAS_DISABLED_UPDATE_BATCH =
-            "<disabledMethod signature=\"updateBatchByPrimaryKey(java.util.List)\" reason=\"敏感确认摘要不支持批量更新\"/>";
     private static final String CHECK = "<sensitiveCheck columns=\"content_\"/>";
 
     @Test
@@ -155,8 +145,8 @@ class SensitiveGenerationTest {
                     method.getAnnotations().removeIf(value -> value.startsWith("@Transactional"));
                     method.addAnnotation("@Transactional(propagation = Propagation.NOT_SUPPORTED)");
                 });
-        List<String> reasons = List.of("受管写方法必须是可代理的 public 非静态、非 final 具体方法",
-                "只支持单实体参数或受管 CAS 的 (Entity, Integer) 参数",
+        List<String> reasons = List.of("受检写方法必须是可代理的 public 非静态、非 final 具体方法",
+                "只支持 (Entity)、(List<Entity>) 或 (Entity, Example) 参数形态",
                 "事务声明不是已验证的 REQUIRED/Exception 回滚模板，须单独评审");
         for (int index = 0; index < mutations.size(); index++) {
             IntrospectedTableMyBatis3Impl alteredService = fixture(CHECK);
@@ -178,7 +168,7 @@ class SensitiveGenerationTest {
         assertThatThrownBy(() -> modelOutput(enabled))
                 .hasMessage("表 article_，列/方法 *：插件禁止生成实体，无法落地敏感字段元数据");
         assertThatThrownBy(() -> serviceOutput(enabled))
-                .hasMessage("表 article_，列/方法 *：插件禁止生成 Service，无法落地受管写方法标记");
+                .hasMessage("表 article_，列/方法 *：插件禁止生成 Service，无法落地受检写方法标记");
         for (String configuration : List.of("", "<sensitiveCheck columns=\"missing_\" enable=\"false\"/>")) {
             IntrospectedTableMyBatis3Impl disabled = fixture(configuration);
             SensitiveProbePlugin disabledVeto = new SensitiveProbePlugin();
@@ -227,16 +217,16 @@ class SensitiveGenerationTest {
         // 实体与 TS 摘要随 query-condition 组合条件（anyWhereCondition 受限条件描述）与 vue3 类型模板升级而更新。
         String[][] expected = {
                 {"62b907620c85f26f6d241048800c46edb59397e53b71aa76e39fe7d09aced9fd",
-                 "b6a017c133b4cadc93aa1220bb754d19fdaf1fbbac294b1018f560ab3686a381",
+                 "a2b6b8f2f0493750c1423825da8bb310ff129045dd6dd1ae167920311bed6bab",
                  "0477a00c992498b8b2aaf849dba3f064672a4716c922836d807f21fe5a271f76"},
                 {"2c068069c2faa2db34d7e2e52ee4d811bd8eac8a139acb8d16956f5d9b96e16c",
-                 "e441b42a3619cea63333e9b733cbf43df61ed643c2d733a629533c00a9a6c98c",
+                 "d1038747e8ce2c3630351a24ea38e9f5cc2888339f22722e97c459764e76d911",
                  "2e92f4ea524d661056bc47754ae0f513ab012c3204a9a58bb7cdfad985680ad1"},
                 {"2c068069c2faa2db34d7e2e52ee4d811bd8eac8a139acb8d16956f5d9b96e16c",
-                 "e441b42a3619cea63333e9b733cbf43df61ed643c2d733a629533c00a9a6c98c",
+                 "d1038747e8ce2c3630351a24ea38e9f5cc2888339f22722e97c459764e76d911",
                  "2e92f4ea524d661056bc47754ae0f513ab012c3204a9a58bb7cdfad985680ad1"},
                 {"6f7c611fd162cc59eedaf8257cd458990017f6dcb1e357d095ebf124874934c4",
-                 "b6a017c133b4cadc93aa1220bb754d19fdaf1fbbac294b1018f560ab3686a381",
+                 "a2b6b8f2f0493750c1423825da8bb310ff129045dd6dd1ae167920311bed6bab",
                  "994c4d17c94eda72d8382d30e70f91ded8bcb767dc142777f3eec52c331b9ad3"}
         };
         List<String> configurations = List.of(CHECK, "",
@@ -315,9 +305,7 @@ class SensitiveGenerationTest {
         table.getTableConfiguration().getJavaServiceImplGeneratorConfiguration().setGenerate(false);
         assertThatThrownBy(() -> SensitiveGenerationValidator.validate(table)).hasMessageContaining("Service");
         table.getTableConfiguration().getJavaServiceImplGeneratorConfiguration().setGenerate(true);
-        table.getTableConfiguration().setUpdateByExampleStatementEnabled(true);
-        assertThatThrownBy(() -> SensitiveGenerationValidator.validate(table)).hasMessageContaining("updateByExample");
-        table.getTableConfiguration().setUpdateByExampleStatementEnabled(false);
+        SensitiveGenerationValidator.validate(table);
         table.getTableConfiguration().getJavaModelGeneratorConfiguration().setGenerate(false);
         assertThatThrownBy(() -> SensitiveGenerationValidator.validate(table)).hasMessageContaining("模型");
         table.getTableConfiguration().getJavaModelGeneratorConfiguration().setGenerate(true);
@@ -325,9 +313,22 @@ class SensitiveGenerationTest {
         assertThatThrownBy(() -> SensitiveGenerationValidator.validate(table)).hasMessageContaining("分层模型");
     }
 
-    /** 验证仅单条写入生成敏感标记，batch/upsert 通过生成的拒绝覆盖封闭且重生成稳定。 */
+    /** 主子表级联包含多实体写入时仍拒绝启用敏感检测。 */
     @Test
-    void marksOnlySupportedSingleWriteMethodsAndDisablesBatchUpsert() throws Exception {
+    void rejectsMasterDetailCascadingWrites() throws Exception {
+        IntrospectedTableMyBatis3Impl table = fixture(CHECK);
+        var relation = new org.mybatis.generator.config.RelationGeneratorConfiguration();
+        relation.setColumn("id_");
+        relation.setSelect("sample.dao.DetailMapper.selectByArticleId");
+        relation.setEnableUpdate(true);
+        table.getTableConfiguration().getRelationGeneratorConfigurations().add(relation);
+        assertThatThrownBy(() -> SensitiveGenerationValidator.validate(table))
+                .hasMessageContaining("主子表级联");
+    }
+
+    /** 验证单实体、批量、upsert 写方法均生成敏感标记且重生成稳定。 */
+    @Test
+    void marksAllGeneratedWriteMethodsAndStaysIdempotent() throws Exception {
         IntrospectedTableMyBatis3Impl table = fixture(CHECK);
         TopLevelClass model = model(table);
         Field field = model.getFields().stream().filter(item -> "bodyText".equals(item.getName())).findFirst().orElseThrow();
@@ -340,22 +341,14 @@ class SensitiveGenerationTest {
 
         TopLevelClass service = service(table);
         List<String> writes = List.of("insert", "insertSelective", "updateByPrimaryKey",
-                "updateByPrimaryKeySelective");
+                "updateByPrimaryKeySelective", "insertBatch", "updateBatchByPrimaryKey",
+                "insertOrUpdate", "insertOrUpdateSelective");
         for (String name : writes) {
             Method method = service.getMethods().stream().filter(item -> name.equals(item.getName())).findFirst().orElseThrow();
             assertThat(method.getAnnotations()).contains(
                     "@SensitiveWrite(operationKey = \"sample.entity.Article:" + name + "\", entityArgumentIndex = 0)");
             assertThat(method.getAnnotations().stream().filter(value -> value.startsWith("@Transactional")).toList())
                     .hasSize(1).allSatisfy(value -> assertThat(value).contains("rollbackFor = Exception.class"));
-        }
-        for (String name : List.of("insertBatch", "updateBatchByPrimaryKey", "insertOrUpdate",
-                "insertOrUpdateSelective")) {
-            Method method = service.getMethods().stream().filter(item -> name.equals(item.getName()))
-                    .findFirst().orElseThrow();
-            assertThat(method.getAnnotations()).noneMatch(value -> value.startsWith("@SensitiveWrite"));
-            assertThat(method.getAnnotations()).noneMatch(value -> value.startsWith("@Transactional"));
-            assertThat(method.getBodyLines()).anyMatch(value ->
-                    value.contains("VgoServiceEntryDisabledException"));
         }
         String source = format(service);
         StaticJavaParser.parse(source);
@@ -364,58 +357,37 @@ class SensitiveGenerationTest {
         assertThat(format(service(fixture(CHECK)))).isEqualTo(source);
     }
 
-    /** 验证启用敏感检测时，未显式停用的 batch/upsert 入口会在生成阶段失败。 */
+    /** 验证 updateByExample* 服务方法生成时同样获得敏感标记（此类方法仅在缓存同步或关联更新时出现，这里直接补入模拟）。 */
     @Test
-    void rejectsSensitiveBatchAndUpsertMethodsWithoutDisabledConfiguration() throws Exception {
-        List<String> signatures = List.of(
-                "insertBatch(java.util.List)",
-                "updateBatchByPrimaryKey(java.util.List)",
-                "insertOrUpdate(sample.entity.Article)",
-                "insertOrUpdateSelective(sample.entity.Article)");
-        for (String signature : signatures) {
-            String method = signature.substring(0, signature.indexOf('('));
-            assertThatThrownBy(() -> service(fixture(CHECK, false, false, disabledWritesWithout(signature))))
-                    .hasMessageContaining(method)
-                    .hasMessageContaining("disabledMethod");
-        }
-    }
-
-    /** 受管 CAS 启用时仅真实 CAS 单行方法获得敏感标记，旧 disabled 更新与 upsert 不得标记。 */
-    @Test
-    void marksCasSingleRowMethodsInsteadOfDisabledUpdateMethods() throws Exception {
-        IntrospectedTableMyBatis3Impl table = fixture(CHECK, true, false);
+    void marksUpdateByExampleMethodsWhenGenerated() throws Exception {
+        IntrospectedTableMyBatis3Impl table = fixture(CHECK);
         TopLevelClass service = service(table);
-        for (String name : List.of("updateByPrimaryKeyCas", "updateByPrimaryKeySelectiveCas")) {
-            Method method = service.getMethods().stream()
-                    .filter(item -> name.equals(item.getName())).findFirst().orElseThrow();
+        FullyQualifiedJavaType entity = new FullyQualifiedJavaType(table.getBaseRecordType());
+        FullyQualifiedJavaType example = new FullyQualifiedJavaType(table.getExampleType());
+        for (String name : List.of("updateByExampleSelective", "updateByExampleSelectiveAndSelect")) {
+            Method method = new Method(name);
+            method.setVisibility(org.mybatis.generator.api.dom.java.JavaVisibility.PUBLIC);
+            method.addParameter(new Parameter(entity, "record"));
+            method.addParameter(new Parameter(example, "example"));
+            service.addMethod(method);
+        }
+        SensitiveWriteMethodsElement.addWriteAnnotations(service, table);
+        for (Method method : service.getMethods().stream()
+                .filter(item -> item.getName().startsWith("updateByExample")).toList()) {
             assertThat(method.getParameters()).hasSize(2);
             assertThat(method.getAnnotations()).contains(
-                    "@SensitiveWrite(operationKey = \"sample.entity.Article:" + name + "\", entityArgumentIndex = 0)",
-                    "@org.springframework.transaction.annotation.Transactional(propagation = "
-                            + "org.springframework.transaction.annotation.Propagation.MANDATORY, rollbackFor = Exception.class)");
-        }
-        for (String name : List.of("updateByPrimaryKey", "updateByPrimaryKeySelective", "insertOrUpdate")) {
-            service.getMethods().stream().filter(item -> name.equals(item.getName())).findFirst().ifPresent(method -> {
-                assertThat(method.getAnnotations()).noneMatch(value -> value.startsWith("@SensitiveWrite"));
-                assertThat(method.getBodyLines()).contains("throw new IllegalStateException(\"ENTRY_DISABLED\");");
-            });
+                    "@SensitiveWrite(operationKey = \"sample.entity.Article:" + method.getName()
+                            + "\", entityArgumentIndex = 0)");
         }
     }
 
-    /** CAS 配置仍要求生成 update batch 时必须在服务输出前明确拒绝敏感受管组合。 */
+    /** 验证显式停用配置仍可封闭入口，被停用方法不获得敏感标记。 */
     @Test
-    void rejectsSensitiveCasWhenUpdateBatchIsEnabled() throws Exception {
-        assertThatThrownBy(() -> fixture(CHECK, true, true))
-                .hasMessageContaining("没有受支持的 CAS 批量更新");
-    }
-
-    /** 验证 CAS 与敏感检测并用时，显式停用批量更新可生成拒绝覆盖而非放开写入。 */
-    @Test
-    void allowsSensitiveCasWhenUpdateBatchIsExplicitlyDisabled() throws Exception {
-        IntrospectedTableMyBatis3Impl table = fixture(
-                CHECK, true, true, CAS_DISABLED_INSERT_BATCH + "\n" + CAS_DISABLED_UPDATE_BATCH);
+    void skipsAnnotationForExplicitlyDisabledWriteMethods() throws Exception {
+        IntrospectedTableMyBatis3Impl table = fixture(CHECK,
+                "<disabledMethod signature=\"insertBatch(java.util.List)\" reason=\"业务决定封闭批量\"/>");
         Method batch = service(table).getMethods().stream()
-                .filter(method -> "updateBatchByPrimaryKey".equals(method.getName()))
+                .filter(method -> "insertBatch".equals(method.getName()))
                 .findFirst().orElseThrow();
         assertThat(batch.getAnnotations()).noneMatch(value -> value.startsWith("@SensitiveWrite"));
         assertThat(batch.getBodyLines()).anyMatch(value -> value.contains("VgoServiceEntryDisabledException"));
@@ -453,7 +425,7 @@ class SensitiveGenerationTest {
         batch.getParameters().clear();
         batch.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "record"));
         assertThatThrownBy(() -> SensitiveWriteMethodsElement.addWriteAnnotations(service, table))
-                .hasMessageContaining("insertBatch").hasMessageContaining("disabledMethod");
+                .hasMessageContaining("insertBatch").hasMessageContaining("参数形态");
     }
 
     @Test
@@ -583,14 +555,11 @@ class SensitiveGenerationTest {
             assertThat(context.getEffectiveTargetRuntime()).isEqualTo("MyBatis3");
             assertThat(org.mybatis.generator.internal.ObjectFactory.createIntrospectedTableForValidation(context))
                     .isExactlyInstanceOf(IntrospectedTableMyBatis3Impl.class);
-            assertThat(context.getTableConfigurations()).hasSize(8).allSatisfy(table ->
+            assertThat(context.getTableConfigurations()).hasSize(4).allSatisfy(table ->
                     assertThat(table.getSensitiveCheckConfigurations()).isEmpty());
             var word = context.getTableConfigurations().stream().filter(table -> "sensitive_word".equals(table.getTableName()))
                     .findFirst().orElseThrow();
             assertThat(word.getColumnOverride("word_").getMaxLength()).isEqualTo(256);
-            assertThat(word.getVoGeneratorConfiguration().getVoModelConfiguration().getExcludeColumns()).contains("category_cascade_disabled_");
-            assertThat(word.getVoGeneratorConfiguration().getVoViewConfiguration().getExcludeColumns()).contains("category_cascade_disabled_");
-            assertThat(word.getVoGeneratorConfiguration().getVoRequestConfiguration().getExcludeColumns()).contains("category_cascade_disabled_");
         }
     }
 
@@ -600,27 +569,12 @@ class SensitiveGenerationTest {
     }
 
     private IntrospectedTableMyBatis3Impl fixture(String check) throws Exception {
-        return fixture(check, false, false);
+        return fixture(check, "");
     }
 
-    private IntrospectedTableMyBatis3Impl fixture(String check, boolean casContract, boolean updateBatch)
-            throws Exception {
-        return fixture(check, casContract, updateBatch,
-                casContract ? CAS_DISABLED_INSERT_BATCH : DISABLED_WRITES);
-    }
-
-    private IntrospectedTableMyBatis3Impl fixture(
-            String check, boolean casContract, boolean updateBatch, String disabledWrites)
+    private IntrospectedTableMyBatis3Impl fixture(String check, String disabledWrites)
             throws Exception {
         String configuration = XML.formatted(disabledWrites, check);
-        if (casContract) {
-            configuration = configuration.replace("tableName=\"article_\"",
-                    "tableName=\"article_\" enableCasWriteContract=\"true\"")
-                    .replace("value=\"com.vgosoft.core.entity.abs.AbstractEntity\"",
-                            "value=\"com.vgosoft.core.entity.abs.AbstractPersistenceLockEntity\"")
-                    .replace("<commentGenerator>",
-                            "<property name=\"additionalDbTypes\" value=\"mysql,h2\"/><commentGenerator>");
-        }
         Context context = new ConfigurationParser(new ArrayList<>()).parseConfiguration(
                 new StringReader(configuration)).getContexts().get(0);
         java.lang.reflect.Field plugins = Context.class.getDeclaredField("pluginAggregator");
@@ -630,41 +584,13 @@ class SensitiveGenerationTest {
                 org.mybatis.generator.internal.ObjectFactory.createIntrospectedTable(
                         context.getTableConfigurations().get(0), new FullyQualifiedTable(null, null, "article_", "Article", null,
                                 true, null, null, null, false, null, context), context);
-        if (casContract) {
-            table.getTableConfiguration().setUpdateBatchStatementEnabled(updateBatch);
-        }
         table.setRemarks("文章");
         table.addColumn(column("id_", "id"));
         table.addPrimaryKeyColumn("id_");
-        if (casContract) {
-            IntrospectedColumn version = column("version_", "version");
-            version.setFullyQualifiedJavaType(new FullyQualifiedJavaType("java.lang.Integer"));
-            version.setJdbcType(Types.INTEGER);
-            version.setJdbcTypeName("INTEGER");
-            version.setNullable(false);
-            table.addColumn(version);
-            for (String[] audit : List.of(
-                    new String[]{"created_", "created"},
-                    new String[]{"modified_", "modified"})) {
-                IntrospectedColumn timestamp = column(audit[0], audit[1]);
-                timestamp.setFullyQualifiedJavaType(new FullyQualifiedJavaType("java.time.LocalDateTime"));
-                timestamp.setJdbcType(Types.TIMESTAMP);
-                timestamp.setJdbcTypeName("TIMESTAMP");
-                table.addColumn(timestamp);
-            }
-            table.addColumn(column("created_id", "createdId"));
-            table.addColumn(column("modified_id", "modifiedId"));
-        }
         table.addColumn(column("content_", "bodyText"));
         table.initialize();
         table.setRules(new FlatModelRules(table));
         return table;
-    }
-
-    private String disabledWritesWithout(String signature) {
-        return DISABLED_WRITES.lines()
-                .filter(line -> !line.contains("signature=\"" + signature + "\""))
-                .collect(java.util.stream.Collectors.joining("\n"));
     }
 
     private IntrospectedColumn column(String name, String property) {
