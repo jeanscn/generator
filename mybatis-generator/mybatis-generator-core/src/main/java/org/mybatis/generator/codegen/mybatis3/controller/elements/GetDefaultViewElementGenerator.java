@@ -6,7 +6,6 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
-import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 
 import static org.mybatis.generator.custom.ConstantsUtil.DATATABLES_UTIL;
@@ -30,7 +29,7 @@ public class GetDefaultViewElementGenerator extends AbstractControllerElementGen
         Method method = createMethod(methodPrefix);
         method.setReturnType(new FullyQualifiedJavaType(MODEL_AND_VIEW));
 
-        method.addAnnotation(new SystemLogDesc("查看默认视图", introspectedTable),parentElement);
+        addSystemLogAnnotation(method, parentElement, "查看默认视图", methodPrefix);
         method.addAnnotation(new RequestMappingDesc("dt/view-default/show", RequestMethodEnum.GET),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"默认视图查询");
         method.addAnnotation(new OperationDesc("默认数据视图显示", "显示默认数据视图"),parentElement);

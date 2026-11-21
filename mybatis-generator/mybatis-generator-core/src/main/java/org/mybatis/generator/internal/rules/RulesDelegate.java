@@ -255,6 +255,11 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
+    public boolean isEnableSysLogAnnotation() {
+        return rules.isEnableSysLogAnnotation();
+    }
+
+    @Override
     public boolean generateBaseColumnList() {
         return rules.generateBaseColumnList();
     }

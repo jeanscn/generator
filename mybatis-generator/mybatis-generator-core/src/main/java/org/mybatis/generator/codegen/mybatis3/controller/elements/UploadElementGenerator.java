@@ -8,7 +8,6 @@ import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
-import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 
 import static com.vgosoft.tool.core.VStringUtil.format;
@@ -61,7 +60,7 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
         method.setExceptionRemark("上传处理异常，含IO读写异常");
 
-        method.addAnnotation(new SystemLogDesc("上传记录", introspectedTable),parentElement);
+        addSystemLogAnnotation(method, parentElement, "上传记录", methodPrefix);
         RequestMappingDesc requestMappingDesc = new RequestMappingDesc("upload", RequestMethodEnum.POST);
         requestMappingDesc.addConsumes("MediaType.MULTIPART_FORM_DATA_VALUE");
         requestMappingDesc.addProduces("MediaType.APPLICATION_JSON_VALUE");

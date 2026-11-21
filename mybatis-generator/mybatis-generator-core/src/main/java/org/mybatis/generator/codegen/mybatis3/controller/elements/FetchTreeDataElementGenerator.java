@@ -9,7 +9,6 @@ import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
-import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
@@ -59,7 +58,7 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
                 ztreeDataSimpleType,
                 parentElement));
         method.setReturnRemark("tree对象集合结果封装对象");
-        method.addAnnotation(new SystemLogDesc("查询树结果数据", introspectedTable), parentElement);
+        addSystemLogAnnotation(method, parentElement, "查询树结果数据", methodPrefix);
         method.addAnnotation(new RequestMappingDesc("tree", RequestMethodEnum.GET), parentElement);
         method.addAnnotation(new OperationDesc("树形数据查询", "获取指定根或所有的树形结构数据"), parentElement);
         commentGenerator.addMethodJavaDocLine(method, "获取指定根或所有的树形结构数据");
@@ -134,7 +133,7 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
                 entityType,
                 parentElement));
         aMethod.setReturnRemark("对象集合结果封装对象,带有子集合数量");
-        aMethod.addAnnotation(new SystemLogDesc("查询带有子集合数量数据", introspectedTable), parentElement);
+        addSystemLogAnnotation(aMethod, parentElement, "查询带有子集合数量数据", asyncMethodPrefix);
         aMethod.addAnnotation(new RequestMappingDesc("async-tree", RequestMethodEnum.GET), parentElement);
         aMethod.addAnnotation(new OperationDesc("带有子集合数量数据查询", "异步获取指定根或所有的带有子集合数量数据，用于异步树获取数据"), parentElement);
         commentGenerator.addMethodJavaDocLine(aMethod, "异步获取指定根或所有的带有子集合数量数据，用于异步树获取数据");

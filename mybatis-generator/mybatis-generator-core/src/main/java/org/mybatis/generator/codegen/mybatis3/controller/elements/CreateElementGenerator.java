@@ -7,7 +7,6 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.codegen.mybatis3.SensitiveFieldResolver;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
-import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 
@@ -48,7 +47,7 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
                 parentElement));
         method.setReturnRemark("更新后的数据（对象）");
 
-        method.addAnnotation(new SystemLogDesc("添加了一条记录", introspectedTable),parentElement);
+        addSystemLogAnnotation(method, parentElement, "添加了一条记录", methodPrefix);
         method.addAnnotation(new RequestMappingDesc("", RequestMethodEnum.POST),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"新增");
         method.addAnnotation(new OperationDesc("新增一条记录", "新增一条记录,返回json，包含影响条数及消息"),parentElement);

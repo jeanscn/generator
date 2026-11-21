@@ -182,3 +182,13 @@
 - 处理（已修复）：按 generator-core-ISSUE-0012 关闭先例将两处固定到已提交快照 `consumerSnapshotXml`，57+1 项全部通过；`VueUiConventionAuditTest` 保留 `consumerXml` 实时审计语义不动（其唯一失败 `pageNavigatorGeneratesMatchingEditAndDetailAnchorsWithComponentDefaults` 为干净树遗留，已见 width/zIndex 条目）。
 - 遗留未决：`SelectForUpdateGenerationTest.offlineOutputBaseline`、`CasWriteGenerationTest.retainsCompleteVersionedRawBaseline` 在干净树上同样失败，属 generator-core-ISSUE-0013 已登记的既有基线漂移，重录需负责人授权；后者属 G02 删除范围。
 - 更新与关闭记录：2026-11-20 首次登记并同日修复夹具漂移部分，低/已修复。
+
+### generator-core-ISSUE-0015 数据库列无默认值时生成 `this.field = ;` 空初始化表达式
+
+- 发现来源：2026-11-20 敏感词精简重构 S03 受控再生成时，`SensitiveCategory.java` 与 `SensitiveCategoryCreateVo.java` 出现 `this.sort = ;` 非法表达式导致模块编译失败。
+- 位置与证据：`AbstractJavaGenerator.addInitialization(...)` 依据数据库列 `defaultValue` 生成字段初始化代码；当列无默认值（`sort_` 经 `ValidateDatabaseTable` 按根实体 `@ColumnMeta` 规范回写为 `INT DEFAULT NULL`，`defaultValue` 取到空串）时输出 `this.sort = ;`。
+- 问题现象与触发条件：实体字段存在对应列但数据库默认值为空时必现；本次由 `sensitive_category.sort_` 触发，根实体 `AbstractPersistenceLockSortableEntity.sort` 的 `@ColumnMeta` 规范即为可空无默认。
+- 影响与分级依据：中。生成产物含非法 Java 表达式，下游模块编译直接失败；当前已通过将消费 schema 与 `@ColumnMeta` 规范对齐（`sort_ INT NULL COMMENT '排序'`）消除触发条件，但生成逻辑缺陷仍在，其他无默认列可再触发。
+- 建议后续处理：`addInitialization` 在 `defaultValue` 为空/空白时应跳过生成赋值语句（或回退 Java 初始化值），并补一条无默认值列的定向测试。
+- 责任与关联：`mybatis-generator-core` 生成逻辑维护方；与敏感词精简重构 S03 相关联但不阻塞（已绕过）。
+- 更新与关闭记录：2026-11-20 首次登记，中/已复现/待处理；本轮只登记，不改生成逻辑。

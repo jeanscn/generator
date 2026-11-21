@@ -8,7 +8,6 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.config.VoExcelImportWorkflowConfiguration;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
-import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 
@@ -42,7 +41,7 @@ public class ImportWorkflowElementGenerator extends AbstractControllerElementGen
         file.addAnnotation("@RequestPart(\"file\")");
         file.setRemark("待预览的 Excel 文件");
         method.addParameter(file);
-        method.addAnnotation(new SystemLogDesc("Excel 导入预览", introspectedTable), parentElement);
+        addSystemLogAnnotation(method, parentElement, "Excel 导入预览", "import");
         RequestMappingDesc mapping = new RequestMappingDesc("import/preview", RequestMethodEnum.POST);
         mapping.addConsumes("MediaType.MULTIPART_FORM_DATA_VALUE");
         mapping.addProduces("MediaType.APPLICATION_JSON_VALUE");
@@ -92,7 +91,7 @@ public class ImportWorkflowElementGenerator extends AbstractControllerElementGen
         request.addAnnotation("@RequestPart(\"request\")");
         request.setRemark("导入预览确认凭证");
         method.addParameter(request);
-        method.addAnnotation(new SystemLogDesc("Excel 导入确认", introspectedTable), parentElement);
+        addSystemLogAnnotation(method, parentElement, "Excel 导入确认", "import");
         RequestMappingDesc mapping = new RequestMappingDesc("import/confirm", RequestMethodEnum.POST);
         mapping.addConsumes("MediaType.MULTIPART_FORM_DATA_VALUE");
         mapping.addProduces("MediaType.APPLICATION_JSON_VALUE");

@@ -5,7 +5,6 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
-import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 
 import java.util.stream.Collectors;
@@ -54,7 +53,8 @@ public class DeleteByTableGenerator extends AbstractControllerElementGenerator {
                     method.setReturnType(response);
                     method.setReturnRemark("成功删除的记录数");
 
-                    method.addAnnotation(new SystemLogDesc("删除数据关联", introspectedTable),parentElement);
+                    addSystemLogAnnotation(method, parentElement, "删除数据关联",
+                            c.getSplitMethodName(), "relation");
                     method.addAnnotation(new RequestMappingDesc("split/"+ toHyphenCase(c.getMethodSuffix())
                             , RequestMethodEnum.POST),parentElement);
                     addSecurityPreAuthorize(method, c.getSplitMethodName(),

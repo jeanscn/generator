@@ -6,7 +6,6 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.config.FormOptionGeneratorConfiguration;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
-import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
@@ -73,7 +72,7 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
         method.setReturnType(response);
         method.setReturnRemark("FormSelectTreeOption对象列表");
 
-        method.addAnnotation(new SystemLogDesc("调用数据选项接口", introspectedTable),parentElement);
+        addSystemLogAnnotation(method, parentElement, "调用数据选项接口", methodPrefix, "option");
         method.addAnnotation(new RequestMappingDesc("option/"+ toHyphenCase(column.getJavaProperty())
                 , RequestMethodEnum.GET),parentElement);
         addSecurityPreAuthorize(method, methodPrefix, "选项查询", "option");

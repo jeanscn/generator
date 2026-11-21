@@ -8,7 +8,6 @@ import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.HtmlElementInnerListConfiguration;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
-import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 import org.mybatis.generator.internal.util.StringUtility;
 
@@ -51,7 +50,7 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         //添加注解
         method.addAnnotation("@PermitAll");
         parentElement.addImportedType("jakarta.annotation.security.PermitAll");
-        method.addAnnotation(new SystemLogDesc("通过表单查看或创建记录", introspectedTable), parentElement);
+        addSystemLogAnnotation(method, parentElement, "通过表单查看或创建记录", methodPrefix);
         method.addAnnotation(new RequestMappingDesc("view", RequestMethodEnum.GET), parentElement);
         method.addAnnotation(new OperationDesc("获得数据并返回页面视图（可用于普通业务在列表中新建接口）",
                 "根据给定id获取单个实体，id为可选参数，当id存在时查询数据，否则直接返回视图"), parentElement);

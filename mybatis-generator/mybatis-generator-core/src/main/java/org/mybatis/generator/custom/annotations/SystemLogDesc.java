@@ -43,7 +43,7 @@ public class SystemLogDesc extends AbstractAnnotation {
             items.add(VStringUtil.format("logType = LogTypesEnum.{0}", logType.name()));
         }
         if (targetTable != null) {
-            items.add(VStringUtil.format("logType = LogTargetTableEnum.{0}", targetTable.name()));
+            items.add(VStringUtil.format("targetTable = LogTargetTableEnum.{0}", targetTable.name()));
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }

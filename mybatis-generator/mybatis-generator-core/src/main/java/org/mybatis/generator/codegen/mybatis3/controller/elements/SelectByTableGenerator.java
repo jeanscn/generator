@@ -4,7 +4,6 @@ import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
-import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 
 import static com.vgosoft.tool.core.VStringUtil.toHyphenCase;
@@ -56,7 +55,8 @@ public class SelectByTableGenerator extends AbstractControllerElementGenerator {
                     method.setReturnType(response);
                     method.setReturnRemark(c.isReturnPrimaryKey() ? "关系的当前表的数据标识集合" : "关系的当前表的数据集合");
 
-                    method.addAnnotation(new SystemLogDesc(c.isReturnPrimaryKey() ? "获取中间关系中的当前表的数据标识" : "根据给定的标识获取关系中当前表的数据对象", introspectedTable), parentElement);
+                    addSystemLogAnnotation(method, parentElement, c.isReturnPrimaryKey() ? "获取中间关系中的当前表的数据标识" : "根据给定的标识获取关系中当前表的数据对象",
+                            c.getSelectByTableMethodName(), "relation");
                     method.addAnnotation(new RequestMappingDesc("select/" + toHyphenCase(c.getMethodSuffix()), RequestMethodEnum.GET), parentElement);
                     method.addAnnotation(new OperationDesc("获取中间关系表的当前表数据（标识）", "获取中间关系表的当前表数据（标识）（查找存在的数据关系）"), parentElement);
                     commentGenerator.addMethodJavaDocLine(method, "获取中间关系表的数据（标识）");

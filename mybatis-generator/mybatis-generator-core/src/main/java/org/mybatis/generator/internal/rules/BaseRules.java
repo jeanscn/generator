@@ -65,6 +65,12 @@ public abstract class BaseRules implements Rules {
      */
     protected final Set<String> apiPermissionPrefixes;
 
+    /**
+     * 操作审计日志注解生成总开关，来自 {@code generateController} 的
+     * {@code enableSysLogAnnotation} property；缺省为 true，显式配置 "false" 时关闭
+     */
+    protected final boolean enableSysLogAnnotation;
+
     protected final boolean generateUnitTest;
 
     public BaseRules(AbstractIntrospectedTable introspectedTable) {
@@ -102,6 +108,8 @@ public abstract class BaseRules implements Rules {
         this.integrateSpringSecurity = introspectedTable.getContext().isIntegrateSpringSecurity();
 
         this.apiPermissionPrefixes = parseApiPermissionPrefixes(javaControllerGeneratorConfiguration);
+
+        this.enableSysLogAnnotation = parseEnableSysLogAnnotation(javaControllerGeneratorConfiguration);
 
         this.generateUnitTest = true;
     }
@@ -569,6 +577,17 @@ public abstract class BaseRules implements Rules {
     @Override
     public Set<String> getApiPermissionPrefixes() {
         return apiPermissionPrefixes;
+    }
+
+    @Override
+    public boolean isEnableSysLogAnnotation() {
+        return enableSysLogAnnotation;
+    }
+
+    private static boolean parseEnableSysLogAnnotation(JavaControllerGeneratorConfiguration configuration) {
+        String property = configuration != null
+                ? configuration.getProperty(PropertyRegistry.CONTROLLER_ENABLE_SYSLOG_ANNOTATION) : null;
+        return property == null || StringUtility.isTrue(property);
     }
 
     private static Set<String> parseApiPermissionPrefixes(JavaControllerGeneratorConfiguration configuration) {

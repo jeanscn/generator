@@ -290,6 +290,17 @@ DTD 属性仍为 `#IMPLIED`，仅当前 `mybatis-generator-config_1_8_0.dtd` 增
 - 按表分档：基础配置/字典/参数表写面全加；审计/权限管理类核心表可用 `all`；纯只读报表不加。
 - 反模式：为"保险"给只读查询加白名单（每加一项都要在角色管理中逐条分配，漏配即 403）；`import` 与 `template` 是两个独立 code 按需取舍；保留值与精确 code 不重复书写（`relation` 已含全部 `insert/deleteByTable{Suffix}`）。
 
+#### `generateController` 的 `enableSysLogAnnotation` 操作审计注解开关
+
+`<property name="enableSysLogAnnotation" value="..."/>` 控制 `@SystemLog` 操作审计注解的生成，是总开关而非范围：
+
+- 缺省或 `true`：启用，但仅对 `apiPermissions` 白名单命中的接口生成 `@SystemLog`，与接口权限共用同一白名单（`all` 全量、保留值 `relation`/`option`、精确方法前缀 code、匹配不区分大小写）。
+- `false`：全部接口不生成 `@SystemLog`。
+- `apiPermissions` 未配置或为空：即使开关启用也无任何接口命中，`@SystemLog` 全部不生成。
+- `@SystemLog` 生成不受 `integrateSpringSecurity` 开关限制：白名单命中即生成，与是否输出 `@PreAuthorize` 独立。
+
+生成 `@SystemLog` 但无权限 code 的端点（`view`、`newInstance`、`fetchTreeData`、`asyncFetchTreeData`、关系查询 `selectByTable`、关系维护 `union/split`）按各自方法前缀或保留值 `relation` 参与白名单匹配，命中才生成；`statistics`、`download`、`getLayuiTable`、`hideListBatch`、`selectByColumn` 端点本身不生成 `@SystemLog`，与白名单无关。
+
 ### 表级歧义修正
 
 | DTD/注释 | 源码真实含义 |

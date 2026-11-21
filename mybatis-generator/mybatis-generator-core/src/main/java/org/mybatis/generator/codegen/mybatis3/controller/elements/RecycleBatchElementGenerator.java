@@ -4,7 +4,6 @@ import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
-import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
@@ -31,7 +30,7 @@ public class RecycleBatchElementGenerator extends AbstractControllerElementGener
         response.addTypeArgument(new FullyQualifiedJavaType("java.lang.Long"));
         method.setReturnType(response);
         method.setReturnRemark("成功移入回收站的记录数");
-        method.addAnnotation(new SystemLogDesc("把一条或多条记录移入回收站", introspectedTable),parentElement);
+        addSystemLogAnnotation(method, parentElement, "把一条或多条记录移入回收站", methodPrefix);
         method.addAnnotation(new RequestMappingDesc("recycle", RequestMethodEnum.POST),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"移入回收站");
         method.addAnnotation(new OperationDesc("批量移入回收站", "把给定的对象批量移入回收站"),parentElement);

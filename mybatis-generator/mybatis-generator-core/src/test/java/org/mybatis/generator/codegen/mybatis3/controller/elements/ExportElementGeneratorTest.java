@@ -48,6 +48,9 @@ class ExportElementGeneratorTest {
     @Test
     void shouldRetainGetAndGenerateTypedPostMetadataAndSafeQuery() {
         Fixture fixture = fixture(true);
+        fixture.context.setModuleKeyword("sample");
+        fixture.context.setModuleName("测试");
+        enableSecurity(fixture, "all");
         fixture.generator.addElements(fixture.output);
         Method post = method(fixture, "exportPostRecord");
         String body = String.join("\n", post.getBodyLines());

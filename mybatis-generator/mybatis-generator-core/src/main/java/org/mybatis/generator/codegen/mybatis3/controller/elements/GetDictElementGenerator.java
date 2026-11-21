@@ -10,7 +10,6 @@ import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerEleme
 import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 import org.mybatis.generator.config.VoCacheGeneratorConfiguration;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
-import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 
@@ -41,7 +40,7 @@ public class GetDictElementGenerator extends AbstractControllerElementGenerator 
                 entityCachePoType,
                 parentElement));
         method.setReturnRemark("缓存数据对象");
-        method.addAnnotation(new SystemLogDesc("查询字典数据", introspectedTable),parentElement);
+        addSystemLogAnnotation(method, parentElement, "查询字典数据", methodPrefix);
         method.addAnnotation(new RequestMappingDesc("dict", RequestMethodEnum.GET),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"字典查询");
         method.addAnnotation(new OperationDesc("字典数据查询", "获取字典数据并缓存"),parentElement);

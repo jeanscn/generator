@@ -9,7 +9,6 @@ import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
-import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 
@@ -68,7 +67,7 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
         method.addException(new FullyQualifiedJavaType("java.io.IOException"));
         method.setExceptionRemark("IO读写异常");
 
-        method.addAnnotation(new SystemLogDesc("数据导出", introspectedTable), parentElement);
+        addSystemLogAnnotation(method, parentElement, "数据导出", methodPrefix);
         method.addAnnotation(new RequestMappingDesc("export", RequestMethodEnum.GET), parentElement);
         addSecurityPreAuthorize(method, methodPrefix, "导出");
         method.addAnnotation(new OperationDesc("Excel数据导出", "Excel数据导出接口"), parentElement);
@@ -367,7 +366,7 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
 
     private void exportAnnotations(Method method, TopLevelClass parent, String path,
                                    RequestMethodEnum verb, String summary) {
-        method.addAnnotation(new SystemLogDesc(summary, introspectedTable), parent);
+        addSystemLogAnnotation(method, parent, summary, "export");
         method.addAnnotation(new RequestMappingDesc(path, verb), parent);
         addSecurityPreAuthorize(method, "export", "导出");
         method.addAnnotation(new OperationDesc(summary, summary), parent);

@@ -120,8 +120,7 @@ public class DeleteByColumnGenerator extends AbstractControllerElementGenerator 
         method.addAnnotation(new RequestMappingDesc(VStringUtil.toHyphenCase(config.getDeleteMethodName()),
                 RequestMethodEnum.POST), parentElement);
         addSecurityPreAuthorize(method, "delete", "删除");
-        method.addAnnotation(new org.mybatis.generator.custom.annotations.SystemLogDesc("按条件逻辑删除记录", introspectedTable),
-                parentElement);
+        addSystemLogAnnotation(method, parentElement, "按条件逻辑删除记录", "delete");
         method.addAnnotation(new OperationDesc("按指定条件逻辑删除", "按指定条件逻辑删除，版本表须传入客户端旧版本"), parentElement);
         commentGenerator.addMethodJavaDocLine(method, "按指定条件逻辑删除，冲突或校验失败由服务异常传播");
         method.setReturnRemark("逻辑删除的记录数");

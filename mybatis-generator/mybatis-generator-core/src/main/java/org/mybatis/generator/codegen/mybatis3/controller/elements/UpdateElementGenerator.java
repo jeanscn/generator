@@ -6,7 +6,6 @@ import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
-import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 
@@ -45,7 +44,7 @@ public class UpdateElementGenerator extends AbstractControllerElementGenerator {
                 parentElement));
         method.setReturnRemark("更新后的数据对象");
 
-        method.addAnnotation(new SystemLogDesc("更新了一条记录", introspectedTable), parentElement);
+        addSystemLogAnnotation(method, parentElement, "更新了一条记录", methodPrefix);
         method.addAnnotation(new RequestMappingDesc("", RequestMethodEnum.PUT), parentElement);
         addSecurityPreAuthorize(method, methodPrefix, "修改");
         method.addAnnotation(new OperationDesc("更新一条记录", "根据主键更新数据"), parentElement);

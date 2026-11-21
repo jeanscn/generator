@@ -6,7 +6,6 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
-import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
@@ -35,7 +34,7 @@ public class GetDefaultViewConfigElementGenerator extends AbstractControllerElem
         method.setReturnType(responseResult);
         method.setReturnRemark("视图配置数据对象");
 
-        method.addAnnotation(new SystemLogDesc("查看表默认视图配置", introspectedTable),parentElement);
+        addSystemLogAnnotation(method, parentElement, "查看表默认视图配置", methodPrefix);
         method.addAnnotation(new RequestMappingDesc("dt/view-default", RequestMethodEnum.POST),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"默认视图配置查询");
         method.addAnnotation(new OperationDesc("默认数据视图配置", "获取默认数据视图配置"),parentElement);

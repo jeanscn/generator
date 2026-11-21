@@ -6,7 +6,6 @@ import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
-import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 
@@ -46,7 +45,7 @@ public class UpdateBatchElementGenerator extends AbstractControllerElementGenera
                 parentElement));
         method.setReturnRemark("更新后的数据对象列表");
 
-        method.addAnnotation(new SystemLogDesc("更新了多条记录", introspectedTable),parentElement);
+        addSystemLogAnnotation(method, parentElement, "更新了多条记录", methodPrefix);
         method.addAnnotation(new RequestMappingDesc("batch", RequestMethodEnum.PUT),parentElement);
         addSecurityPreAuthorize(method, methodPrefix, "批量修改");
         method.addAnnotation(new OperationDesc("批量更新数据", "根据主键批量更新数据"),parentElement);

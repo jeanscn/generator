@@ -7,7 +7,6 @@ import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
-import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 
 import static org.mybatis.generator.custom.ConstantsUtil.MULTIPART_FILE;
@@ -48,7 +47,7 @@ public class ImportElementGenerator extends AbstractControllerElementGenerator {
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
         method.setExceptionRemark("导入处理异常，含IO读写异常");
 
-        method.addAnnotation(new SystemLogDesc("数据导入", introspectedTable),parentElement);
+        addSystemLogAnnotation(method, parentElement, "数据导入", methodPrefix);
         RequestMappingDesc requestMappingDesc = new RequestMappingDesc("import", RequestMethodEnum.POST);
         requestMappingDesc.addConsumes("MediaType.MULTIPART_FORM_DATA_VALUE");
         requestMappingDesc.addProduces("MediaType.APPLICATION_JSON_VALUE");

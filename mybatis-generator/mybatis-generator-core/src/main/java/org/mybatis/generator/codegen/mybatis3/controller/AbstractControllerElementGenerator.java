@@ -15,6 +15,7 @@ import org.mybatis.generator.config.VoGeneratorConfiguration;
 import org.mybatis.generator.config.VoViewGeneratorConfiguration;
 import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.custom.annotations.IAnnotation;
+import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.internal.util.StringUtility;
@@ -311,6 +312,25 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
             VoViewGeneratorConfiguration viewConfiguration = voConfiguration != null ? voConfiguration.getVoViewConfiguration() : null;
             Mb3GenUtil.setPermissionSqlData(introspectedTable, map,
                     Mb3GenUtil.getParentMenuId(introspectedTable, viewConfiguration));
+        }
+    }
+
+    /**
+     * 生成操作审计日志注解，与接口权限共用白名单范围语义。
+     * 仅在 {@code enableSysLogAnnotation} 生效（缺省 true）且接口命中
+     * {@code apiPermissions} 白名单时输出 {@code @SystemLog}；permissionKey 为白名单
+     * 匹配键，动态方法名端点传保留值（"relation"/"option"），其余传 methodPrefix。
+     */
+    protected void addSystemLogAnnotation(Method method, TopLevelClass parentElement,
+                                          String description, String methodPrefix) {
+        addSystemLogAnnotation(method, parentElement, description, methodPrefix, methodPrefix);
+    }
+
+    protected void addSystemLogAnnotation(Method method, TopLevelClass parentElement, String description,
+                                          String methodPrefix, String permissionKey) {
+        if (introspectedTable.getRules().isEnableSysLogAnnotation()
+                && isApiPermissionEnabled(methodPrefix, permissionKey)) {
+            method.addAnnotation(new SystemLogDesc(description, introspectedTable), parentElement);
         }
     }
 

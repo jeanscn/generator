@@ -7,7 +7,6 @@ import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
-import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 
@@ -41,7 +40,7 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
                 introspectedTable.getRules().isGenerateVoModel() ? entityVoType : entityType,
                 parentElement));
         method.setReturnRemark("结果对象列表");
-        method.addAnnotation(new SystemLogDesc("查看数据列表", introspectedTable), parentElement);
+        addSystemLogAnnotation(method, parentElement, "查看数据列表", methodPrefix);
         method.addAnnotation(new RequestMappingDesc("", RequestMethodEnum.GET), parentElement);
         addSecurityPreAuthorize(method, methodPrefix, "列表查询");
         method.addAnnotation(new OperationDesc("获得列表数据", "根据给定条件获取多条或所有数据列表，可以根据需要传入属性同名参数"), parentElement);
@@ -69,7 +68,7 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
                 introspectedTable.getRules().isGenerateVoModel() ? entityVoType : entityType,
                 parentElement));
         postMethod.setReturnRemark("结果对象列表");
-        postMethod.addAnnotation(new SystemLogDesc("查看数据列表", introspectedTable), parentElement);
+        addSystemLogAnnotation(postMethod, parentElement, "查看数据列表", methodPrefix);
         postMethod.addAnnotation(new RequestMappingDesc("list", RequestMethodEnum.POST), parentElement);
         addSecurityPreAuthorize(postMethod, methodPrefix, "列表查询");
         postMethod.addAnnotation(new OperationDesc("获得列表数据", "根据给定条件获取多条或所有数据列表，可以根据需要传入属性同名参数"), parentElement);

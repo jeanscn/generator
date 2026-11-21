@@ -313,6 +313,16 @@ public interface Rules {
     Set<String> getApiPermissionPrefixes();
 
     /**
+     * Controller 操作审计日志注解（{@code @SystemLog}）生成总开关，来自
+     * {@code generateController} 的 {@code enableSysLogAnnotation} property。
+     * 缺省视为 true（历史行为等价于全开，显式配置 "false" 才关闭）；
+     * 开启时仍仅对 {@link #getApiPermissionPrefixes()} 白名单命中的接口生成注解。
+     *
+     * @return true 表示允许生成 {@code @SystemLog} 注解
+     */
+    boolean isEnableSysLogAnnotation();
+
+    /**
      * 是否集成spring security。默认为true
      * @return true if Spring Security is integrated
      */

@@ -17,7 +17,6 @@ import org.mybatis.generator.config.VoGeneratorConfiguration;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.VoGenService;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
-import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 
 import java.util.ArrayList;
@@ -53,7 +52,7 @@ public class TemplateElementGenerator extends AbstractControllerElementGenerator
         method.addException(new FullyQualifiedJavaType("java.io.IOException"));
         method.setExceptionRemark("IO读写异常");
 
-        method.addAnnotation(new SystemLogDesc("下载数据导入模板", introspectedTable),parentElement);
+        addSystemLogAnnotation(method, parentElement, "下载数据导入模板", methodPrefix);
         RequestMappingDesc requestMappingDesc = new RequestMappingDesc("import/template", RequestMethodEnum.GET);
         requestMappingDesc.addProduces("MediaType.APPLICATION_OCTET_STREAM_VALUE");
         method.addAnnotation(requestMappingDesc,parentElement);
