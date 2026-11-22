@@ -47,10 +47,20 @@ public class HideBatchElementGenerator extends AbstractControllerElementGenerato
         commentGenerator.addMethodJavaDocLine(method, "批量设置列表中选择的数据为隐藏");
         FullyQualifiedJavaType binMappingsType = new FullyQualifiedJavaType("com.vgosoft.system.pojo.maps.SysPerFilterOutBinMappings");
         method.addBodyLine("List<SysPerFilterOutBin> sysPerFilterOutBins = mappings.toSysPerFilterOutBins(mappings.from{0}s({1}));",entityVoType.getShortName(),entityVoVar + "s");
-        method.addBodyLine("sysPerFilterOutBins.forEach(sysPerFilterOutBin -> sysPerFilterOutBin.setOperateUserId(sysPerFilterOutBin.getOperateUserId()));");
-        method.addBodyLine("ServiceResult<List<SysPerFilterOutBin>> listServiceResult = sysPerFilterOutBinImpl.insertBatch(sysPerFilterOutBins);");
+        method.addBodyLine("// 采集隐藏时刻的业务数据JSON快照：服务端重新加载实体并序列化（工作流实体为代理类，统一经Vo映射后再序列化）");
+        method.addBodyLine("sysPerFilterOutBins.forEach(sysPerFilterOutBin -> {");
+        method.addBodyLine("ServiceResult<{0}> entityResult = {1}Impl.selectByPrimaryKey(sysPerFilterOutBin.getRecordId());",entityType.getShortName(),entityVar);
+        method.addBodyLine("if (entityResult.hasResult()) {");
+        if (generateVoModel) {
+            method.addBodyLine("sysPerFilterOutBin.setSnapshotJson(JsonUtil.toJsonString(mappings.to{0}(entityResult.getResult())));",entityVoType.getShortName());
+        } else {
+            method.addBodyLine("sysPerFilterOutBin.setSnapshotJson(JsonUtil.toJsonString(entityResult.getResult()));");
+        }
+        method.addBodyLine("}");
+        method.addBodyLine("});");
+        method.addBodyLine("ServiceResult<List<SysPerFilterOutBin>> listServiceResult = sysPerFilterOutBinImpl.recordHide(sysPerFilterOutBins);");
         method.addBodyLine("if (listServiceResult.hasResult()) {");
-        method.addBodyLine("return success({0}.toSysPerFilterOutBinVos(sysPerFilterOutBins));",binMappingsType.getShortNameFirstLowCase()+"Impl");
+        method.addBodyLine("return success({0}.toSysPerFilterOutBinVos(listServiceResult.getResult()));",binMappingsType.getShortNameFirstLowCase()+"Impl");
         method.addBodyLine("}else{");
         method.addBodyLine("return failure(ApiCodeEnum.FAIL_CUSTOM,listServiceResult.getMessage());");
         method.addBodyLine("}");
@@ -62,6 +72,8 @@ public class HideBatchElementGenerator extends AbstractControllerElementGenerato
         parentElement.addImportedType(new FullyQualifiedJavaType("com.vgosoft.system.entity.SysPerFilterOutBin"));
         parentElement.addImportedType(entityVoType);
         parentElement.addImportedType(new FullyQualifiedJavaType("com.vgosoft.system.pojo.maps.SysPerFilterOutBinMappings"));
+        parentElement.addImportedType(new FullyQualifiedJavaType("com.vgosoft.tool.core.JsonUtil"));
+        parentElement.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.adapter.ServiceResult"));
 
         FullyQualifiedJavaType iSysPerFilterOutBin = new FullyQualifiedJavaType("com.vgosoft.system.service.ISysPerFilterOutBin");
         Field sysPerFilterOutBinImpl = new Field("sysPerFilterOutBinImpl",iSysPerFilterOutBin );

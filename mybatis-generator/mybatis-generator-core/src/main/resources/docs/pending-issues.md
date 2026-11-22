@@ -22,6 +22,9 @@
 | generator-core-ISSUE-0011 | 中 | 测试与基线 | 全量测试中既有基线漂移与 Excel 导入夹具失败 | 已定位根因并修复（2026-11-15） | 已处理（基线重录 + 夹具固定快照 + 孤儿 import 生成逻辑修复） | — | 2026-11-15 | VgoTable 查询表单 W2 |
 | generator-core-ISSUE-0012 | 低 | 测试与基线 | `pageNavigatorGeneratesMatchingEditAndDetailAnchorsWithComponentDefaults` 期望 width 220/zIndex 60 与当前默认 150/120 不符 | 已复现 | 待处理（基线断言需随默认值演进更新） | — | 2026-11-16 | [表单 Markdown 字段支持任务书](task/markdown-form-field-task.md) |
 | generator-core-ISSUE-0013 | 中 | 测试与基线 | Service Impl 输出演进导致 CAS 基线 3 个 Impl 文件与两个哈希基线的服务实现层漂移 | 已复现并归因（合入提交 5c98f5e9 等） | 待处理（需负责人批准重录基线/摘要） | — | 2026-11-20 | [接口权限白名单任务书](task/api-permission-whitelist-task.md) 回归旁路发现 |
+| generator-core-ISSUE-0014 | 低 | 测试与基线 | 消费配置精简重构触发 consumerXml 夹具漂移 | 已复现并归因 | 部分处理（夹具固定快照，遗留基线待 ISSUE-0013 授权重录） | — | 2026-11-20 | 敏感词精简重构回归旁路发现 |
+| generator-core-ISSUE-0015 | 中 | 生成逻辑 | 数据库列无默认值时生成 `this.field = ;` 空初始化表达式 | 已复现 | 待处理 | — | 2026-11-20 | 敏感词精简重构 S03 旁路发现 |
+| generator-core-ISSUE-0016 | 低 | 命名一致性 | RequestVo 字段命名 `isHideIds` 与 JSON 属性名不一致 | 已定位根因并修复（2026-11-22） | 已处理（字段改 hideIds + 新增 is 前缀布尔校验器） | — | 2026-11-22 | 隐藏列表任务联调发现 |
 
 ## 2. 问题详情
 
@@ -192,3 +195,14 @@
 - 建议后续处理：`addInitialization` 在 `defaultValue` 为空/空白时应跳过生成赋值语句（或回退 Java 初始化值），并补一条无默认值列的定向测试。
 - 责任与关联：`mybatis-generator-core` 生成逻辑维护方；与敏感词精简重构 S03 相关联但不阻塞（已绕过）。
 - 更新与关闭记录：2026-11-20 首次登记，中/已复现/待处理；本轮只登记，不改生成逻辑。
+
+### generator-core-ISSUE-0016 RequestVo 字段命名 `isHideIds` 与 JSON 属性名不一致
+
+- 发现来源：2026-11-22 隐藏列表任务联调：前端 `listPost` 注入 `isHideIds:true` 后端收到 false（三仓共 118 个 RequestVo 命中：vgosoft-basic 71、tmri_v4 31、project-vgosoft 16）。
+- 位置与证据：生成器为 RequestVo 产出 `private boolean isHideIds;`（`@Data`）；Lombok 对 `is` 前缀布尔字段生成 `isHideIds()`/`setHideIds`，Jackson 按 setter 名绑定 JSON 属性 `hideIds`，发送 `isHideIds` 落为默认值。对照：`ignoreDeleteFlag`/`ignorePermissionAnnotation` 生成时即不带 `is` 前缀（字段/setter/JSON 三名一致）——`isHideIds` 是生成器命名不一致点。
+- 问题现象与触发条件：凡按 Java 字段名发 `isHideIds` 的调用方静默失效；本次已由前端改发 `hideIds` 规避，但后端契约与生成 TS 类型名（`isHideIds?: boolean`）和 Java 字段名不一致的风险仍在。
+- 影响与分级依据：低。已有前端规避方案；属命名一致性缺陷，后续新调用方可能再踩。
+- 建议后续处理：生成器把字段命名改为 `hideIds`（`isHideIds()`/`setHideIds`/JSON `hideIds` 三名一致，Java 侧 `requestVo.isHideIds()` 调用不变）；同时修正生成的 TS 类型字段名。评估存量生成产物再生成成本后由生成器维护方定。
+- 与当前任务的关系：与隐藏列表主线相关但已有前端规避；按"不改生成逻辑"仅登记。
+- 处理（已修复，2026-11-22）：负责人批准后实施。`AbstractJavaGenerator.getIsHideIds` 更名 `getHideIds` 并改产出 `private boolean hideIds`（`BaseRecordGenerator`/`VoModelGenerator`/`VoRequestGenerator` 三个注入点同步改名；`JavaControllerGenerator` 的 `isHideIds()` getter 调用不变，因 Lombok 对 `hideIds` 字段生成同名 getter/setter，JSON 绑定属性仍为 `hideIds`，生成契约不变）。`sys_per_filter_out_bin` 受控再生成实证：RequestVo 产出 `private boolean hideIds`、TS 类型产出 `hideIds?: boolean`。配套新增 `IsPrefixedBooleanColumnValidator` 在表初始化阶段禁止 `is` 前缀布尔属性生成；数据库命名规范禁令见 `vgosoft-core-db` `database-authoritative-spec.md` §2.2 第 3 条。存量其余模块产物将在各自下次再生成时获得新字段名，接线契约（访问器名/JSON 属性名 `hideIds`）前后一致，无需强制全量再生成。
+- 更新与关闭记录：2026-11-22 首次登记，低/源码已定位/待处理；同日负责人批准后修复并回归（定向生成测试 26 项通过），关闭。

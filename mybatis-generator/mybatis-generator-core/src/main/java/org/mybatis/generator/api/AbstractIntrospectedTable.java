@@ -384,6 +384,7 @@ public abstract class AbstractIntrospectedTable {
         org.mybatis.generator.codegen.mybatis3.LogicalDeleteGenerationValidator.validate(this);
         org.mybatis.generator.codegen.mybatis3.SelectForUpdateValidator.validate(this);
         org.mybatis.generator.codegen.mybatis3.VersionCheckGenerationValidator.validate(this);
+        org.mybatis.generator.codegen.mybatis3.IsPrefixedBooleanColumnValidator.validate(this);
     }
 
     protected void calculateControllerAttributes() {

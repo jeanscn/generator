@@ -75,10 +75,10 @@ public class VoRequestGenerator extends AbstractVoGenerator {
             requestVoClass.addImportedType(ignoreIdList.getType());
         }
 
-        //增加isHideIds属性
-        Field isHideIds = getIsHideIds(requestVoClass, introspectedTable);
-        if (isHideIds != null && plugins.voRequestFieldGenerated(isHideIds, requestVoClass, null, introspectedTable)) {
-            requestVoClass.addField(isHideIds);
+        //增加hideIds属性
+        Field hideIds = getHideIds(requestVoClass, introspectedTable);
+        if (hideIds != null && plugins.voRequestFieldGenerated(hideIds, requestVoClass, null, introspectedTable)) {
+            requestVoClass.addField(hideIds);
         }
         //附加属性
         additionalProperties(voRequestGeneratorConfiguration, requestVoClass);

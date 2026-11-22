@@ -167,12 +167,12 @@ public class VoModelGenerator extends AbstractVoGenerator {
                 introspectedTable.getVoModelFields().add(new FieldItem(ignoreIdList));
             }
 
-            //增加isHideIds属性
-            Field isHideIds = getIsHideIds(voClass, introspectedTable);
-            if (isHideIds != null && plugins.voModelFieldGenerated(isHideIds, voClass, null, introspectedTable)) {
-                voClass.addField(isHideIds);
-                voClass.addImportedType(isHideIds.getType());
-                introspectedTable.getVoModelFields().add(new FieldItem(isHideIds));
+            //增加hideIds属性
+            Field hideIds = getHideIds(voClass, introspectedTable);
+            if (hideIds != null && plugins.voModelFieldGenerated(hideIds, voClass, null, introspectedTable)) {
+                voClass.addField(hideIds);
+                voClass.addImportedType(hideIds.getType());
+                introspectedTable.getVoModelFields().add(new FieldItem(hideIds));
             }
         }
 

@@ -340,19 +340,19 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
     }
 
     /**
-     * 增加isIgnoreIds属性
+     * 增加hideIds属性
      *
      * @param topLevelClass     类
      * @param introspectedTable 表对象
-     * @return isIgnoreIds属性
+     * @return hideIds属性
      */
-    protected Field getIsHideIds(TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
-        Field isHideIds = getField("isHideIds", FullyQualifiedJavaType.getBooleanPrimitiveInstance(), "是否忽略隐藏id列表", introspectedTable, topLevelClass);
-        new SchemaPropertyDesc(isHideIds.getRemark(), "false").addAnnotationToField(isHideIds, topLevelClass);
-        Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> "isHideIds".equals(f.getName())).findFirst();
+    protected Field getHideIds(TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
+        Field hideIds = getField("hideIds", FullyQualifiedJavaType.getBooleanPrimitiveInstance(), "是否忽略隐藏id列表", introspectedTable, topLevelClass);
+        new SchemaPropertyDesc(hideIds.getRemark(), "false").addAnnotationToField(hideIds, topLevelClass);
+        Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> "hideIds".equals(f.getName())).findFirst();
         if (optionalField.isEmpty()) {
-            topLevelClass.addField(isHideIds);
-            return isHideIds;
+            topLevelClass.addField(hideIds);
+            return hideIds;
         }else {
             return null;
         }

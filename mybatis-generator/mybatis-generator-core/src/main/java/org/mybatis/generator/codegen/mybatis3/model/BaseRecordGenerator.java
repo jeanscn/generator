@@ -181,10 +181,10 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
                 topLevelClass.addField(ignoreIdList);
                 topLevelClass.addImportedType(ignoreIdList.getType());
             }
-            //增加isHideIds属性
-            Field isHideIds = getIsHideIds(topLevelClass, introspectedTable);
-            if (isHideIds != null && plugins.modelFieldGenerated(isHideIds, topLevelClass, null, introspectedTable, Plugin.ModelClassType.BASE_RECORD)) {
-                topLevelClass.addField(isHideIds);
+            //增加hideIds属性
+            Field hideIds = getHideIds(topLevelClass, introspectedTable);
+            if (hideIds != null && plugins.modelFieldGenerated(hideIds, topLevelClass, null, introspectedTable, Plugin.ModelClassType.BASE_RECORD)) {
+                topLevelClass.addField(hideIds);
             }
             //增加任意过滤条件接收
             addWhereConditionResult(topLevelClass);
