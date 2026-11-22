@@ -85,6 +85,16 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         }
 
         /*
+         * saveBatch（变更集统一保存）：三个批量写原语齐备且均未被停用时生成
+         * */
+        if (introspectedTable.getRules().generateInsertBatch()
+                && introspectedTable.getRules().generateUpdateBatch()
+                && introspectedTable.getRules().generateDeleteByExample()
+                && !DisabledServiceEntries.isSaveBatchDelegationDisabled(introspectedTable)) {
+            bizInf.addMethod(serviceMethods.getSaveBatchMethod(bizInf, true));
+        }
+
+        /*
          * atomicIncrement
          * */
         if (introspectedTable.getRules().generateAtomicIncrement()) {

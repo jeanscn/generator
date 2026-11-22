@@ -112,6 +112,10 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
          * UpdateBatch
          * */
         addUpdateBatchElement(bizGenClazzImpl);
+        /*
+         * saveBatch（变更集统一保存）
+         * */
+        addSaveBatchElement(bizGenClazzImpl);
         addAtomicIncrementElement(bizGenClazzImpl);
         org.mybatis.generator.codegen.mybatis3.SelectForUpdateValidator.validate(introspectedTable);
         if (introspectedTable.getRules().generateSelectByPrimaryKeyForUpdate()) {
@@ -353,6 +357,19 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
     private void addUpdateBatchElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateUpdateBatch()) {
             AbstractServiceElementGenerator elementGenerator = new UpdateBatchElement();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    /**
+     * saveBatch（变更集统一保存）：三个批量写原语齐备且均未被停用时生成。
+     */
+    private void addSaveBatchElement(TopLevelClass parentElement) {
+        if (introspectedTable.getRules().generateInsertBatch()
+                && introspectedTable.getRules().generateUpdateBatch()
+                && introspectedTable.getRules().generateDeleteByExample()
+                && !DisabledServiceEntries.isSaveBatchDelegationDisabled(introspectedTable)) {
+            AbstractServiceElementGenerator elementGenerator = new SaveBatchElement();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
     }

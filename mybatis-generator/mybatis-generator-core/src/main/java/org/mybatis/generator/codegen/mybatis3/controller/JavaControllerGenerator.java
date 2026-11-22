@@ -11,6 +11,7 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.mybatis3.SensitiveFieldResolver;
 import org.mybatis.generator.codegen.mybatis3.controller.elements.*;
+import org.mybatis.generator.codegen.mybatis3.service.DisabledServiceEntries;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
@@ -125,6 +126,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         addUpdateBatchElement(conTopClazz);
         addDeleteElement(conTopClazz);
         addDeleteBatchElement(conTopClazz);
+        addSaveBatchElement(conTopClazz);
         if (introspectedTable.getRules().isGenerateRecycleBin()) {
             addRecycleElement(conTopClazz);
         }
@@ -723,6 +725,20 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
     private void addDeleteBatchElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateDeleteByExample()) {
             AbstractControllerElementGenerator elementGenerator = new DeleteBatchElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    /**
+     * save-batch端点：三个批量写原语齐备且均未被停用时生成，
+     * 权限注解与权限数据由白名单（apiPermissions）控制，匹配键为saveBatch。
+     */
+    private void addSaveBatchElement(TopLevelClass parentElement) {
+        if (introspectedTable.getRules().generateInsertBatch()
+                && introspectedTable.getRules().generateUpdateBatch()
+                && introspectedTable.getRules().generateDeleteByExample()
+                && !DisabledServiceEntries.isSaveBatchDelegationDisabled(introspectedTable)) {
+            AbstractControllerElementGenerator elementGenerator = new SaveBatchElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
     }

@@ -55,6 +55,26 @@ public final class DisabledServiceEntries {
         return configurations(table).stream().anyMatch(c -> c.signature().equals(ServiceMethods.signature(method)));
     }
 
+    /**
+     * 判断批量保存变更集的委托原语是否存在显式停用。
+     * <p>
+     * saveBatch 在实现中委托 insertBatch、updateBatchByPrimaryKey、deleteByExample，
+     * 任一原语被 disabledMethod 停用时委托会命中拒绝入口，不应生成 saveBatch；
+     * 具有写入治理（如 CAS、规则版本管理）的表由具体实现类按需重写统一保存入口。
+     *
+     * @param table 当前内省表
+     * @return 存在任一委托原语停用时为真
+     */
+    public static boolean isSaveBatchDelegationDisabled(AbstractIntrospectedTable table) {
+        if (configurations(table).isEmpty()) { return false; }
+        Set<String> delegatedSignatures = Set.of(
+                "insertBatch(java.util.List)",
+                "updateBatchByPrimaryKey(java.util.List)",
+                "deleteByExample(" + table.getExampleType() + ")");
+        return configurations(table).stream()
+                .anyMatch(c -> delegatedSignatures.contains(c.signature()));
+    }
+
     public static boolean isInternal(AbstractIntrospectedTable table, Method method) {
         return configurations(table).stream().anyMatch(c -> c.internalMethod() != null
                 && c.internalMethod().equals(method.getName())

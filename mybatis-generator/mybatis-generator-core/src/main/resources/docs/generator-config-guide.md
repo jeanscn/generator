@@ -267,6 +267,7 @@ DTD 属性仍为 `#IMPLIED`，仅当前 `mybatis-generator-config_1_8_0.dtd` 增
 | `updateBatch` | `updatebatch` | 批量修改 |
 | `delete` | `delete` | 删除（含按列删除） |
 | `deleteBatch` | `deletebatch` | 批量删除 |
+| `saveBatch` | `savebatch` | 批量保存（变更集统一保存） |
 | `recycleBatch` | `recyclebatch` | 移入回收站 |
 | `export` | `export` | 导出 |
 | `import` | `import` | 导入 |

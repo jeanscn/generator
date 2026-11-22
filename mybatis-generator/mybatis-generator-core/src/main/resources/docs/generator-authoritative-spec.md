@@ -162,6 +162,7 @@ MySQL、MariaDB、TiDB、PolarDB、TDSQL 的 JDBC 兜底也必须调用 core-db 
 | PUT | `<controllerBasePath>/batch` | `updateBatch` | 批量更新记录。 | `generateUpdateBatch` 生效。 | `<moduleKeyword-lower>:<controllerBeanName-lower>:updatebatch` |
 | DELETE | `<controllerBasePath>/{主键属性}` | `delete` | 按主键删除单条记录。 | `generateDeleteByPrimaryKey` 生效。 | `<moduleKeyword-lower>:<controllerBeanName-lower>:delete` |
 | DELETE | `<controllerBasePath>/` | `deleteBatch` | 按 JSON 请求体中的主键集合批量删除。 | `generateDeleteByExample` 生效。 | `<moduleKeyword-lower>:<controllerBeanName-lower>:deletebatch` |
+| POST | `<controllerBasePath>/save-batch` | `saveBatch` | 按 `VgoBatchChangeVo<CreateVo,UpdateVo>` 变更集请求体（inserts/updates/deleteIds）在单事务内按删除、更新、新增顺序统一保存，返回保存后的 VO 列表供前端回写。 | `generateInsertBatch`、`generateUpdateBatch`、`generateDeleteByExample` 同时生效，且三个原语均未被 `disabledMethod` 停用。 | `<moduleKeyword-lower>:<controllerBeanName-lower>:savebatch` |
 | POST | `<controllerBasePath>/recycle` | `recycleBatch` | 将选定记录移入回收站，并写入回收记录后删除原记录。 | 生成 `viewVo`，且工具栏启用回收站。 | `<moduleKeyword-lower>:<controllerBeanName-lower>:recyclebatch` |
 | POST | `<controllerBasePath>/hide` | `hideListBatch` | 批量隐藏选定列表记录。 | 生成 `viewVo`，且工具栏启用隐藏列表。 | - |
 | GET | `<controllerBasePath>/view` | `view` | 按视图参数加载记录或空对象并返回 HTML 页面视图。 | 至少一个 HTML 配置同时启用生成且配置非空 `viewPath`。 | - |

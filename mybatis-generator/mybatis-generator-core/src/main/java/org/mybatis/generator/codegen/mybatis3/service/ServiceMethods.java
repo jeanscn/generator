@@ -537,6 +537,39 @@ public class ServiceMethods {
     }
 
     /**
+     * 创建接口与实现共用的批量保存变更集签名及依赖。
+     * <p>
+     * 按删除、更新、新增顺序在单事务内委托既有批量方法持久化页面缓存的子表变更，
+     * 删除、更新、新增各自的生命周期事件由被委托方法触发。
+     *
+     * @param parentElement 目标编译单元
+     * @param isAbstract    是否为接口方法
+     * @return 不含方法体的批量保存方法
+     */
+    public Method getSaveBatchMethod(CompilationUnit parentElement, boolean isAbstract) {
+        FullyQualifiedJavaType entityList = FullyQualifiedJavaType.getNewListInstance();
+        entityList.addTypeArgument(entityType);
+        FullyQualifiedJavaType stringList = FullyQualifiedJavaType.getNewListInstance();
+        stringList.addTypeArgument(FullyQualifiedJavaType.getStringInstance());
+        List<Parameter> parameters = new ArrayList<>();
+        parameters.add(new Parameter(entityList, "inserts").setRemark("待新增的数据对象列表"));
+        parameters.add(new Parameter(entityList, "updates").setRemark("待更新的数据对象列表"));
+        parameters.add(new Parameter(stringList, "deleteIds").setRemark("待删除的数据标识列表"));
+        Method method = getMethodByType("saveBatch",
+                ReturnTypeEnum.SERVICE_RESULT_LIST,
+                entityType,
+                introspectedTable.getRemarks(true) + "对象列表ServiceResult封装",
+                parameters,
+                isAbstract,
+                parentElement);
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method,
+                    "批量保存变更集的方法，在单事务内按删除、更新、新增顺序委托既有批量方法持久化并触发生命周期事件。");
+        }
+        return method;
+    }
+
+    /**
      * 生成原子递增方法。
      */
     public Method getAtomicIncrementMethod(CompilationUnit parentElement, boolean isAbstract) {
