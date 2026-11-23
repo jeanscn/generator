@@ -191,6 +191,8 @@
             viewStatus: _viewStatus,
             globalDialog: globalDialog,
             isModal: props.isModal,
+            // 弹窗缓存编辑：父表注入的收集器，存在时保存按钮仅回写缓存不落库
+            dialogCacheEdit: (props.loadModalProvideData as any)?.dialogCacheEdit,
         };
         extMethod.defaultFormButtonActionHandler<T${ modelName }>(params);
     };
