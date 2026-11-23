@@ -1628,7 +1628,7 @@ Parser 还读取 approvalComment 的 span（默认 24），但当前 DTD 未声�
 | `totalRow` | 合计行 | `false` | vue3 | 不自动生成数据库统计。 |
 | `totalFields` | 合计字段 | 空集合 | vue3 | 逗号分隔；字段应支持汇总。 |
 | `totalText` | 合计文案 | `合计` | vue3 | 与合计数据计算分开。 |
-| `editFormIn` / `detailFormIn` | 编辑/详情打开方式 | 配置对象未设置；描述器以 dialog/drawer 为省略比较值 | vue3 | inner/dialog/drawer；最终缺省由 basic 注解与宿主决定。 |
+| `editFormIn` / `detailFormIn` | 编辑/详情打开方式 | 配置对象未设置；Vue 描述器对 `editFormIn` 显式非空即输出（含 dialog，用于内表弹窗缓存编辑开关），`detailFormIn` 仍以 drawer 为省略比较值 | vue3 | inner/dialog/drawer；未配置不输出，宿主缺省为行内编辑；`dialog` 使行编辑入口走弹窗缓存编辑器。 |
 | `hideExpression` / `disabledExpression` | 隐藏/禁用条件 | 未设置 | vue3 | 两者均进入内嵌列表注解。 |
 | `dataUrlParams` | 请求参数 | 未设置 | vue3 | **Parser 保存但 Vue 内嵌列表描述器未传递**，不能依此保证请求携带参数。 |
 | `verify` | 必填/不验证 | 配置初值空列表；DTD 为 none/required | vue3 | 注解描述器默认 none，实际配置 required 会输出；仍需服务端校验。 |

@@ -1,10 +1,14 @@
 package org.mybatis.generator.codegen.mybatis3.service.elements;
 
+import com.vgosoft.tool.core.VStringUtil;
+import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
+
+import java.util.List;
 
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_CODE_ENUM;
 
@@ -43,7 +47,14 @@ public class SaveBatchElement extends AbstractServiceElementGenerator {
         method.addBodyLine("try {");
         method.addBodyLine("if (deleteIds != null && !deleteIds.isEmpty()) {");
         method.addBodyLine("{0} example = new {0}();", exampleType.getShortName());
-        method.addBodyLine("example.createCriteria().andIdIn(deleteIds);");
+        List<IntrospectedColumn> primaryKeyColumns = introspectedTable.getPrimaryKeyColumns();
+        if (!primaryKeyColumns.isEmpty()) {
+            IntrospectedColumn introspectedColumn = primaryKeyColumns.get(0);
+            String javaProperty = introspectedColumn.getJavaProperty();
+            method.addBodyLine("example.createCriteria().and{0}In(deleteIds);", VStringUtil.getFirstCharacterUppercase(javaProperty));
+        } else {
+            method.addBodyLine("example.createCriteria().andIdIn(deleteIds);");
+        }
         // 0 匹配按幂等成功处理；真实删除异常由底层抛出并回滚整个事务
         method.addBodyLine("ServiceResult<Integer> deleteResult = this.deleteByExample(example);");
         method.addBodyLine("affectedRows += deleteResult.getAffectedRows();");

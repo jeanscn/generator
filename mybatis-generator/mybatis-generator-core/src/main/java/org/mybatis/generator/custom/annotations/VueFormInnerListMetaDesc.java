@@ -246,7 +246,7 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
         if (VStringUtil.isNotBlank(restBasePath)) {
             items.add("restBasePath = \"" + restBasePath + "\"");
         }
-        if (VStringUtil.isNotBlank(editFormIn) && !"dialog".equals(editFormIn)) {
+        if (VStringUtil.isNotBlank(editFormIn)) {
             items.add("editFormIn = \"" + editFormIn + "\"");
         }
         if (VStringUtil.isNotBlank(detailFormIn) && !"drawer".equals(detailFormIn)) {
