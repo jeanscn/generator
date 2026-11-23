@@ -23,12 +23,12 @@ public class SelectByTableGenerator extends AbstractControllerElementGenerator {
     public void addElements(TopLevelClass parentElement) {
 
         introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream()
-                .filter(c -> c.isEnableUnion() || c.isEnableSplit())
+        //        .filter(c -> c.isEnableUnion() || c.isEnableSplit())
                 .forEach(c -> {
                     Method method = new Method(c.getSelectByTableMethodName());
                     method.setVisibility(JavaVisibility.PROTECTED);
                     Parameter p1;
-                    if (c.getParameterType().equals("list")) {
+                    if ("list".equals(c.getParameterType())) {
                         FullyQualifiedJavaType newListInstance = FullyQualifiedJavaType.getNewListInstance();
                         newListInstance.addTypeArgument(c.getOtherColumn().getFullyQualifiedJavaType());
                         p1 = new Parameter(newListInstance, c.getOtherColumn().getJavaProperty() + "s");
