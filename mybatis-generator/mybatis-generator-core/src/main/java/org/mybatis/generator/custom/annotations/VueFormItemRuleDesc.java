@@ -2,6 +2,7 @@ package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.core.annotation.VueFormItemRule;
 import com.vgosoft.core.constant.enums.db.JavaTypeMapEnum;
+import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import com.vgosoft.core.constant.enums.view.ValidatorRuleTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import lombok.Getter;
@@ -75,6 +76,9 @@ public class VueFormItemRuleDesc extends AbstractAnnotation {
         List<HtmlValidatorElementConfiguration> typeConfigs = getValidatorElementConfiguration(validatorConfig, config -> config.getType() != null);
         if (!typeConfigs.isEmpty() && VStringUtil.stringHasValue(typeConfigs.get(0).getType())) {
             validatorType = typeConfigs.get(0).getType();
+        } else if (isArrayValueElement()) {
+            // checkbox/checkboxGroup 在前端表单模型中固定以数组存值，校验类型须派生为 array，不能沿用列 Java 类型
+            validatorType = ValidatorTypeEnum.ARRAY.code();
         } else {
             validatorType = JavaTypeMapEnum.ofJava(introspectedColumn.getFullyQualifiedJavaType().getShortName()).validateType();
         }
@@ -233,6 +237,18 @@ public class VueFormItemRuleDesc extends AbstractAnnotation {
             default:
                 throw new IllegalArgumentException("不支持的验证规则类型: " + ruleTypeEnum);
         }
+    }
+
+    /**
+     * 判断表单元素是否为数组取值控件。
+     * checkbox/checkboxGroup 在前端表单模型中固定以数组持有（perOnload 拆分数组、preSubmit 合并逗号串）。
+     */
+    private boolean isArrayValueElement() {
+        if (elementDescriptor == null) {
+            return false;
+        }
+        HtmlElementTagTypeEnum tagType = HtmlElementTagTypeEnum.ofCodeName(elementDescriptor.getTagType());
+        return tagType == HtmlElementTagTypeEnum.CHECKBOX || tagType == HtmlElementTagTypeEnum.CHECKBOX_GROUP;
     }
 
     private String getMinMaxMessage(String validatorType, String min, String max) {
