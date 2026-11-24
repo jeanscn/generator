@@ -11,7 +11,7 @@
         <!ENTITY % queryExpression "(EqualTo|NotEqualTo|GreaterThan|LessThan|GreaterThanOrEqualTo|LessThanOrEqualTo|Like|NotLike|NotLikeAny|LikeAny|LikeRight|LikeLeft|Between|In|NotIn)" >
         <!ENTITY % indexColumnType "(NONE|CHECKBOX|RADIO|ROW_INDEX|EXPAND)" >
         <!ENTITY % tableUiType "(dataTables|layTable|elPlusTable|vxeTable)" >
-        <!ENTITY % validatorType "(string|number|boolean|method|regexp|integer|float|array|object|enum|date|url|hex|email)" >
+        <!ENTITY % validatorType "(string|number|boolean|method|regexp|integer|float|array|object|enum|date|url|hex|email|mobile|digits|positiveInteger|money|equalTo|dateNotBefore|dateNotAfter|idCard|tel|postalCode|ipv4|mac|chinese|username|plateNo|password)" >
         <!--
           The generatorConfiguration element is the root element for configurations.
         -->
@@ -857,24 +857,43 @@
             1、transform 转换函数，如：transform="function(value){return value.toUpperCase();}"，将值转换为大写。
             2、required 是否必填，默认根据字段是否为空决定
             3、whitespace 是否允许空格，默认false-允许仅包含空格。true-如果字段仅包含空格则视为错误
-            4、type 验证类型：none-不验证，required-必填，number-数字，date-日期，time-时间，datetime-日期时间，limit-长度限制，phone-手机号，email-邮箱，url-网址，identity-身份证
-                    verify为多值时，使用管道分隔”|“，如：verify="required|number"
-                    * none|required|number|date|time|datetime|limit|phone|email|url|identity|amount|其他自定义验证规则名称
-            5、min 最小值，适用于string-最小字符数，number-最小值、date-（min:new Data()）早于今天等类型
-            6、max 最大值，适用于string-最大字符数，number-最大值、date-（max:new Date()）晚于今天等类型
+            4、type 验证类型，两组取值：
+                    A. async-validator 类型（生成 type 规则，校验值类型）：
+                       string|number|boolean|method|regexp|integer|float|array|object|enum|date|url|hex|email
+                    B. 命名验证器（生成 validator 规则名，引用前端 commonValidators 已注册验证器）：
+                       mobile-手机号 digits-纯数字 positiveInteger-正整数 money-金额(配合precision/allowNegative)
+                       equalTo-与compareField字段值一致 dateNotBefore-不早于compareField日期 dateNotAfter-不晚于compareField日期
+                       idCard-身份证号 tel-固定电话 postalCode-邮政编码 ipv4-IP地址 mac-MAC地址
+                       chinese-仅中文 username-登录名(字母开头+字母数字下划线,配合min/max控长度)
+                       plateNo-车牌号(含新能源) password-密码(默认6-20位含字母数字,配合min/max/requireSpecial)
+            5、min 最小值，适用于string-最小字符数，number-最小值、date-（min:new Data()）早于今天等类型；
+                    命名验证器场景：username/password 的最小长度
+            6、max 最大值，适用于string-最大字符数，number-最大值、date-（max:new Date()）晚于今天等类型；
+                    命名验证器场景：username/password 的最大长度
             7、len 长度，适用于string-字符数，array-数组长度（数组元素个数）
             8、pattern 正则表达式，适用于string-正则表达式验证
             9、enum 枚举值，适用于string、number的枚举值验证，多个枚举值使用逗号分隔，如：enum="1,2,3"。
-            10、validator 自定义验证函数。
+            10、validator 自定义验证函数，也可直接填写命名验证器名称（同 type 的 B 组取值，如 validator="mobile"）。
             11、message 验证失败提示信息，使用{0}占位字段的注释名称，如:{0}不能为空。实际显示可能是：用户名不能为空。
             12、trigger 验证触发方式，默认blur,change，支持blur|change|submit|blurChange
             13、scope 验证范围，默认为0-全局，支持el-plus和vxe-table。可选值为1|2； 1-elPlus，2-vxeTable
+            14、compareField 跨字段对照字段：equalTo/dateNotBefore/dateNotAfter 适用；
+                    可填数据库列名（自动解析为表单属性名）或表单属性名
+            15、compareLabel 对照字段提示名，用于错误文案；缺省取对照列注释，再缺省取 compareField 原值
+            16、compareValue 直接给定对照值（未配置 compareField 时生效），equalTo/dateNot* 适用
+            17、allowEqual 日期比较是否允许相等，默认true；dateNotBefore 为 b>=a，false 时要求严格晚于；
+                    dateNotAfter 为 a<=b，false 时要求严格早于
+            18、precision 小数位数，默认2，money 验证器适用
+            19、allowNegative 是否允许负数，默认false，money 验证器适用
+            20、requireSpecial 是否强制包含特殊字符，默认false，password 验证器适用
             说明：
             1、validator自定义验证函数，
                 对于el-plus：(rule: any, value: any, callback: any)=> { ... };
                                (rule: any, value: any, callback: any) => { if (value === &apos;&apos;) {callback(new Error(&apos;请输入密码&apos;))} else { callback() } }
                 对于vxe-table:  ({ cellValue, rule, rules, row, rowIndex，column, columnIndex }) => Error | Promise
                                ({ cellValue }) => {if (cellValue &amp;&amp; (cellValue &lt; 3 )) {return new Error(&apos;数量不能少于3&apos;)}}
+            2、命名验证器与字段类型/长度兜底规则可叠加：未配置 type 时按列 Java 类型派生 type 规则、按列长度派生 max 规则；
+                    配置了同名维度（type/min/max/len）时以配置为准，其余已配置验证照常叠加生成。
          -->
         <!ELEMENT validator (property*)>
         <!ATTLIST validator
@@ -888,6 +907,13 @@
                 pattern CDATA #IMPLIED
                 enum CDATA #IMPLIED
                 validator CDATA #IMPLIED
+                compareField CDATA #IMPLIED
+                compareLabel CDATA #IMPLIED
+                compareValue CDATA #IMPLIED
+                allowEqual (true|false) #IMPLIED
+                precision CDATA #IMPLIED
+                allowNegative (false|true) #IMPLIED
+                requireSpecial (false|true) #IMPLIED
                 message CDATA #IMPLIED
                 trigger (blur|change|submit|blurChange) #IMPLIED
                 scope (1|2) #IMPLIED>

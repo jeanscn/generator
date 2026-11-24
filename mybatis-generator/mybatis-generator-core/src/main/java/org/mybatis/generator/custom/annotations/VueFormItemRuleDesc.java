@@ -8,6 +8,7 @@ import com.vgosoft.tool.core.VStringUtil;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.config.HtmlElementDescriptor;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
@@ -16,6 +17,7 @@ import org.mybatis.generator.custom.enums.ValidatorTypeEnum;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -31,6 +33,30 @@ public class VueFormItemRuleDesc extends AbstractAnnotation {
 
     public static final String ANNOTATION_NAME = "@" + VueFormItemRule.class.getSimpleName();
 
+    /**
+     * 命名验证器映射（小写配置名 -> 前端注册名）。
+     * 对应前端 vgoForm commonValidators 已注册的字符串验证器；
+     * 经 validator.type 配置时按 validator 规则名下发，不再生成 type 规则。
+     * async-validator 内置类型（string/number/email/url 等）不在此列，仍走 type 规则。
+     */
+    private static final Map<String, String> NAMED_VALIDATORS = Map.ofEntries(
+            Map.entry("mobile", "mobile"),
+            Map.entry("digits", "digits"),
+            Map.entry("positiveinteger", "positiveInteger"),
+            Map.entry("money", "money"),
+            Map.entry("equalto", "equalTo"),
+            Map.entry("datenotbefore", "dateNotBefore"),
+            Map.entry("datenotafter", "dateNotAfter"),
+            Map.entry("idcard", "idCard"),
+            Map.entry("tel", "tel"),
+            Map.entry("postalcode", "postalCode"),
+            Map.entry("ipv4", "ipv4"),
+            Map.entry("mac", "mac"),
+            Map.entry("chinese", "chinese"),
+            Map.entry("username", "username"),
+            Map.entry("plateno", "plateNo"),
+            Map.entry("password", "password"));
+
     private String type;
     private Boolean required;
     private String message;
@@ -44,6 +70,13 @@ public class VueFormItemRuleDesc extends AbstractAnnotation {
     private String transform;
     private String validator;
     private String ruleType;
+    private String compareField;
+    private String compareLabel;
+    private String compareValue;
+    private Boolean allowEqual;
+    private String precision;
+    private Boolean allowNegative;
+    private Boolean requireSpecial;
 
     @ToString.Exclude
     private IntrospectedColumn introspectedColumn;
@@ -125,6 +158,17 @@ public class VueFormItemRuleDesc extends AbstractAnnotation {
                 }
                 return null;
             case TYPE:
+                // 命名验证器：按 validator 规则名下发，参数随同一配置透传
+                if (!typeConfigs.isEmpty() && NAMED_VALIDATORS.containsKey(validatorType)) {
+                    HtmlValidatorElementConfiguration namedConfig = typeConfigs.get(0);
+                    this.setValidator(NAMED_VALIDATORS.get(validatorType));
+                    applyValidatorParams(namedConfig);
+                    if (VStringUtil.stringHasValue(namedConfig.getMessage())) {
+                        setMessageProps(namedConfig.getMessage());
+                    }
+                    setTriggerType(scope, namedConfig.getTrigger());
+                    return getAnnotationName();
+                }
                 // 设置验证类型
                 if (VStringUtil.stringHasValue(validatorType)) {
                     this.setType(validatorType);
@@ -229,14 +273,87 @@ public class VueFormItemRuleDesc extends AbstractAnnotation {
             case VALIDATOR:
                 List<HtmlValidatorElementConfiguration> validatorConfigs = getValidatorElementConfiguration(validatorConfig, config -> VStringUtil.stringHasValue(config.getValidator()));
                 if (!validatorConfigs.isEmpty()) {
-                    this.setTriggerType(scope, validatorConfigs.get(0).getTrigger());
-                    this.setValidator(validatorConfigs.get(0).getValidator());
+                    HtmlValidatorElementConfiguration validatorElementConfiguration = validatorConfigs.get(0);
+                    this.setTriggerType(scope, validatorElementConfiguration.getTrigger());
+                    this.setValidator(validatorElementConfiguration.getValidator());
+                    applyValidatorParams(validatorElementConfiguration);
+                    if (VStringUtil.stringHasValue(validatorElementConfiguration.getMessage())) {
+                        setMessageProps(validatorElementConfiguration.getMessage());
+                    }
                     return getAnnotationName();
                 }
                 return null;
             default:
                 throw new IllegalArgumentException("不支持的验证规则类型: " + ruleTypeEnum);
         }
+    }
+
+    /**
+     * 将验证器配置中的命名验证器参数透传到本注解描述。
+     * 对 type/validator 指定命名验证器的同一配置生效：min/max、compare*、precision、allow*、requireSpecial。
+     *
+     * @param config 提供命名验证器或其参数的 validator 配置
+     */
+    private void applyValidatorParams(HtmlValidatorElementConfiguration config) {
+        if (VStringUtil.stringHasValue(config.getCompareField())) {
+            this.setCompareField(resolveCompareField(config.getCompareField()));
+        }
+        String label = config.getCompareLabel();
+        if (!VStringUtil.stringHasValue(label) && VStringUtil.stringHasValue(this.getCompareField())) {
+            // 未配置对照标签时取对照列注释，仍无列可解析则回退 compareField 原值
+            label = resolveCompareLabel(config.getCompareField());
+        }
+        if (VStringUtil.stringHasValue(label)) {
+            this.setCompareLabel(label);
+        }
+        if (VStringUtil.stringHasValue(config.getCompareValue())) {
+            this.setCompareValue(config.getCompareValue());
+        }
+        if (config.getAllowEqual() != null) {
+            this.setAllowEqual(config.getAllowEqual());
+        }
+        if (VStringUtil.stringHasValue(config.getPrecision())) {
+            this.setPrecision(config.getPrecision());
+        }
+        if (config.getAllowNegative() != null) {
+            this.setAllowNegative(config.getAllowNegative());
+        }
+        if (config.getRequireSpecial() != null) {
+            this.setRequireSpecial(config.getRequireSpecial());
+        }
+        if (VStringUtil.stringHasValue(config.getMin())) {
+            this.setMin(config.getMin());
+        }
+        if (VStringUtil.stringHasValue(config.getMax())) {
+            this.setMax(config.getMax());
+        }
+    }
+
+    /**
+     * 解析对照字段：配置值为数据库列名时转为 Java 属性名，否则按表单属性名原样返回。
+     */
+    private String resolveCompareField(String configuredField) {
+        AbstractIntrospectedTable table = introspectedColumn.getIntrospectedTable();
+        if (table == null) {
+            return configuredField;
+        }
+        return table.getColumn(configuredField)
+                .map(IntrospectedColumn::getJavaProperty)
+                .orElse(configuredField);
+    }
+
+    /**
+     * 解析对照字段标签：优先取对照列注释，无法解析时回退原配置值。
+     */
+    private String resolveCompareLabel(String configuredField) {
+        AbstractIntrospectedTable table = introspectedColumn.getIntrospectedTable();
+        if (table == null) {
+            return configuredField;
+        }
+        return table.getColumn(configuredField)
+                .map(column -> column.getRemarks(true))
+                .filter(VStringUtil::stringHasValue)
+                .orElse(configuredField);
     }
 
     /**
@@ -317,6 +434,27 @@ public class VueFormItemRuleDesc extends AbstractAnnotation {
 
         if (VStringUtil.stringHasValue(this.getValidator())) {
             items.add(VStringUtil.format("validator = \"{0}\"", this.getValidator()));
+        }
+        if (VStringUtil.stringHasValue(this.getCompareField())) {
+            items.add(VStringUtil.format("compareField = \"{0}\"", this.getCompareField()));
+        }
+        if (VStringUtil.stringHasValue(this.getCompareLabel())) {
+            items.add(VStringUtil.format("compareLabel = \"{0}\"", this.getCompareLabel()));
+        }
+        if (VStringUtil.stringHasValue(this.getCompareValue())) {
+            items.add(VStringUtil.format("compareValue = \"{0}\"", this.getCompareValue()));
+        }
+        if (this.getAllowEqual() != null && !this.getAllowEqual()) {
+            items.add("allowEqual = false");
+        }
+        if (VStringUtil.stringHasValue(this.getPrecision())) {
+            items.add(VStringUtil.format("precision = \"{0}\"", this.getPrecision()));
+        }
+        if (this.getAllowNegative() != null && this.getAllowNegative()) {
+            items.add("allowNegative = true");
+        }
+        if (this.getRequireSpecial() != null && this.getRequireSpecial()) {
+            items.add("requireSpecial = true");
         }
         if (VStringUtil.stringHasValue(this.getMessage())) {
             items.add(VStringUtil.format("message = \"{0}\"", this.getMessage()));

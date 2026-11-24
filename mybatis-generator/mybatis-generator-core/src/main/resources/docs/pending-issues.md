@@ -206,3 +206,23 @@
 - 与当前任务的关系：与隐藏列表主线相关但已有前端规避；按"不改生成逻辑"仅登记。
 - 处理（已修复，2026-11-22）：负责人批准后实施。`AbstractJavaGenerator.getIsHideIds` 更名 `getHideIds` 并改产出 `private boolean hideIds`（`BaseRecordGenerator`/`VoModelGenerator`/`VoRequestGenerator` 三个注入点同步改名；`JavaControllerGenerator` 的 `isHideIds()` getter 调用不变，因 Lombok 对 `hideIds` 字段生成同名 getter/setter，JSON 绑定属性仍为 `hideIds`，生成契约不变）。`sys_per_filter_out_bin` 受控再生成实证：RequestVo 产出 `private boolean hideIds`、TS 类型产出 `hideIds?: boolean`。配套新增 `IsPrefixedBooleanColumnValidator` 在表初始化阶段禁止 `is` 前缀布尔属性生成；数据库命名规范禁令见 `vgosoft-core-db` `database-authoritative-spec.md` §2.2 第 3 条。存量其余模块产物将在各自下次再生成时获得新字段名，接线契约（访问器名/JSON 属性名 `hideIds`）前后一致，无需强制全量再生成。
 - 更新与关闭记录：2026-11-22 首次登记，低/源码已定位/待处理；同日负责人批准后修复并回归（定向生成测试 26 项通过），关闭。
+
+### generator-core-ISSUE-0017 enumList 校验规则误取 pattern 配置值
+
+- 发现来源：2026-11 验证器配置生成完善任务中核对 `VueFormItemRuleDesc` 各规则分支时发现。
+- 位置与证据：`VueFormItemRuleDesc.toAnnotation()` ENUM 分支取 `enumListConfigs.get(0).getPattern()` 赋给 `enumList`（应为 `getEnumList()`）。配置 `enumList` 而未配 `pattern` 时枚举校验输出空值；两者都配时会错误透传 pattern 文本。
+- 问题现象与触发条件：validator 元素配置 `enumList` 属性时，生成的 `@VueFormItemRule(enumList=...)` 取不到配置值，枚举校验不生效或值错误。
+- 影响与分级依据：中。配置可达且输出确定错误，但 enumList 属低频配置项，影响面有限。
+- 与当前任务的关系：与本轮 validator 属性扩展无关，属既有缺陷；本轮只登记，不改该分支取值（改动需负责人确认是否与历史产物兼容）。
+- 建议后续处理：将 `getPattern()` 更正为 `getEnumList()`，并核对既有生成产物中 enumList 规则的实际输出后决定是否回归重录。
+- 责任与关联：`mybatis-generator-core` 生成逻辑维护方；关联 validator 规则生成链路。
+- 更新与关闭记录：2026-11 首次登记，中/源码已定位/待处理；本轮只登记，不改生成逻辑。
+
+### generator-core-ISSUE-0018 ValidatorPlugin.addDecimalMax 空实现死方法
+
+- 发现来源：2026-11 验证器配置生成完善任务中改造 `ValidatorPlugin` 时发现。
+- 位置与证据：`ValidatorPlugin.addDecimalMax(...)` 方法体仅声明 `shortName` 变量后返回，无任何注解输出，且无任何调用方。
+- 影响与分级依据：低。死代码不影响生成行为，仅增加阅读噪声。
+- 建议后续处理：删除该空方法，或按本轮 `DecimalMin/DecimalMax` 接入模式补全实现；删除前确认无反射/插件调用方。
+- 责任与关联：`mybatis-generator-core` 生成逻辑维护方。
+- 更新与关闭记录：2026-11 首次登记，低/已定位/待处理；本轮只登记，不删除。

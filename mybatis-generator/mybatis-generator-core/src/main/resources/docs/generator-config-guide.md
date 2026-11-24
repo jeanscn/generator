@@ -1448,17 +1448,18 @@ Parser 复用普通 descriptor 解析，随后强制 dataSource=Dict，tagType �
 | `dataUrlParams` / `defaultFilterExpr` / `hideExpression` / `disabledExpression` | 参数、过滤、显隐、禁用 | 未设置 | vue3 | 语义与 7.3.2 一致。 |
 | `renderHref` / `hrefDataKeyField` / `tips` | 只读链接及提示 | false / 未设置 / 未设置 | vue3 | 语义与 7.3.2 一致。 |
 
-#### 7.3.4 `htmlSwitchDescriptor` 的当前限制
+#### 7.3.4 `htmlSwitchDescriptor`
 
-**当前 `parseHtml` 没有处理直接子节点 htmlSwitchDescriptor 的分支**，会记录未知节点警告；不能把该 DTD 节点描述为可用的页面开关简写。页面中改用 `<htmlElementDescriptor column="..." tagType="switch" .../>`。reusableElements 有同名分支，但并不能据此证明页面直接子节点生效。
+`htmlSwitchDescriptor` 是开关字段的简写节点：`generateHtml` 直接子节点与 `reusableElements` 中均已解析，走普通 descriptor 解析链（`validator` 等子节点同 `htmlElementDescriptor`），未显式配置 `tagType` 时按元素名补 `switch`；显式配置时归一为标准 codeName。早于本轮修复的版本会静默忽略该节点，升级既有配置后应核对开关字段是否按预期进入描述符池。
 
 | 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
 |---|---|---|---|---|
-| `column` | 开关绑定列 | DTD 必填 | vue3和html | 当前页面直接子节点整体未生效，以下亦同。 |
-| `dataUrl` / `dataFormat` / `dataSource` | 数据接口、快捷格式、来源 | 普通描述器逻辑；直接子节点未解析 | vue3和html | dataFormat 限启停/有无/是否，dataSource 限 Dict/DictData/DictUser/DictSys/DictEnum。 |
-| `otherFieldName` / `beanName` / `applyProperty` / `applyPropertyKey` / `dictCode` | 回填与字典映射 | 普通描述器逻辑；直接子节点未解析 | vue3和html | 不额外支持 enumClassFullName 属性。 |
-| `callback` / `switchText` | 回调与文案 | 普通描述器逻辑；直接子节点未解析 | vue3和html | 使用普通 descriptor 才走页面消费链路。 |
-| `hideExpression` / `disabledExpression` / `watchFields` / `tips` | 状态、联动与提示 | 普通描述器逻辑；直接子节点未解析 | vue3和html | 不能以 DTD 验证通过代替行为验收。 |
+| `column` | 开关绑定列 | DTD 必填 | vue3和html | 仍须绑定真实列。 |
+| `tagType` | 控件类型 | `switch`（未配置时按元素名补默认） | vue3和html | 显式配置时归一为标准 codeName。 |
+| `dataUrl` / `dataFormat` / `dataSource` | 数据接口、快捷格式、来源 | 普通描述器逻辑 | vue3和html | dataFormat 限启停/有无/是否，dataSource 限 Dict/DictData/DictUser/DictSys/DictEnum。 |
+| `otherFieldName` / `beanName` / `applyProperty` / `applyPropertyKey` / `dictCode` | 回填与字典映射 | 普通描述器逻辑 | vue3和html | 不额外支持 enumClassFullName 属性。 |
+| `callback` / `switchText` | 回调与文案 | 普通描述器逻辑 | vue3和html | — |
+| `hideExpression` / `disabledExpression` / `watchFields` / `tips` | 状态、联动与提示 | 普通描述器逻辑 | vue3和html | 语义见 §7.3.2。 |
 
 #### 7.3.5 `htmlFormExtendDescriptor`
 
@@ -1493,23 +1494,72 @@ DTD 的子内容模型为 `properties*`，而 Parser 只识别 `property`；不�
 
 #### 7.4.1 `validator`
 
-可作为普通 descriptor、Switch/TableSelect 的子节点；但 Switch 的页面解析限制仍适用。下表描述 Vue 校验注解链路，不表示 HTML Layui 的 verify 字符串与其等效。
+可作为普通 descriptor、`htmlSwitchDescriptor`、`htmlTableSelectDescriptor` 的子节点；同一字段可声明多个 `validator` 元素。各验证维度（required/type/min-max/len/pattern/validator 函数）独立成规则叠加，同维度内取首个匹配配置生效。
+
+**兜底与优先级：** 未配置 `validator` 时按列类型与长度推导兜底规则（非空列 → `required`、String 列长 → `max`、数值列 → number/integer 类型、可推导 minLength → `min`）；配置了 `validator` 时，与列类型/长度同维度的验证优先取显式配置值，其余维度继续叠加。`scope` 决定规则生效面：0（通用）同时下发，1 仅表单（el-form）规则，2 仅内嵌 vxe 表格列规则。
 
 | 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
 |---|---|---|---|---|
 | `scope` | 规则适用范围 | `0`（未指定，通用）；DTD 显式仅允许 1/2 | vue3 | 1 为表单，2 为内嵌表格编辑；按匹配 scope 或 0 筛选。 |
-| `required` | 必填 | Boolean 未设置；规则先看列非空，再看 validator=true/requiredColumns | vue3 | false 不能取消非空列必填。 |
-| `type` | 验证值类型 | 显式规则优先，否则由 JavaTypeMapEnum 按字段类型推导 | vue3 | 值域见 `%validatorType;`，不要与 tagType 或 verify 规则名混用。 |
+| `required` | 必填 | Boolean 未设置；规则先看列非空，再看 validator=true/requiredColumns | vue3 | false 不能取消非空列必填；可空列上显式 `required="true"` 会同时补后端 `@NotNull`/`@NotEmpty`。 |
+| `type` | 验证值类型/命名验证器 | 显式规则优先，否则由 JavaTypeMapEnum 按字段类型推导 | vue3 | 值域见 `%validatorType;`：A 组为 async-validator 内置类型（string/number/…/email/url），B 组命名验证器按 `validator` 规则名下发，见下节清单；不要与 tagType 或 verify 规则名混用。 |
 | `min` | 下限/最短长度 | 列 minLength>0 时可推导，再由显式规则覆盖 | vue3 | Parser 要求可解析为数值，否则添加警告。 |
-| `max` | 上限/最长长度 | 字符串列长度可推导 | vue3 | **已知实现偏差**：Parser 校验 max 后却执行 setMax(min)，因此显式 max 不能按声明值保证生效。 |
-| `len` | 精确长度 | 配置对象未设置 | vue3 | string/array 使用；应核对生成规则而非仅看 XML。 |
-| `pattern` | 正则 | 未设置 | vue3 | 注意 XML 与 Java 注解字符串的转义。 |
-| `enum` | 允许值集合 | 未设置 | vue3 | **已知实现偏差**：规则描述器 ENUM 分支读取 pattern 而非 enumList，不能保证按声明值输出。 |
+| `max` | 上限/最长长度 | 字符串列长度可推导，再由显式规则覆盖 | vue3 | 字符串列的 min/max 与 `len` 还会映射后端 `@Size`；数值列映射 `@DecimalMin`/`@DecimalMax`。 |
+| `len` | 精确长度 | 配置对象未设置 | vue3 | string/array 使用；同时生成后端 `@Size(min=max=len)`，应核对生成规则而非仅看 XML。 |
+| `pattern` | 正则 | 未设置 | vue3 | 字符串列同时生成后端 `@Pattern`；注意 XML 与 Java 注解字符串的转义。 |
+| `enum` | 允许值集合 | 未设置 | vue3 | **已知实现偏差**：规则描述器 ENUM 分支读取 pattern 而非 enumList（generator-core-ISSUE-0017），不能保证按声明值输出。 |
 | `whitespace` | 仅空白输入的校验标志 | Boolean 未设置 | vue3 | Parser 读取，但当前规则描述器未传递该配置，不应承诺生效。 |
 | `transform` | 校验前转换函数 | 未设置 | vue3 | 作为规则文本输出；宿主须支持。 |
-| `validator` | 自定义校验函数 | 未设置 | vue3 | 需匹配表单/内嵌表格的函数签名；不会生成业务函数实现。 |
+| `validator` | 自定义校验函数名或命名验证器名 | 未设置 | vue3 | 可填命名验证器名（同 type 的 B 组，不区分大小写，如 `validator="mobile"`）或宿主已注册的函数字符串名；不会生成业务函数实现。 |
 | `message` | 校验提示 | 显式配置或按列备注/规则类型生成 | vue3 | 各规则分支取值不完全一致，不是所有规则的全局覆盖值。 |
 | `trigger` | 校验触发方式 | 采用显式值的规则分支优先取配置；否则 scope=1 为 blur、scope=2 为 change | vue3 | DTD 为 blur/change/submit/blurChange；非空列必填等分支直接采用范围默认值，不读取本项。 |
+| `compareField` | 跨字段对照字段 | 未设置 | vue3 | equalTo/dateNotBefore/dateNotAfter 适用；可填数据库列名（生成时解析为 Java 属性名）或表单属性名。 |
+| `compareLabel` | 对照字段提示名 | 对照列注释，仍无则回退 compareField 原值 | vue3 | 仅用于错误文案。 |
+| `compareValue` | 直接给定对照值 | 未设置 | vue3 | 未配置 compareField 时生效。 |
+| `allowEqual` | 日期比较是否允许相等 | `true` | vue3 | false 时要求严格大于/小于。 |
+| `precision` | 小数位数 | `2` | vue3 | money 验证器适用。 |
+| `allowNegative` | 是否允许负数 | `false` | vue3 | money 验证器适用；数值列金额默认补 `@DecimalMin("0")`。 |
+| `requireSpecial` | 强制包含特殊字符 | `false` | vue3 | password 验证器适用。 |
+
+##### 命名验证器清单与前后端映射
+
+`type` 或 `validator` 属性命中下列命名验证器（不区分大小写）时，规则以 `validator="<名称>"` 下发到前端：Framework `vgoForm` 经 `getValidator` 解析为 `commonValidators` 已注册函数；scope=2 的内嵌 vxe 表格由 `VgoVxeTable` 自动适配其校验签名。`ValidatorPlugin` 同时按 jakarta.validation 能力生成后端等价约束；@Pattern/@Email 只对字符串列输出，无对应能力的跨字段验证器仅前端生效。A 组内置类型 `email`/`url`（type 规则）亦分别映射后端 `@Email`/`@Pattern`。
+
+| 验证器 | 用途 | 可调参数 | 后端映射 |
+|---|---|---|---|
+| `mobile` | 手机号 | — | `@Pattern` |
+| `digits` | 纯数字 | — | `@Pattern` |
+| `positiveInteger` | 正整数（>0） | — | 数值列 `@Positive`；字符串列 `@Pattern` |
+| `money` | 金额（默认非负） | `precision`/`allowNegative` | 字符串列 `@Pattern`；数值列默认 `@DecimalMin("0")`，小数位由列长 `@Digits` 覆盖 |
+| `idCard` | 身份证 15/18 位 | — | `@Pattern`（格式段；18 位校验码仅前端验证） |
+| `tel` | 固定电话 | — | `@Pattern` |
+| `postalCode` | 6 位邮编 | — | `@Pattern` |
+| `ipv4` | IPv4 地址 | — | `@Pattern` |
+| `mac` | MAC 地址 | — | `@Pattern` |
+| `chinese` | 仅中文（含间隔号） | — | `@Pattern` |
+| `username` | 登录名：字母开头+字母数字下划线 | `min`/`max` 长度 | `@Pattern`（长度由 `@Size` 覆盖） |
+| `plateNo` | 车牌号（含新能源） | — | `@Pattern` |
+| `password` | 密码强度：默认6-20位含字母+数字 | `min`/`max`/`requireSpecial` | `@Pattern` |
+| `equalTo` | 与对照字段值一致（确认密码等） | `compareField`/`compareValue`/`compareLabel` | 无对应能力，仅前端 |
+| `dateNotBefore` | 字段值不得早于对照日期 | `compareField`/`compareValue`/`compareLabel`/`allowEqual` | 无对应能力，仅前端 |
+| `dateNotAfter` | 字段值不得晚于对照日期 | `compareField`/`compareValue`/`compareLabel`/`allowEqual` | 无对应能力，仅前端 |
+
+示例：
+
+```xml
+<htmlElementDescriptor column="phone_no" tagType="input">
+    <validator type="mobile" message="手机号格式不正确"/>
+</htmlElementDescriptor>
+<htmlElementDescriptor column="end_date" tagType="date">
+    <validator type="dateNotBefore" compareField="begin_date" allowEqual="true"/>
+</htmlElementDescriptor>
+<htmlElementDescriptor column="amount" tagType="number">
+    <validator type="money" precision="2" allowNegative="false" min="0" max="999999.99"/>
+</htmlElementDescriptor>
+<htmlElementDescriptor column="login_name" tagType="input">
+    <validator type="username" min="4" max="20"/>
+</htmlElementDescriptor>
+```
 
 #### 7.4.2 `hrefElement`
 
@@ -1664,7 +1714,7 @@ Vue3 文件由 `Vue3OtherFilesPlugin` 与 `Vue3FormFilesPlugin` 生成；对应�
 #### 7.7.1 Vue3 与 `generateHtml` 的职责边界
 
 1. `generateHtml` 是表级页面配置节点。它配置的 `type`（`editable`、`viewOnly`、`print`）及 `generate` 值参与 HTML 页面规则判断，也参与 Vue3 editable/viewOnly 产物规则判断；`generate="false"` 或 model-only 不能触发相应页面。
-2. 页面配置存在两条消费链：一条输出 HTML/静态资源；另一条经 `VueHtmMetaAnnotationPlugin` 生成 VO 的表单、字段、容器、上传、内嵌列表及审批注解，再由后端配置服务与 Framework `vgoForm` 消费。`layout` 的字段列数/独占列、标签/弹窗配置，以及多数输入控件和附加组件配置会通过第二条链路影响 Vue3；HTML loadingFrameType/barPosition/uiFrameType、文件路径/覆盖、打印项不能据此当作 Vue3 配置。逐项影响与未传递限制以 7.1～7.6 表格为准，尤其不能用直接子节点 htmlSwitchDescriptor 代替有效普通 descriptor。
+2. 页面配置存在两条消费链：一条输出 HTML/静态资源；另一条经 `VueHtmMetaAnnotationPlugin` 生成 VO 的表单、字段、容器、上传、内嵌列表及审批注解，再由后端配置服务与 Framework `vgoForm` 消费。`layout` 的字段列数/独占列、标签/弹窗配置，以及多数输入控件和附加组件配置会通过第二条链路影响 Vue3；HTML loadingFrameType/barPosition/uiFrameType、文件路径/覆盖、打印项不能据此当作 Vue3 配置。逐项影响与未传递限制以 7.1～7.6 表格为准；直接子节点 `htmlSwitchDescriptor` 已按开关简写解析（§7.3.4），与普通 descriptor 的 `tagType="switch"` 等价。
 3. Vue3 列表需要 `viewVo`，其视图标识、标题、列/查询/过滤、工具栏、默认排序和菜单元数据等配置按第 5 节 `viewVo` 配置及当前 DTD 生效。`generateVo` 父级必须启用，`viewVo` 子项必须实际启用；仅启用 `generateHtml` 不会生成列表页。
 4. Vue3 编辑/详情模板本身是组件骨架；表单字段定义、数据源和控件如何装配，应通过已生成的 VO/表单元数据及服务端返回的配置确认。不要仅因某列存在于 Entity 或 TypeScript 类型中，就假定它会出现在查询区、表格列或表单中。
 
@@ -1711,7 +1761,7 @@ Framework API/组件契约以 mpmm-ui 的[Framework 能力总览](D:\vscode\mpmm
 | 过滤器 | `viewVo.filterColumns`、`filterColumn` | 明确字段、控件/操作和值域；需要跨表共用时可评估 `reusableElements` |
 | 列表和行操作 | `viewVo.toolbar`、`actionColumn`、`htmlButton` | 确认按钮 ID 对应已生成动作或已实现的业务扩展，不可只配置前端按钮 |
 | 新增/编辑/详情数据模型 | `generateVo` 及 `modelVo`、`createVo`、`updateVo`、`viewVo` | 列表/表单用途不同，分别核对字段白名单、必填项与校验忽略项 |
-| 表单控件和页面组件 | `htmlElementDescriptor`、`htmlTableSelectDescriptor`、`htmlFormExtendDescriptor`、`htmlFileAttachment`、`approvalComment`、`htmlElementInnerList` | 对照 7.3～7.6 的属性传递链与限制；页面直接子节点 htmlSwitchDescriptor 当前未解析，开关用普通 descriptor 的 tagType=switch |
+| 表单控件和页面组件 | `htmlElementDescriptor`、`htmlTableSelectDescriptor`、`htmlFormExtendDescriptor`、`htmlFileAttachment`、`approvalComment`、`htmlElementInnerList` | 对照 7.3～7.6 的属性传递链与限制；页面直接子节点 `htmlSwitchDescriptor` 已解析为开关简写，与普通 descriptor 的 `tagType="switch"` 等价 |
 | 多表复用 | `reusableElements` 中受支持的字段、控件、列和过滤器描述 | 仅复用指南和当前 DTD/源码实际支持的描述，表级配置保留差异项 |
 | 页面菜单及权限 | `viewVo.parentMenuId`、ViewVo 菜单属性，以及 Context/Table 的模块和菜单数据配置 | 确认初始化 SQL 纳入部署链路、父节点和权限数据正确；具体生成条件见项目菜单规范及生成器菜单配置说明 |
 
@@ -2495,7 +2545,7 @@ AI 与开发人员在配置评审时应主动指出适用的实践建议和重�
 | 需求/设计对象 | 对应配置入口与消费实例 | 生成器负责生成的部分 | 仍须由业务/宿主实现并单独验收 |
 |---|---|---|---|
 | 预算、计划、项目主数据字段与表单 | `table`、`generateVo` 下各 VO、`generateHtml`、`layout`；tmri-core 的 `tmri_main_budget`、`tmri_main_plan`、`tmri_main_project` 配置分别从约第 124、214、289 行起 | 依据实际内省字段、VO 规则及页面元数据生成基础模型、字段描述和页面骨架；`groupContainer/includeElements` 表达表单分组和字段顺序 | 核实物理列、VO 字段映射、默认值来源、历史数据和服务端写入规则；审批流间的数据回填、主表/明细一致性、阶段转换不是布局配置行为 |
-| 页面布局与字段组件 | Context `reusableElements`、Table `generateHtml/htmlElementDescriptor` 与 `layout/groupContainer`；按需再评估 `htmlTableSelectDescriptor`、`htmlFormExtendDescriptor`、`htmlFileAttachment`、`approvalComment`、`htmlElementInnerList` 等变种。当前直接子节点 `htmlSwitchDescriptor` 未被页面解析，开关使用普通 descriptor 的 `tagType="switch"`，见 §7.3.4。tmri-core 复用用户/部门/字典/金额描述，tmri-serv 另含 `plan_type` 的字典单选、数量/金额校验与回调描述 | 生成或传递已支持的控件类型、数据源/URL 参数、表单元数据和校验描述；布局按列名/`elementKey` 输出分组与顺序 | `callback` 只是回调标识，不生成回调业务；选择控件不自动保证关联 ID、显示名、部门权限或级联清理正确。需核对请求/响应字段、前后端校验及宿主组件消费；各变种的解析/消费差异按 §7.3–§7.6 分别核验 |
+| 页面布局与字段组件 | Context `reusableElements`、Table `generateHtml/htmlElementDescriptor` 与 `layout/groupContainer`；按需再评估 `htmlTableSelectDescriptor`、`htmlFormExtendDescriptor`、`htmlFileAttachment`、`approvalComment`、`htmlElementInnerList` 等变种。直接子节点 `htmlSwitchDescriptor` 已解析为开关简写，与普通 descriptor 的 `tagType="switch"` 等价，见 §7.3.4。tmri-core 复用用户/部门/字典/金额描述，tmri-serv 另含 `plan_type` 的字典单选、数量/金额校验与回调描述 | 生成或传递已支持的控件类型、数据源/URL 参数、表单元数据和校验描述；布局按列名/`elementKey` 输出分组与顺序 | `callback` 只是回调标识，不生成回调业务；选择控件不自动保证关联 ID、显示名、部门权限或级联清理正确。需核对请求/响应字段、前后端校验及宿主组件消费；各变种的解析/消费差异按 §7.3–§7.6 分别核验 |
 | 采购计划类型与所属季度 | 升级需求 §2.12–2.13 要求字段、选项、默认值和可编辑性；tmri-serv `reusableElements` 静态配置了 `plan_type` 的 `DictData` 控件描述 | 当目标表确有列且该表配置了相应 VO/页面规则时，生成器可生成该列对应的模型和表单元数据；`htmlElementDescriptor` 本身不创建数据库列 | 区分审批单字段与采购计划主数据字段；核实目标表列、生成 VO、保存/更新映射、默认值时机及旧数据回填。两份配置中未检索到 `quarter_` 字符串，这只表示当前配置文本未显式引用该名称，不证明数据库列或生成类中不存在该字段 |
 | 列表查询、快速统计与筛选 | `generateVo/viewVo` 的 `queryColumns`、`fuzzyColumns`、`filterColumns`、`queryColumn/filterColumn`、`requestVo`；tmri-core 的主数据配置包含这些集合及 `toolbar="EXPORT"` | 生成视图/请求元数据和已配置的基础查询骨架；三个字段集合用途不同，不能相互推导，详见 §5.3 | 升级需求 §2.2、§2.4、§2.6 的业务统计口径、实施进度计算、多选部门以及查询/清除交互，须映射到请求字段、服务端过滤与统计逻辑。不能从 `filterColumns` 或工具栏元数据推断相应接口已实现，也不能让前端筛选替代服务端权限范围 |
 | 导出与文件列 | `excelVo`、`viewVo.toolbar` 及当前生成器支持的导出配置；tmri-core 主数据配置启用了 `excelVo` 和 `toolbar="EXPORT"` | 可按已配置字段范围生成导出 VO/端点或操作元数据，具体能力及限制按本指南导出章节核实 | 升级需求 §2.3、§2.5、§2.7 的自定义列选择、默认列顺序、筛选范围及金额口径须核对实际 API、前端交互、权限和导出结果；`toolbar="EXPORT"` 只是操作声明，不代表自定义导出行为已实现 |

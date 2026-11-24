@@ -42,9 +42,9 @@
 
 - **Vue3 页面套件**：列表 `.vue`、`{Domain}Edit/Detail/Modal.vue`、`T{Domain}.ts` 类型、`PrivateUseFormHooks.ts`、`sharedVariables.ts`、`PrivateTableColumnSlots.vue`。触发条件：context `vueEndProjectPath` 非空 + `generateVo/viewVo` 启用 + 至少一个启用的 `editable`（或 `viewOnly`）`generateHtml`。表单/字段/容器/上传/内嵌列表/审批元数据经 VO 注解由 Framework `vgoForm` 消费（§7.7）。
 - **HTML 旧链路**：Thymeleaf 页面与 JQuery JS/CSS；`viewPath`/`targetPackage`/`*overWrite*File` 控制路径与覆盖（§7.1、§7.7.2）。
-- **表单控件**：`htmlElementDescriptor`（input/select/dropdownlist/switch/date/number/editor/markdown/tableselect/upload 等 tagType；Dict/DictData/DictSys/DictUser/DictEnum/Department/User/Organ 等数据源；`dataFormat` 快捷语义、`dataUrl`/`dataUrlParams`/`remoteApiParse`/`keyMap*` 远程选项、`hideExpression`/`disabledExpression`/`watchFields` 联动）、`htmlTableSelectDescriptor`（表格选择）、`htmlFormExtendDescriptor`（表单设计/渲染）。页面直接子节点 `htmlSwitchDescriptor` 当前未被解析，开关使用普通 descriptor 的 `tagType="switch"`（§7.3）。
+- **表单控件**：`htmlElementDescriptor`（input/select/dropdownlist/switch/date/number/editor/markdown/tableselect/upload 等 tagType；Dict/DictData/DictSys/DictUser/DictEnum/Department/User/Organ 等数据源；`dataFormat` 快捷语义、`dataUrl`/`dataUrlParams`/`remoteApiParse`/`keyMap*` 远程选项、`hideExpression`/`disabledExpression`/`watchFields` 联动）、`htmlTableSelectDescriptor`（表格选择）、`htmlSwitchDescriptor`（开关简写，等价 `tagType="switch"`）、`htmlFormExtendDescriptor`（表单设计/渲染）（§7.3）。
 - **布局与导航**：`layout`（列数/独占列/标签/弹窗）、`groupContainer`（border/tab/card/collapse 可嵌套，`includeElements` 决定字段顺序）、`pageNavigator`（锚点导航）（§7.1.3、§7.2）。
-- **校验**：`validator`/`verify`/`requiredColumns`/`property` 字段状态 → Vue 表单规则注解；前端校验不替代服务端约束（§7.1.2、§7.4.1）。
+- **校验**：`validator` 子节点 → 前端 `@VueFormItemRule` 规则注解（required/type/min/max/len/pattern/命名验证器，`scope` 分表单/内嵌表格），同时映射后端 jakarta.validation 注解（@NotNull/@NotEmpty/@Size/@Pattern/@Email/@Positive/@DecimalMin/@DecimalMax）；16 个命名验证器与前端 `commonValidators` 一一对应，含 money/username/password 参数化与 equalTo/dateNotBefore/dateNotAfter 跨字段比较（跨字段仅前端生效）；未配置时按列类型/长度兜底，配置与兜底同维度时优先配置。`verify`/`requiredColumns`/`property` 字段状态为简写入口（§7.1.2、§7.4.1）。
 - **其他组件**：附件 `htmlFileAttachment`、审批意见 `approvalComment`、内嵌列表 `htmlElementInnerList`（含编辑/分页/合计/打印）、打印页 `type="print"`、链接 `renderHref`/`hrefElement`、按钮 `htmlButton`、值转换 `overridePropertyValue`（Dict*/DictEnum 注解转换 + Text 展示属性）、列表渲染 `columnRenderFun`（§6、§7.4–7.6）。
 - **复用**：context 级 `reusableElements` 提供跨表共享的字段/控件/列/过滤器描述（§13.1）。
 
@@ -57,7 +57,7 @@
 ## 5. 关键边界与常见误判
 
 1. **版本一致**：配置 DOCTYPE 的 DTD 文件名必须与实际执行的 core 版本一致（当前 `mybatis-generator-config_1_8_0.dtd`），升级按详细指南 §1.1 规则核对。
-2. **DTD 声明 ≠ 实际行为**：默认值与消费范围以 Parser/生成器源码为准；详细指南标注「未生效/已知偏差」的属性（如 `viewVo.enablePager`、页面直接子节点 `htmlSwitchDescriptor`、`hrefElement.method`、`validator` 的 `enum`/`whitespace`、`htmlFileAttachment` 的 `verify`/`hideExpression` 等）不可依赖。
+2. **DTD 声明 ≠ 实际行为**：默认值与消费范围以 Parser/生成器源码为准；详细指南标注「未生效/已知偏差」的属性（如 `viewVo.enablePager`、`hrefElement.method`、`validator` 的 `enum`/`whitespace`、`htmlFileAttachment` 的 `verify`/`hideExpression` 等）不可依赖。
 3. **三个查询集合互相独立**：`queryColumns`（复合查询）、`fuzzyColumns`（模糊检索）、`filterColumns`（过滤器）须各自显式配置，不互相推导；组合条件 `queryType="condition"` 仅支持 `viewVo` 主视图（§5.3.2.1）。
 4. **元数据 ≠ 业务实现**：`toolbar`/`actionColumn`/`htmlButton`/菜单/权限 SQL 只是声明，handler、服务端动作、授权与初始化执行须另行验证；「XML 可解析」「注解已输出」「页面可打开」均不等于行为生效。
 5. **生成产物保护**：`codegen` 目录与 `@mbg.generated` 片段禁止手改；`@VCF.overridable` 为允许覆盖标记，人工扩展须先破坏标记（生成器仓 `.github/copilot-instructions.md` §2.1）。

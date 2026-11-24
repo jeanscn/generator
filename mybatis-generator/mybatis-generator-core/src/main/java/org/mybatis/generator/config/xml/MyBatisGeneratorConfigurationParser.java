@@ -434,6 +434,14 @@ public class MyBatisGeneratorConfigurationParser {
                 case "htmlTableSelectDescriptor":
                     HtmlElementDescriptor htmlElementDescriptor = parseHtmlElementDescriptor(childNode);
                     if (htmlElementDescriptor != null) {
+                        // switch/tableSelect 描述元素没有 tagType 属性时按元素类型补默认值
+                        if (!stringHasValue(htmlElementDescriptor.getTagType())) {
+                            if ("htmlSwitchDescriptor".equals(childNode.getNodeName())) {
+                                htmlElementDescriptor.setTagType(HtmlElementTagTypeEnum.SWITCH.codeName());
+                            } else if ("htmlTableSelectDescriptor".equals(childNode.getNodeName())) {
+                                htmlElementDescriptor.setTagType(HtmlElementTagTypeEnum.TABLE_SELECT.codeName());
+                            }
+                        }
                         reusableElementsConfiguration.getHtmlElementDescriptors().add(htmlElementDescriptor);
                     }
                     break;
@@ -1356,6 +1364,18 @@ public class MyBatisGeneratorConfigurationParser {
                         htmlGeneratorConfiguration.getElementDescriptors().add(htmlTableSelectDescriptor);
                     }
                     break;
+                case PropertyRegistry.ELEMENT_HTML_SWITCH_DESCRIPTOR:
+                    HtmlElementDescriptor htmlSwitchDescriptor = parseHtmlElementDescriptor(childNode);
+                    if (!stringHasValue(htmlSwitchDescriptor.getTagType())) {
+                        htmlSwitchDescriptor.setTagType(HtmlElementTagTypeEnum.SWITCH.codeName());
+                    } else {
+                        htmlSwitchDescriptor.setTagType(HtmlElementTagTypeEnum.ofCodeName(htmlSwitchDescriptor.getTagType()).codeName());
+                    }
+                    htmlSwitchDescriptor.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                    if (stringHasValue(htmlSwitchDescriptor.getName()) && stringHasValue(htmlSwitchDescriptor.getTagType())) {
+                        htmlGeneratorConfiguration.getElementDescriptors().add(htmlSwitchDescriptor);
+                    }
+                    break;
                 case PropertyRegistry.ELEMENT_HTML_LAYOUT:
                     parseHtmlLayout(htmlGeneratorConfiguration, childNode);
                     break;
@@ -2220,7 +2240,7 @@ public class MyBatisGeneratorConfigurationParser {
         String max = attributes.getProperty("max");
         if (stringHasValue(max)) {
             if (VBigDecimalUtil.isBigDecimal(max)) {
-                htmlValidatorElementConfiguration.setMax(min);
+                htmlValidatorElementConfiguration.setMax(max);
             } else {
                 warnings.add("max 值不合法");
             }
@@ -2248,6 +2268,38 @@ public class MyBatisGeneratorConfigurationParser {
         String validator = attributes.getProperty("validator");
         if (stringHasValue(validator)) {
             htmlValidatorElementConfiguration.setValidator(validator);
+        }
+        String compareField = attributes.getProperty("compareField");
+        if (stringHasValue(compareField)) {
+            htmlValidatorElementConfiguration.setCompareField(compareField);
+        }
+        String compareLabel = attributes.getProperty("compareLabel");
+        if (stringHasValue(compareLabel)) {
+            htmlValidatorElementConfiguration.setCompareLabel(compareLabel);
+        }
+        String compareValue = attributes.getProperty("compareValue");
+        if (stringHasValue(compareValue)) {
+            htmlValidatorElementConfiguration.setCompareValue(compareValue);
+        }
+        String allowEqual = attributes.getProperty("allowEqual");
+        if (stringHasValue(allowEqual)) {
+            htmlValidatorElementConfiguration.setAllowEqual(Boolean.parseBoolean(allowEqual));
+        }
+        String precision = attributes.getProperty("precision");
+        if (stringHasValue(precision)) {
+            if (VBigDecimalUtil.isBigDecimal(precision)) {
+                htmlValidatorElementConfiguration.setPrecision(precision);
+            } else {
+                warnings.add("precision 值不合法");
+            }
+        }
+        String allowNegative = attributes.getProperty("allowNegative");
+        if (stringHasValue(allowNegative)) {
+            htmlValidatorElementConfiguration.setAllowNegative(Boolean.parseBoolean(allowNegative));
+        }
+        String requireSpecial = attributes.getProperty("requireSpecial");
+        if (stringHasValue(requireSpecial)) {
+            htmlValidatorElementConfiguration.setRequireSpecial(Boolean.parseBoolean(requireSpecial));
         }
         String scope = attributes.getProperty("scope");
         if (stringHasValue(scope)) {
