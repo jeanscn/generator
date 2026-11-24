@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller;
 
+import com.vgosoft.tool.core.VMD5Util;
 import org.junit.jupiter.api.Test;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.Method;
@@ -44,16 +45,26 @@ class ApiPermissionWhitelistGenerationTest {
     }
 
     @Test
-    void parentMenuIdHangsLeafPermissionRowDirectlyUnderMenu() {
+    void parentMenuIdGroupsLeavesUnderTableModuleRow() {
         IntrospectedTableMyBatis3Impl table = fixture("relation");
         table.getContext().setParentMenuId("1777340268517920770");
         TopLevelClass controller = controller(table);
         assertThat(controller.getMethods()).hasSize(2);
-        // 指定 parentMenuId：仅产末级权限行直挂菜单，不再产出 module/bean 中间行
-        assertThat(table.getPermissionDataScriptLines().values()).hasSize(2)
+        String moduleCode = "system:sysmenuimpl";
+        String moduleRowId = VMD5Util.MD5_15(moduleCode);
+        // 指定 parentMenuId：产 1 行表级模块行直挂菜单，末级权限行挂模块行下，
+        // 树形为 menu→module(表级)→permissionCode，两个端点共享同一模块行
+        assertThat(table.getPermissionDataScriptLines().values()).hasSize(3);
+        assertThat(table.getPermissionDataScriptLines().values())
+                .anySatisfy(sql -> assertThat(sql)
+                        .contains("'" + moduleCode + "'")
+                        .contains("'1777340268517920770'"));
+        assertThat(table.getPermissionDataScriptLines().values().stream()
+                .filter(sql -> !sql.contains("'" + moduleCode + "'")).toList())
+                .hasSize(2)
                 .allSatisfy(sql -> assertThat(sql)
-                        .contains("'1777340268517920770'")
-                        .contains("system:sysmenuimpl:"));
+                        .contains(moduleCode + ":")
+                        .contains("'" + moduleRowId + "'"));
     }
 
     @Test

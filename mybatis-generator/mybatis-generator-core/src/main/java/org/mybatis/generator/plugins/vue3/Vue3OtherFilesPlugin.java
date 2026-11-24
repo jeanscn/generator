@@ -2,7 +2,6 @@ package org.mybatis.generator.plugins.vue3;
 
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import com.vgosoft.core.constant.enums.db.JavaTypeMapEnum;
-import com.vgosoft.tool.core.VMD5Util;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.GeneratedFile;
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -219,8 +218,8 @@ public class Vue3OtherFilesPlugin extends PluginAdapter {
         // 表注释
         String tableRemark = introspectedTable.getRemarks(true);
         freeMakerContext.put("tableRemark", tableRemark);
-        // 权限关键字
-        freeMakerContext.put("permissionKey", VMD5Util.MD5_15(introspectedTable.getControllerBeanName().toLowerCase()));
+        // 权限关键字（表级模块权限节点 id，前端按 parent_id 拉取该模块按钮动作）
+        freeMakerContext.put("permissionKey", Mb3GenUtil.getPermissionModuleId(introspectedTable));
         freeMakerContext.put("isHideAction", introspectedTable.getRules().isGenerateHideListBin());
         // 列渲染
         Map<String, String> columnRenderFunMap = Mb3GenUtil.getColumnRenderFunMap(introspectedTable);

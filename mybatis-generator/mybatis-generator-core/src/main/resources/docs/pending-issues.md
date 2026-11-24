@@ -176,7 +176,7 @@
 - 与当前任务的关系：本任务在 `CasWriteGenerationTest.parse` 注入 `apiPermissions=all` 保持 CAS 夹具的历史全量权限输出语义，并按批准的权限显示名方案对齐了基线 zip 中两个 `data-permission-*.sql` 条目；剩余 3 个 Impl 差异与上述两个哈希用例失败均属本项漂移。`retainsAllDisabledOutputsAndLimitsOptInDiff` 与本任务相关用例全部通过。
 - 建议后续处理：独立核对三个 Impl 差异是否全部为 `5c98f5e9` 与 example 子包迁移/文件头演进的合法输出；确认后按批准范围重录 `consumer-current-v1-parser-baseline.zip` 对应 3 个条目及两个哈希基线的 Service Impl 层摘要，不回退生成逻辑掩盖。
 - 责任与关联：`mybatis-generator-core` 测试维护方；与 generator-core-ISSUE-0001（消费配置漂移）不同源，与 generator-core-ISSUE-0004（锁查询基线历史漂移）同测试。
-- 更新与关闭记录：2026-11-20 首次登记，中/已复现并归因/待处理；本轮只登记，不修改基线与断言。
+- 更新与关闭记录：2026-11-20 首次登记，中/已复现并归因/待处理；本轮只登记，不修改基线与断言。2026-11-24 复核（权限树表级模块层任务定向回归）：`SensitiveGenerationTest.offlineOutputBaseline` 失败点前移至场景 0 层 0（实体层，期望 `62b90762` 实得 `e7a14aa3`），经 stash A/B 对照确认与本任务改动无关，属上游提交引入的既有漂移继续扩大；重录仍需负责人授权，本轮只登记。
 
 ### generator-core-ISSUE-0014 消费配置精简重构触发 consumerXml 夹具漂移
 

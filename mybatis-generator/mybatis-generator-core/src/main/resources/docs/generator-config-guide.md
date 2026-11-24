@@ -255,7 +255,7 @@ DTD 属性仍为 `#IMPLIED`，仅当前 `mybatis-generator-config_1_8_0.dtd` 增
 - 未配置或为空（默认）：不生成任何接口权限注解与权限数据，Controller 不登记 `PreAuthorize` import。
 - `all`：全部已接入权限的接口生成。
 - 逗号白名单（匹配不区分大小写）：仅命中前缀的接口生成，注解与权限 SQL 同生同灭。保留值 `relation` 覆盖全部 union/split 关系维护端点、`option` 覆盖全部选项接口；动态方法名端点也可直接写其小写权限 code 段（如 `insertbytable{suffix}`、`option{属性}`）精确放行单个端点。
-- 权限数据形态：`id_` 为权限 code 的确定性哈希（重复生成不变）。配置 `parentMenuId`（view 配置优先、context 兜底）时仅产末级权限行，`parent_id` 直挂该菜单节点（menu→action，code/name 仍按 `module:bean:action` 累计）；未配置时按 `module→bean→action` 逐级产出且 module 行 `parent_id='0'`。按钮级 `data-permission-action-*.sql` 同样以 `parentMenuId` 为父节点。
+- 权限数据形态：`id_` 为权限 code 的确定性哈希（重复生成不变）。配置 `parentMenuId`（view 配置优先、context 兜底）时在菜单与权限点之间增加一级表级模块节点：模块行 code/name 按 `module:bean` 累计、`parent_id` 直挂该菜单节点，末级权限行 `module:bean:action` 挂到模块行下，同一表多接口共享同一模块行（按 id 去重），树形为 menu→module(表级)→permissionCode；未配置时按 `module→bean→action` 逐级产出且 module 行 `parent_id='0'`。按钮级 `data-permission-action-*.sql` 的首级行与接口权限共用同一表级模块节点（同 code/name/id，`parent_id` 为 `parentMenuId`），按钮叶子 code 仍为 `bean:button` 并挂到模块行下；生成 Vue 的 `permissionKey` 取该表级模块节点 id。
 
 | `apiPermissions` 值 | 权限 code 段 | 权限显示名 |
 |---|---|---|

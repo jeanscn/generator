@@ -283,16 +283,16 @@ public class Mb3GenUtil {
 
     /**
      * 设置权限数据sql脚本
-     * 指定 parentMenuId 时仅产末级权限行并直挂菜单节点（code/name 仍按 module:bean:action 累计），
-     * 避免菜单树层级过深及同模块行重复产出；未指定时按 module→bean→action 逐级产出，
-     * module 行 parent_id 为 '0'。
+     * 指定 parentMenuId 时产出表级模块行与末级权限行：表级模块行（code/name 按
+     * module:bean 累计）直挂菜单节点，同一表多接口重复产出时按 id 去重仅保留首行；
+     * 末级权限行挂到表级模块行下，树形为 menu→module(表级)→permissionCode。
+     * 未指定时按 module→bean→action 逐级产出，module 行 parent_id 为 '0'。
      * @param introspectedTable IntrospectedTable 内省表对象
      * @param levels 权限数据
      * @param parentMenuId 父级菜单ID，可为空
      */
     public static void setPermissionSqlData(AbstractIntrospectedTable introspectedTable, Map<String, String> levels, String parentMenuId) {
         int index = 0;
-        int lastIndex = levels.size() - 1;
         boolean menuRooted = VStringUtil.stringHasValue(parentMenuId);
         List<String> keys = new ArrayList<>();
         List<String> names = new ArrayList<>();
@@ -301,15 +301,22 @@ public class Mb3GenUtil {
             keys.add(code);
             String name = index == 0 ? entry.getValue() : names.get(index - 1) + ":" + entry.getValue();
             names.add(name);
-            if (menuRooted && index < lastIndex) {
+            // 菜单挂接模式下首级 module 分类行不产出，表级模块行（index==1）直挂菜单
+            if (menuRooted && index == 0) {
                 index++;
                 continue;
             }
             String id = VMD5Util.MD5_15(code);
+            // 表级模块行随每个接口循环重复到达，重复时保留首个产出（含 sort_ 序号）
+            if (menuRooted && index == 1
+                    && introspectedTable.getPermissionDataScriptLines().containsKey(id)) {
+                index++;
+                continue;
+            }
             InsertSqlBuilder sqlBuilder = GenerateSqlTemplate.insertSqlForPermission();
             sqlBuilder.updateStringValues("id_", id);
             sqlBuilder.updateValues("sort_", String.valueOf(introspectedTable.getPermissionDataScriptLines().size() + 1));
-            if (menuRooted) {
+            if (menuRooted && index == 1) {
                 sqlBuilder.updateStringValues("parent_id", parentMenuId);
             } else if (index > 0) {
                 sqlBuilder.updateStringValues("parent_id", VMD5Util.MD5_15(keys.get(index - 1)));
@@ -378,7 +385,45 @@ public class Mb3GenUtil {
     }
 
     /**
-     * 设置权限操作数据sql脚本
+     * 表级模块权限节点 code（moduleKeyword:beanName 小写，moduleKeyword 为空时退化为
+     * beanName）。接口权限树与按钮操作树共用同一表级模块节点标识，前端 permissionKey
+     * 亦取该节点 id。
+     * @param introspectedTable IntrospectedTable 内省表对象
+     * @return 表级模块权限节点 code
+     */
+    public static String getPermissionModuleCode(AbstractIntrospectedTable introspectedTable) {
+        String beanName = introspectedTable.getControllerBeanName().toLowerCase();
+        String moduleKeyword = introspectedTable.getContext().getModuleKeyword();
+        return VStringUtil.stringHasValue(moduleKeyword)
+                ? moduleKeyword.toLowerCase() + ":" + beanName
+                : beanName;
+    }
+
+    /**
+     * 表级模块权限节点 id（节点 code 的 MD5_15）。
+     * @param introspectedTable IntrospectedTable 内省表对象
+     * @return 表级模块权限节点 id
+     */
+    public static String getPermissionModuleId(AbstractIntrospectedTable introspectedTable) {
+        return VMD5Util.MD5_15(getPermissionModuleCode(introspectedTable));
+    }
+
+    /**
+     * 表级模块权限节点显示名（moduleName:beanRemark），与接口权限 module:bean 行保持一致。
+     * @param introspectedTable IntrospectedTable 内省表对象
+     * @return 表级模块权限节点显示名
+     */
+    public static String getPermissionModuleName(AbstractIntrospectedTable introspectedTable) {
+        String beanName = introspectedTable.getRemarks(true);
+        String moduleName = introspectedTable.getContext().getModuleName();
+        return VStringUtil.stringHasValue(moduleName) ? moduleName + ":" + beanName : beanName;
+    }
+
+    /**
+     * 设置权限操作数据sql脚本。
+     * 首级（bean）行产出为表级模块节点：code/name/id 与接口权限 module:bean 行一致，
+     * parent_id 直挂菜单节点，同一表多按钮重复产出时按 id 去重仅保留首行；其余级行
+     * code 仍按 bean:button 累计，父级指向表级模块节点。
      * @param introspectedTable IntrospectedTable 内省表对象
      * @param levels 权限数据
      * @param parentMenuId 父级菜单ID
@@ -389,24 +434,37 @@ public class Mb3GenUtil {
         List<String> names = new ArrayList<>();
         for (Map.Entry<String, String> entry : levels.entrySet()) {
             String code = index == 0 ? entry.getKey() : keys.get(index - 1) + ":" + entry.getKey();
-            String id = VMD5Util.MD5_15(code);
             keys.add(code);
             String name = index == 0 ? entry.getValue() : names.get(index - 1) + ":" + entry.getValue();
             names.add(name);
+            String rowCode = code;
+            String rowName = name;
+            String parentId;
+            if (index == 0) {
+                // 与接口权限共用表级模块节点标识（module:bean），直挂菜单节点
+                rowCode = getPermissionModuleCode(introspectedTable);
+                rowName = getPermissionModuleName(introspectedTable);
+                parentId = parentMenuId;
+            } else {
+                parentId = index == 1
+                        ? getPermissionModuleId(introspectedTable)
+                        : VMD5Util.MD5_15(keys.get(index - 1));
+            }
+            String id = VMD5Util.MD5_15(rowCode);
+            // 表级模块行随每个 configurable 按钮重复到达，重复时保留首个产出
+            if (index == 0 && introspectedTable.getPermissionActionDataScriptLines().containsKey(id)) {
+                index++;
+                continue;
+            }
             InsertSqlBuilder sqlBuilder = GenerateSqlTemplate.insertSqlForPermissionAction();
             sqlBuilder.updateStringValues("id_", id);
             sqlBuilder.updateValues("sort_", String.valueOf(introspectedTable.getPermissionActionDataScriptLines().size() + 1));
-            sqlBuilder.updateStringValues("code_", code);
-            sqlBuilder.updateStringValues("name_", name);
-            if (index > 0) {
-                sqlBuilder.updateStringValues("parent_id", VMD5Util.MD5_15(keys.get(index - 1)));
-                introspectedTable.addPermissionActionDataScriptLines(id, sqlBuilder.toSql()+";");
-            } else {
-                sqlBuilder.updateStringValues("parent_id", parentMenuId);
-                introspectedTable.addPermissionActionDataScriptLines(id, sqlBuilder.toSql()+";");
-            }
+            sqlBuilder.updateStringValues("parent_id", parentId);
+            sqlBuilder.updateStringValues("code_", rowCode);
+            sqlBuilder.updateStringValues("name_", rowName);
             sqlBuilder.updateStringValues("created_id", GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID);
             sqlBuilder.updateStringValues("modified_id", GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID);
+            introspectedTable.addPermissionActionDataScriptLines(id, sqlBuilder.toSql()+";");
             index++;
         }
     }
