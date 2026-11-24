@@ -23,7 +23,6 @@ public class SelectByTableGenerator extends AbstractControllerElementGenerator {
     public void addElements(TopLevelClass parentElement) {
 
         introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream()
-        //        .filter(c -> c.isEnableUnion() || c.isEnableSplit())
                 .forEach(c -> {
                     Method method = new Method(c.getSelectByTableMethodName());
                     method.setVisibility(JavaVisibility.PROTECTED);
