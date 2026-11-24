@@ -1512,7 +1512,7 @@ DTD 的子内容模型为 `properties*`，而 Parser 只识别 `property`；不�
 | `enum` | 允许值集合 | 未设置 | vue3 | **已知实现偏差**：规则描述器 ENUM 分支读取 pattern 而非 enumList（generator-core-ISSUE-0017），不能保证按声明值输出。 |
 | `whitespace` | 仅空白输入的校验标志 | Boolean 未设置 | vue3 | Parser 读取，但当前规则描述器未传递该配置，不应承诺生效。 |
 | `transform` | 校验前转换函数 | 未设置 | vue3 | 作为规则文本输出；宿主须支持。 |
-| `validator` | 自定义校验函数名或命名验证器名 | 未设置 | vue3 | 可填命名验证器名（同 type 的 B 组，不区分大小写，如 `validator="mobile"`）或宿主已注册的函数字符串名；不会生成业务函数实现。 |
+| `validator` | 自定义校验函数名或命名验证器名 | 未设置 | vue3 | 可填命名验证器名（同 type 的 B 组，不区分大小写，如 `validator="mobile"`）或宿主已注册的函数字符串名；不会生成业务函数实现。业务自定义名须在前端 `src/modules/<域>/<业务>/PrivateUseFormValidators.ts` 用 `registerValidator` 注册同名函数（见前端开发手册 vgo-form-validation-dev-guide §3.3），未注册名前端降级告警；该名同时作为 layui lay-verify token 透传。 |
 | `message` | 校验提示 | 显式配置或按列备注/规则类型生成 | vue3 | 各规则分支取值不完全一致，不是所有规则的全局覆盖值。 |
 | `trigger` | 校验触发方式 | 采用显式值的规则分支优先取配置；否则 scope=1 为 blur、scope=2 为 change | vue3 | DTD 为 blur/change/submit/blurChange；非空列必填等分支直接采用范围默认值，不读取本项。 |
 | `compareField` | 跨字段对照字段 | 未设置 | vue3 | equalTo/dateNotBefore/dateNotAfter 适用；可填数据库列名（生成时解析为 Java 属性名）或表单属性名。 |
