@@ -1255,7 +1255,7 @@ src/main/resources/sql/init/data-menu-<moduleKeyword小写>.sql
 | 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
 |---|---|---|---|---|
 | `name="htmlHiddenFields"` 的 `value` | 隐藏列 | 空；合并 Context、Table 及本页面集合 | vue3和html | 合并为集合而非子级替换；还可能影响列表字段计算。Vue 字段注解生成亦会筛选隐藏列，不保证仅产生一个前端 hidden 标志。 |
-| `name="requiredColumns"` 的 `value` | 表单必填列 | 空；另合并列必填标志及 descriptor.verify 中的 required | vue3和html | Vue 校验还读取列 nullable；前端校验不能代替服务端约束。 |
+| `name="requiredColumns"` 的 `value` | 表单必填列 | 空；另合并列必填标志及 validator 派生 verify 中的 required | vue3和html | Vue 校验还读取列 nullable；前端校验不能代替服务端约束。 |
 | `name="htmlReadonlyFields"` 的 `value` | 只读列 | 空；合并 Context、Table 及本页面集合 | vue3和html | Vue 写入表单级 readonlyFields；并非后端禁止更新。 |
 | `name="htmlDisplayOnlyFields"` 的 `value` | 仅展示列 | 空；合并 Context、Table 及本页面集合 | vue3和html | 不等于隐藏或只读；需核对宿主表单提交行为。 |
 
@@ -1382,7 +1382,7 @@ Vue3 的 Edit/Detail 组件只由上述选中的表单配置输出一次；同�
 | `dictCode` | 字典编码 | 未设置；DictSys/DictData/DictUser 无 dataUrl 时缺省取列名转小驼峰 | vue3和html | 有显式 dataUrl 时不执行这段补值逻辑。 |
 | `callback` | 选择回调名 | 未设置 | vue3和html | HTML 可与关系方法后缀关联；Vue 写入字段注解，不代表业务回调已自动实现。 |
 | `switchText` | 开关文案 | 显式值 → dataFormat 对应枚举文案；否则可为空 | vue3和html | 不将 DTD 的“启用/禁用”注释当所有控件的统一缺省。 |
-| `verify` | 简写校验列表 | 空；通过 basic 的 `VStringUtil.splitToList` 拆分去重 | vue3和html | 当前 basic 源码支持逗号、管道、分号等分隔；如 `required,number`。required 会汇入必填列，复杂 Vue 规则优先用 validator。 |
+| ~~`verify`~~ | （已移除） | — | — | 属性已删除；layui `lay-verify` 由 `validator` 子元素自动派生：required→required、type=email/url/mobile 同名透传、money→amount、idCard→identity、数值族→number、其余命名验证器与 `validator` 自定义名原样透传；date/time/datetime/number/limit 仍由列类型与长度自动补充。 |
 | `labelCss` / `elementCss` | 标签/组件附加样式 | 未设置 | vue3和html | Vue 写入字段元数据；实际样式支持依组件实现。 |
 | `dataFmt` | 旧 HTML 控件格式 | 未设置 | html | 不同于 dataFormat；Vue 日期格式计算读取 dataFormat/列类型，未将 dataFmt 作为 valueFormat 传递。 |
 | `dateRange` | 日期范围选择 | `false` | vue3 | 与日期 dataFormat 联合计算 yearrange/monthrange/daterange/datetimerange。 |
@@ -1498,11 +1498,13 @@ DTD 的子内容模型为 `properties*`，而 Parser 只识别 `property`；不�
 
 **兜底与优先级：** 未配置 `validator` 时按列类型与长度推导兜底规则（非空列 → `required`、String 列长 → `max`、数值列 → number/integer 类型、可推导 minLength → `min`）；配置了 `validator` 时，与列类型/长度同维度的验证优先取显式配置值，其余维度继续叠加。`scope` 决定规则生效面：0（通用）同时下发，1 仅表单（el-form）规则，2 仅内嵌 vxe 表格列规则。
 
+**layui `lay-verify` 派生：** 原 `htmlElementDescriptor.verify` 属性已移除，`validator` 是唯一校验配置源。解析器按 `validator` 配置派生 lay-verify token：`required="true"`→required；`type=email/url/mobile` 等→同名 token；`money`→amount、`idCard`→identity、`digits/positiveInteger/integer/float/number`→number；其余命名验证器与 `validator` 自定义名原样透传；`date/time/datetime/number/limit` 仍由列类型与长度自动补充。派生 required 同时汇入 `elementRequired`/`beValidated`，与原 verify 链路等价。`htmlElementInnerList` 的 `verify` 属性不受影响（仅 required 有效）。
+
 | 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
 |---|---|---|---|---|
 | `scope` | 规则适用范围 | `0`（未指定，通用）；DTD 显式仅允许 1/2 | vue3 | 1 为表单，2 为内嵌表格编辑；按匹配 scope 或 0 筛选。 |
 | `required` | 必填 | Boolean 未设置；规则先看列非空，再看 validator=true/requiredColumns | vue3 | false 不能取消非空列必填；可空列上显式 `required="true"` 会同时补后端 `@NotNull`/`@NotEmpty`。 |
-| `type` | 验证值类型/命名验证器 | 显式规则优先，否则由 JavaTypeMapEnum 按字段类型推导 | vue3 | 值域见 `%validatorType;`：A 组为 async-validator 内置类型（string/number/…/email/url），B 组命名验证器按 `validator` 规则名下发，见下节清单；不要与 tagType 或 verify 规则名混用。 |
+| `type` | 验证值类型/命名验证器 | 显式规则优先，否则由 JavaTypeMapEnum 按字段类型推导 | vue3 | 值域见 `%validatorType;`：A 组为 async-validator 内置类型（string/number/…/email/url），B 组命名验证器按 `validator` 规则名下发，见下节清单；不要与 tagType 混用。 |
 | `min` | 下限/最短长度 | 列 minLength>0 时可推导，再由显式规则覆盖 | vue3 | Parser 要求可解析为数值，否则添加警告。 |
 | `max` | 上限/最长长度 | 字符串列长度可推导，再由显式规则覆盖 | vue3 | 字符串列的 min/max 与 `len` 还会映射后端 `@Size`；数值列映射 `@DecimalMin`/`@DecimalMax`。 |
 | `len` | 精确长度 | 配置对象未设置 | vue3 | string/array 使用；同时生成后端 `@Size(min=max=len)`，应核对生成规则而非仅看 XML。 |
@@ -2068,7 +2070,7 @@ mvn -q -pl mybatis-generator-core "-Denforcer.skip=true" `
 <htmlElementDescriptor column="id_card_type" tagType="dropdownlist" dataSource="DictData"/>
 <htmlElementDescriptor column="main_dept_id" tagType="select" dataSource="Department"/>
 <htmlElementDescriptor column="other_dept_id" tagType="select" dataSource="Department" multiple="true"/>
-<htmlElementDescriptor column="mobile_phone" tagType="input" verify="mobile"/>
+<htmlElementDescriptor column="mobile_phone" tagType="input"><validator type="mobile"/></htmlElementDescriptor>
 ```
 
 再比如组织角色页中的部门联动：

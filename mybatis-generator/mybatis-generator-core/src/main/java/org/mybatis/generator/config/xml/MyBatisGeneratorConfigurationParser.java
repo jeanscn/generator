@@ -2042,11 +2042,6 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(applyPropertyKey)) {
             htmlElementDescriptor.setApplyPropertyKey(applyPropertyKey);
         }
-        String verify = attributes.getProperty("verify");
-        if (stringHasValue(verify)) {
-            List<String> verifies = splitToList(verify).stream().distinct().collect(Collectors.toList());
-            htmlElementDescriptor.setVerify(verifies);
-        }
         String enumClassName = attributes.getProperty(PropertyRegistry.ELEMENT_ENUM_CLASS_FULL_NAME);
         if (stringHasValue(enumClassName)) {
             htmlElementDescriptor.setEnumClassName(enumClassName);
@@ -2207,7 +2202,55 @@ public class MyBatisGeneratorConfigurationParser {
                     break;
             }
         }
+        // verify 属性已移除：layui lay-verify 由 validator 配置统一派生
+        htmlElementDescriptor.setVerify(deriveVerifyTokens(htmlElementDescriptor));
         return htmlElementDescriptor;
+    }
+
+    /**
+     * validator 配置值 -> layui lay-verify token 的映射（仅命名不一致项）。
+     * email/url/mobile/tel 等原名即 token；money 映射 layui 约定的 amount，
+     * idCard 映射 identity，数值族验证器统一映射 number。
+     */
+    private static final Map<String, String> VALIDATOR_TO_VERIFY_TOKEN = Map.ofEntries(
+            Map.entry("money", "amount"),
+            Map.entry("idcard", "identity"),
+            Map.entry("digits", "number"),
+            Map.entry("positiveinteger", "number"),
+            Map.entry("integer", "number"),
+            Map.entry("float", "number"),
+            Map.entry("number", "number"));
+
+    /** async-validator 纯值类型（非校验语义），不派生 lay-verify token */
+    private static final Set<String> VERIFY_SKIP_TYPES = Set.of(
+            "string", "boolean", "method", "regexp", "array", "object", "enum", "hex");
+
+    /**
+     * 由 descriptor 的 validator 配置派生 lay-verify token 列表。
+     * required/类型名/自定义 validator 名经映射或原样透传；len/min/max 无需派生
+     * （layui 的 limit 由列长度自动补充），pattern/enum 等无对应 token 跳过。
+     */
+    private List<String> deriveVerifyTokens(HtmlElementDescriptor descriptor) {
+        Set<String> tokens = new LinkedHashSet<>();
+        for (HtmlValidatorElementConfiguration config : descriptor.getHtmlValidatorElementConfigurations()) {
+            if (Boolean.TRUE.equals(config.getRequired())) {
+                tokens.add("required");
+            }
+            addVerifyToken(tokens, config.getType());
+            addVerifyToken(tokens, config.getValidator());
+        }
+        return new ArrayList<>(tokens);
+    }
+
+    private void addVerifyToken(Set<String> tokens, String configuredName) {
+        if (!stringHasValue(configuredName)) {
+            return;
+        }
+        String name = configuredName.trim();
+        if (name.isEmpty() || VERIFY_SKIP_TYPES.contains(name.toLowerCase())) {
+            return;
+        }
+        tokens.add(VALIDATOR_TO_VERIFY_TOKEN.getOrDefault(name.toLowerCase(), name));
     }
 
     private HtmlValidatorElementConfiguration parseHtmlValidatorElementConfiguration(Node node) {

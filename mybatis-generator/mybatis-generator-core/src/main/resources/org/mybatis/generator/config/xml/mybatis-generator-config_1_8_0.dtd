@@ -727,13 +727,13 @@
             属性信息：
             1、column 数据库字段名
             2、tagType 生成的类型，生成类型支持：
-                            dropdownlist、select 下拉列表，可以进一步指定dataSource、dataFormat、dataUrl、applyProperty、verify、callback
-                            radio 单选框，可以进一步指定dataSource、dataFormat、dataUrl、applyProperty、verify
-                            checkbox 复选框，可以进一步指定dataSource、dataFormat、dataUrl、applyProperty、verify
-                            switch 开关，可以进一步指定dataSource、dataFormat、dataUrl、applyProperty、verify、switchText
-                            select 弹窗选择，可以进一步指定dataSource、dataFormat、dataUrl、applyProperty、verify、callback
-                            input 输入框，为了指定特定属性，如增加验证verify、限制长度limit等
-                            tableselect 下拉表格选择，可以进一步指定listKey、listViewClass、dataSource（Dict、beanName）、dataUrl（引用表基本路径）、applyProperty、verify、callback、otherFieldName、
+                            dropdownlist、select 下拉列表，可以进一步指定dataSource、dataFormat、dataUrl、applyProperty、callback
+                            radio 单选框，可以进一步指定dataSource、dataFormat、dataUrl、applyProperty
+                            checkbox 复选框，可以进一步指定dataSource、dataFormat、dataUrl、applyProperty
+                            switch 开关，可以进一步指定dataSource、dataFormat、dataUrl、applyProperty、switchText
+                            select 弹窗选择，可以进一步指定dataSource、dataFormat、dataUrl、applyProperty、callback
+                            input 输入框，为了指定特定属性，如增加验证validator子元素、限制长度limit等
+                            tableselect 下拉表格选择，可以进一步指定listKey、listViewClass、dataSource（Dict、beanName）、dataUrl（引用表基本路径）、applyProperty、callback、otherFieldName、
                             editor 富文本编辑器，整行展示
                             markdown Markdown编辑器（仅vue3），输出component='markdown'由Framework渲染vditor组件；editable/viewOnly可用，print不支持
             3、dataUrl 数据接口请求地址
@@ -755,9 +755,10 @@
             6、beanName 数据来源为dict时，指定bean的完整类名（在dataSource为Dict时必须指定此属性）。
             7、applyProperty 适用属性（label），数据来源为dict时，需要指定引用数据的属性名
             8、applyPropertyKey 适用属性（value），数据来源为dict时，需要指定引用数据的属性名
-            9、verify 验证类型：none-不验证，required-必填，number-数字，date-日期，time-时间，datetime-日期时间，limit-长度限制，phone-手机号，email-邮箱，url-网址，identity-身份证
-                    verify为多值时，使用管道分隔”|“，如：verify="required|number"
-                    * none|required|number|date|time|datetime|limit|phone|email|url|identity|amount|其他自定义验证规则名称
+            9、verify（已移除）验证规则统一由 validator 子元素声明，layui 的 lay-verify 由 validator 配置自动派生：
+                    required="true"→required；type=email/url/mobile 等→同名 token；type=money→amount；type=idCard→identity；
+                    type=digits/positiveInteger/integer/float/number→number；其余命名验证器及 validator 自定义名原样透传为 token；
+                    date/time/datetime/number/limit 由列类型与长度自动补充，无需配置。
             10、enumClassFullName dataSource为DictEnum时，指定枚举类的完整类名(如：com.vgosoft.core.constant.enums.core.ActionCateEnum)（在dataSource为Enum时必须指定此属性）。
                     可用的枚举类有：
                     * com.vgosoft.core.constant.enums.core.YesNoEnum
@@ -823,7 +824,6 @@
                 beanName CDATA #IMPLIED
                 applyProperty CDATA #IMPLIED
                 applyPropertyKey CDATA #IMPLIED
-                verify CDATA #IMPLIED
                 enumClassFullName CDATA #IMPLIED
                 dictCode CDATA #IMPLIED
                 callback CDATA #IMPLIED
