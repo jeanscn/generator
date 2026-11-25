@@ -36,6 +36,8 @@ public class VueFormMetaDesc extends AbstractAnnotation {
     private final String tableName;
     private final String appKeyword;
 
+    private String title;
+
     private String restBasePath;
 
     private Set<String> readonlyFields;
@@ -62,6 +64,8 @@ public class VueFormMetaDesc extends AbstractAnnotation {
         items.add(VStringUtil.format("appKeyword = \"{0}\"", this.getAppKeyword()));
         this.tableName = abstractIntrospectedTable.getTableConfiguration().getTableName();
         items.add(VStringUtil.format("tableName = \"{0}\"", this.tableName));
+        //取表注释的短标签作为表单标题，供表单标识选项等场景展示
+        this.title = abstractIntrospectedTable.getRemarks(true);
         this.addImports(VueFormMeta.class.getCanonicalName());
     }
 
@@ -75,6 +79,9 @@ public class VueFormMetaDesc extends AbstractAnnotation {
         }
         if (VStringUtil.isNotBlank(this.getSize()) && !"default".equals(this.getSize())) {
             items.add(VStringUtil.format("size = \"{0}\"", this.getSize()));
+        }
+        if (VStringUtil.isNotBlank(this.getTitle())) {
+            items.add(VStringUtil.format("title = \"{0}\"", this.getTitle()));
         }
         if (VStringUtil.isNotBlank(this.getRestBasePath())) {
             items.add(VStringUtil.format("restBasePath = \"{0}\"", this.getRestBasePath()));
