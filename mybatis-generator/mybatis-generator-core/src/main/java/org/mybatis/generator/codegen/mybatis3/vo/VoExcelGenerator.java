@@ -52,10 +52,12 @@ public class VoExcelGenerator extends AbstractVoGenerator {
         //增加映射
         List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = voExcelGeneratorConfiguration.getOverridePropertyConfigurations();
         // 显式 include 过滤下，仅构建会被导出的转换属性，避免为被过滤字段在登记侧留下孤儿 import（如 @Dict/@DictEnum）。
+        // include 且 ignore 的源编码列视为"导出文本列、隐藏编码列"，其派生转换属性同样参与构建。
         if (!voExcelGeneratorConfiguration.getExportIncludeFields().isEmpty()) {
             overridePropertyConfigurations = overridePropertyConfigurations.stream()
                     .filter(configuration -> voExcelGeneratorConfiguration.getExportIncludeFields()
-                            .contains(overrideFieldName(configuration)))
+                            .contains(overrideFieldName(configuration))
+                            || isIncludedIgnoredSource(configuration, voExcelGeneratorConfiguration))
                     .collect(Collectors.toList());
         }
         List<Field> fields = voGenService.buildOverrideColumn(overridePropertyConfigurations, excelVoClass, ModelClassTypeEnum.excelVoClass);
@@ -67,7 +69,16 @@ public class VoExcelGenerator extends AbstractVoGenerator {
         //添加属性
         List<Field> exportFields;
         if (!voExcelGeneratorConfiguration.getExportIncludeFields().isEmpty()) {
-            exportFields = orderExportFields(allFields, voExcelGeneratorConfiguration.getExportIncludeFields());
+            exportFields = orderExportFields(allFields, voExcelGeneratorConfiguration.getExportIncludeFields(),
+                    voExcelGeneratorConfiguration, overridePropertyConfigurations);
+            // ignoreFields 中的实列同步物化为隐藏字段，保证字典 source 字段在 VO 中可被序列化器读取
+            Set<String> presentFields = exportFields.stream().map(Field::getName).collect(Collectors.toSet());
+            for (String ignoreField : voExcelGeneratorConfiguration.getExportIgnoreFields()) {
+                if (presentFields.add(ignoreField)) {
+                    allFields.stream().filter(field -> field.getName().equals(ignoreField))
+                            .findFirst().ifPresent(exportFields::add);
+                }
+            }
         }else{
            Set<String> excludeFields = voExcelGeneratorConfiguration.getExportExcludeFields();
             voGeneratorConfiguration.getExcludeColumns().stream().map(c-> introspectedTable.getColumn(c).orElse(null)).filter(Objects::nonNull).forEach(c->excludeFields.add(c.getJavaProperty()));
@@ -96,7 +107,9 @@ public class VoExcelGenerator extends AbstractVoGenerator {
         return excelVoClass;
     }
 
-    private List<Field> orderExportFields(List<Field> allFields, List<String> exportIncludeFields) {
+    private List<Field> orderExportFields(List<Field> allFields, List<String> exportIncludeFields,
+                                          VoExcelGeneratorConfiguration voExcelGeneratorConfiguration,
+                                          List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations) {
         Map<String, Field> fieldsByName = new LinkedHashMap<>();
         for (Field field : allFields) {
             if (fieldsByName.putIfAbsent(field.getName(), field) != null) {
@@ -116,9 +129,31 @@ public class VoExcelGenerator extends AbstractVoGenerator {
             throw new IllegalStateException("excelVo includeFields 包含不存在的导出属性: " + unknownNames);
         }
 
-        return exportIncludeFields.stream()
-                .map(fieldsByName::get)
-                .collect(Collectors.toCollection(ArrayList::new));
+        // include 且 ignore 的源编码列在其位次追加派生文本字段（源列保留并由插件标记 @ExcelIgnore、文本列导出）
+        Map<String, List<String>> targetsBySource = new LinkedHashMap<>();
+        for (OverridePropertyValueGeneratorConfiguration configuration : overridePropertyConfigurations) {
+            String sourceProperty = sourceFieldName(configuration);
+            String targetName = overrideFieldName(configuration);
+            if (sourceProperty != null && targetName != null) {
+                targetsBySource.computeIfAbsent(sourceProperty, key -> new ArrayList<>()).add(targetName);
+            }
+        }
+        List<Field> ordered = new ArrayList<>();
+        Set<String> emitted = new LinkedHashSet<>();
+        for (String name : exportIncludeFields) {
+            if (emitted.add(name)) {
+                ordered.add(fieldsByName.get(name));
+            }
+            if (voExcelGeneratorConfiguration.getExportIgnoreFields().contains(name)) {
+                for (String targetName : targetsBySource.getOrDefault(name, List.of())) {
+                    Field targetField = fieldsByName.get(targetName);
+                    if (targetField != null && emitted.add(targetName)) {
+                        ordered.add(targetField);
+                    }
+                }
+            }
+        }
+        return ordered;
     }
 
     /**
@@ -132,5 +167,26 @@ public class VoExcelGenerator extends AbstractVoGenerator {
         return introspectedTable.getColumn(configuration.getSourceColumnName())
                 .map(column -> ConfigUtil.getOverrideJavaProperty(column.getJavaProperty(), null))
                 .orElse(null);
+    }
+
+    /**
+     * 转换属性源列对应的 Java 属性名。
+     */
+    private String sourceFieldName(OverridePropertyValueGeneratorConfiguration configuration) {
+        return introspectedTable.getColumn(configuration.getSourceColumnName())
+                .map(IntrospectedColumn::getJavaProperty)
+                .orElse(null);
+    }
+
+    /**
+     * 转换属性的源字段被显式 include 且同时标记 ignore 时，视为"导出文本列、隐藏编码列"，
+     * 该转换属性应参与导出字段构建。
+     */
+    private boolean isIncludedIgnoredSource(OverridePropertyValueGeneratorConfiguration configuration,
+                                            VoExcelGeneratorConfiguration voExcelGeneratorConfiguration) {
+        String sourceProperty = sourceFieldName(configuration);
+        return sourceProperty != null
+                && voExcelGeneratorConfiguration.getExportIncludeFields().contains(sourceProperty)
+                && voExcelGeneratorConfiguration.getExportIgnoreFields().contains(sourceProperty);
     }
 }

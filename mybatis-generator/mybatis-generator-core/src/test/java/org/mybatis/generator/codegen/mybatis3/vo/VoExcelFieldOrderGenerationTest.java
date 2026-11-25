@@ -67,6 +67,42 @@ class VoExcelFieldOrderGenerationTest {
         }
     }
 
+    /** include 且 ignore 的源编码列应在原位次生成派生文本字段，源字段保留隐藏。 */
+    @Test
+    void emitsDerivedTextFieldForIncludedIgnoredSource() throws Exception {
+        var table = fixture("""
+                        <excelVo generate="true" includeFields="name,expendItem" ignoreFields="expendItem">
+                          <overridePropertyValue sourceColumn="expend_item" annotationType="DictData" typeValue="kzxm" targetProperty="expendItemText"/>
+                        </excelVo>
+                        """,
+                "id_:id", "name_:name", "expend_item:expendItem");
+        var generated = new VoExcelGenerator(table, "src", new ProgressCallback() { },
+                new ArrayList<>(), new Interface("sample.pojo.maps.ArticleMappings")).generate();
+
+        assertThat(generated.getFields().stream()
+                .map(field -> field.getName())
+                .filter(name -> !name.equals("serialVersionUID")))
+                .containsExactly("name", "expendItem", "expendItemText");
+    }
+
+    /** 文本字段显式 include、源字段仅在 ignoreFields 中时，源字段应物化为隐藏字段供字典 source 读取。 */
+    @Test
+    void materializesIgnoredSourceColumnsForIncludedTextField() throws Exception {
+        var table = fixture("""
+                        <excelVo generate="true" includeFields="name,expendItemText" ignoreFields="expendItem">
+                          <overridePropertyValue sourceColumn="expend_item" annotationType="DictData" typeValue="kzxm" targetProperty="expendItemText"/>
+                        </excelVo>
+                        """,
+                "id_:id", "name_:name", "expend_item:expendItem");
+        var generated = new VoExcelGenerator(table, "src", new ProgressCallback() { },
+                new ArrayList<>(), new Interface("sample.pojo.maps.ArticleMappings")).generate();
+
+        assertThat(generated.getFields().stream()
+                .map(field -> field.getName())
+                .filter(name -> !name.equals("serialVersionUID")))
+                .containsExactly("name", "expendItemText", "expendItem");
+    }
+
     /** 使用固定离线配置和内省列构造 Excel VO，不连接数据库或写入生成产物。 */
     private IntrospectedTableMyBatis3Impl fixture(String excelVoElement, String... columnSpecs) throws Exception {
         String xml;
