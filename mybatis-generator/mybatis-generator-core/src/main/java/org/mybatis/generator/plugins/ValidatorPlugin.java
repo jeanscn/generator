@@ -1,6 +1,7 @@
 package org.mybatis.generator.plugins;
 
 import com.vgosoft.tool.core.VStringUtil;
+import org.mybatis.generator.codegen.mybatis3.vo.VoGeneratorUtil;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.PluginAdapter;
@@ -331,7 +332,11 @@ public class ValidatorPlugin extends PluginAdapter {
                                     AbstractIntrospectedTable introspectedTable, Set<String> validateIgnoreColumns) {
         ColumnOverride override = introspectedTable.getTableConfiguration().getColumnOverrides().stream().filter(columnOverride -> columnOverride.getColumnName().equals(introspectedColumn.getActualColumnName())).findFirst().orElse(null);
         boolean isOverrideRequired = override != null && override.isRequired();
-        if (validateIgnoreColumns.contains(introspectedColumn.getActualColumnName()) || (introspectedColumn.isNullable() && !introspectedColumn.isForeignKey() && !isOverrideRequired)) {
+        // 服务端管理列（审计字段、version、tenantId）由运行期统一填充并防客户端伪造，不生成必填校验；
+        // 显式 columnOverride required="true" 仍可强制要求
+        if (validateIgnoreColumns.contains(introspectedColumn.getActualColumnName())
+                || (VoGeneratorUtil.auditIgnoreFields().contains(introspectedColumn.getJavaProperty()) && !isOverrideRequired)
+                || (introspectedColumn.isNullable() && !introspectedColumn.isForeignKey() && !isOverrideRequired)) {
             return;
         }
         String message = introspectedColumn.getRemarks(true) + "不能为空";

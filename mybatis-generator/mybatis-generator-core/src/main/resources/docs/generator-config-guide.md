@@ -234,6 +234,8 @@ DTD 属性仍为 `#IMPLIED`，仅当前 `mybatis-generator-config_1_8_0.dtd` 增
 | `generateVo` | VO 总开关 | 子 VO 共用父配置。 |
 | `generateCachePo` | 缓存模型 | 主要用于字典/映射。 |
 
+必填校验（`@NotEmpty`/`@NotNull`）对服务端管理列默认豁免：审计字段、`version`、`tenantId`（即 `VoGeneratorUtil.auditIgnoreFields()` 集合，按 Java 属性名匹配），无论列是否 NOT NULL；`columnOverride required="true"` 可显式恢复必填。
+
 #### `generateController` 与 `generateOptions`
 
 `<generateOptions>` 必须放在已启用的 `<generateController generate="true">` 内；仅写该子节点不会独立生成 Controller。当前 DTD 要求显式提供 `nameColumn`。每个节点按 `nameColumn` 指定的**物理列名**增加 GET 选项接口。接口尾段由列的 Java 属性名转为短横线形式，例如 `name_` 通常生成 `{controllerBasePath}/option/name`；应以生成的 Controller 注解为准，不要只按 XML 节点名推断路由。生成器以 `id_` 为默认值列、`type="flat"` 为默认结构；`type="tree"` 会使用树选项 DTO 和模型 `children` 关系，须确保模型/父子字段与宿主树组件均支持。显式 `idColumn` 可改变返回值来源。
