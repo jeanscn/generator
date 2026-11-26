@@ -60,7 +60,7 @@ public final class VueFormLayoutValidator {
             validateContainers(layout.getGroupContainerConfigurations(), elementIds, errors);
             validateExclusiveColumns(layout, formItemColumnIds, errors);
         }
-        validateSpecialElementAfterColumns(config, formItemColumnIds, errors);
+        validateSpecialElementAfterColumns(config, elementIds, errors);
         validateElementRequired(config, table, errors);
         validateTableFieldLists(table, config, errors);
         if (!errors.isEmpty()) {
@@ -219,27 +219,27 @@ public final class VueFormLayoutValidator {
         }
     }
 
-    /** 上传/内置列表/审批意见组件的 afterColumn 只能锚定生成表单项的列名。 */
+    /** 上传/内置列表/审批意见组件的 afterColumn 锚定页面元素：生成表单项的列名或已配置组件的元素键。 */
     private static void validateSpecialElementAfterColumns(HtmlGeneratorConfiguration config,
-            Set<String> formItemColumnIds, List<String> errors) {
+            Set<String> anchorIds, List<String> errors) {
         for (HtmlFileAttachmentConfiguration attachment : config.getHtmlFileAttachmentConfiguration()) {
             checkAnchorAfterColumn("htmlFileAttachment", attachment.getElementKey(), attachment.getAfterColumn(),
-                    formItemColumnIds, errors);
+                    anchorIds, errors);
         }
         for (HtmlElementInnerListConfiguration innerList : config.getHtmlElementInnerListConfiguration()) {
             checkAnchorAfterColumn("htmlElementInnerList", innerList.getElementKey(), innerList.getAfterColumn(),
-                    formItemColumnIds, errors);
+                    anchorIds, errors);
         }
         for (HtmlApprovalCommentConfiguration approval : config.getHtmlApprovalCommentConfigurations()) {
             checkAnchorAfterColumn("approvalComment", approval.getElementKey(), approval.getAfterColumn(),
-                    formItemColumnIds, errors);
+                    anchorIds, errors);
         }
     }
 
     private static void checkAnchorAfterColumn(String element, String elementKey, String afterColumn,
-            Set<String> formItemColumnIds, List<String> errors) {
-        if (stringHasValue(afterColumn) && !formItemColumnIds.contains(afterColumn)) {
-            errors.add(element + "[" + elementKey + "] afterColumn 未匹配到生成表单项的列名：" + afterColumn);
+            Set<String> anchorIds, List<String> errors) {
+        if (stringHasValue(afterColumn) && !anchorIds.contains(afterColumn)) {
+            errors.add(element + "[" + elementKey + "] afterColumn 引用了不存在的列/元素：" + afterColumn);
         }
     }
 

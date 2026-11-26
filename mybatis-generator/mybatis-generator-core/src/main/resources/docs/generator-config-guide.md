@@ -1615,7 +1615,7 @@ generateHtml、普通 descriptor、innerList 下可声明按钮；Vue 列表按�
 | `tips` | 上传提示 | 空字符串 | vue3 | 非服务端文件校验规则。 |
 | `restBasePath` | 上传/访问基础路由 | `/bizcore/vbiz-file-attachment-impl` | vue3和html | 是框架约定路径，不是文件系统目录；本地/OSS 方案须匹配宿主服务。 |
 | `label` | 标题 | `附件` | vue3和html | Vue 非默认值才显式输出。 |
-| `afterColumn` | 定位到指定列后 | 未设置 | vue3和html | HTML 未命中位置通常追加，Vue 依运行时布局。 |
+| `afterColumn` | 定位到指定列后 | 未设置 | vue3和html | 可为列名或已配置组件元素键（如内表 elementKey）；生成时校验锚定存在性。 |
 | `exclusive` | 独占行 | `true` | html | Vue 上传描述器未读取该字段，span 固定初值 24。 |
 | `order` | 附加组件顺序 | `10` | html | **Vue 上传描述器未复制配置 order**，仍按自身 10 判断，不保证此值改变 Vue 排序。 |
 | `hideExpression` | 隐藏条件 | 未设置 | vue3和html | Parser 保存，但 VueFormUploadMetaDesc 未传递；不可依此隐藏 Vue 上传组件，HTML 同样需核对具体模板。 |
@@ -1627,7 +1627,7 @@ generateHtml、普通 descriptor、innerList 下可声明按钮；Vue 列表按�
 |---|---|---|---|---|
 | `generate` | 审批组件生成标志 | **`false`**（Java 布尔初值，不是 DTD 注释中的 true） | html | Vue 规则只判断配置列表非空，描述器未检查 generate；false 不保证移除 Vue 审批组件。 |
 | `elementKey` | 组件键 | DTD 必填 | vue3和html | 不自动实现审批业务。 |
-| `afterColumn` | 放置位置 | 未设置 | vue3和html | 使用实际存在的列。 |
+| `afterColumn` | 放置位置 | 未设置 | vue3和html | 使用实际存在的列名或已配置组件元素键。 |
 | `label` | 标题 | `审批意见` | vue3和html | 对应组件文案。 |
 | `placeholder` | 输入提示 | `请输入审批意见` | vue3和html | 不属于必填校验。 |
 | `locationTag` | 业务位置标记 | `审批意见` | vue3和html | Vue 输出为 busLocation。 |
@@ -1656,7 +1656,7 @@ Parser 还读取 approvalComment 的 span（默认 24），但当前 DTD 未声�
 | `dataField` | 主表响应中的子列表属性 | 未设置 | vue3和html | 与 dataUrl 选择合适加载方式；Parser 不校验二选一，需人工保证数据契约。 |
 | `dataUrl` | 子列表请求地址 | 未设置；getter 可补 `/` | vue3和html | 不自动生成该接口。 |
 | `span` | 栅格宽度 | `24` | vue3 | 不等于字段列数。 |
-| `afterColumn` | 放置位置 | 未设置 | vue3和html | 指定已有列。 |
+| `afterColumn` | 放置位置 | 未设置 | vue3和html | 指定已有列名或已配置组件元素键。 |
 | `containerType` | 列表容器 | 未设置，不是自动 none | vue3和html | none/tab/border；与 layout/groupContainer 分开配置。 |
 | `order` | 附加组件顺序 | `10` | vue3和html | Vue 内嵌列表描述器会复制此值，与附件不同。 |
 | `restBasePath` | 来源 REST 基础路径 | 未设置 | vue3和html | **当前 Parser 偏差**：显式非空且 sourceBeanName 非 null 时，反而重算为“局部 moduleKeyword 属性值 + `/` + bean 短横线名”；未填时仍为空。仅靠 Context 回退可能得到 null 前缀，不可假定总按配置值/自动路由生效。 |

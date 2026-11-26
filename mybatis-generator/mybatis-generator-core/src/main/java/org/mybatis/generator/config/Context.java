@@ -473,33 +473,41 @@ public class Context extends PropertyHolder {
         // items in the configuration.
         for (AbstractIntrospectedTable introspectedTable : introspectedTables) {
             callback.checkCancel();
-            introspectedTable.initialize();
-            introspectedTable.calculateCustom(warnings, callback);
-            introspectedTable.calculateGenerators(warnings, callback);
+            try {
+                introspectedTable.initialize();
+                introspectedTable.calculateCustom(warnings, callback);
+                introspectedTable.calculateGenerators(warnings, callback);
+            } catch (RuntimeException exception) {
+                throw tableScopedException(introspectedTable, exception);
+            }
         }
 
         for (AbstractIntrospectedTable introspectedTable : introspectedTables) {
             callback.checkCancel();
-            generatedJavaFiles.addAll(introspectedTable.getGeneratedJavaFiles());
-            generatedXmlFiles.addAll(introspectedTable.getGeneratedXmlFiles());
-            generatedHtmlFiles.addAll(introspectedTable.getGeneratedHtmlFiles());
-            generatedKotlinFiles.addAll(introspectedTable.getGeneratedKotlinFiles());
+            try {
+                generatedJavaFiles.addAll(introspectedTable.getGeneratedJavaFiles());
+                generatedXmlFiles.addAll(introspectedTable.getGeneratedXmlFiles());
+                generatedHtmlFiles.addAll(introspectedTable.getGeneratedHtmlFiles());
+                generatedKotlinFiles.addAll(introspectedTable.getGeneratedKotlinFiles());
 
-            otherGeneratedFiles.addAll(introspectedTable.getGeneratedSqlSchemaFiles());
-            otherGeneratedFiles.addAll(introspectedTable.getGeneratedPermissionSqlDataFiles());
-            otherGeneratedFiles.addAll(introspectedTable.getGeneratedPermissionActionSqlDataFiles());
+                otherGeneratedFiles.addAll(introspectedTable.getGeneratedSqlSchemaFiles());
+                otherGeneratedFiles.addAll(introspectedTable.getGeneratedPermissionSqlDataFiles());
+                otherGeneratedFiles.addAll(introspectedTable.getGeneratedPermissionActionSqlDataFiles());
 
-            generatedJavaFiles.addAll(pluginAggregator.contextGenerateAdditionalJavaFiles(introspectedTable));
-            generatedXmlFiles.addAll(pluginAggregator.contextGenerateAdditionalXmlFiles(introspectedTable));
+                generatedJavaFiles.addAll(pluginAggregator.contextGenerateAdditionalJavaFiles(introspectedTable));
+                generatedXmlFiles.addAll(pluginAggregator.contextGenerateAdditionalXmlFiles(introspectedTable));
 
-            List<HtmlGeneratorConfiguration> htmlMapGeneratorConfigurations = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations();
-            if (!htmlMapGeneratorConfigurations.isEmpty()) {
-                htmlMapGeneratorConfigurations.forEach(htmlMapGeneratorConfiguration -> otherGeneratedFiles.addAll(pluginAggregator.contextGenerateAdditionalWebFiles(introspectedTable,htmlMapGeneratorConfiguration)));
-                otherGeneratedFiles.addAll(pluginAggregator.contextGenerateVue3OtherFiles(introspectedTable));
+                List<HtmlGeneratorConfiguration> htmlMapGeneratorConfigurations = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations();
+                if (!htmlMapGeneratorConfigurations.isEmpty()) {
+                    htmlMapGeneratorConfigurations.forEach(htmlMapGeneratorConfiguration -> otherGeneratedFiles.addAll(pluginAggregator.contextGenerateAdditionalWebFiles(introspectedTable,htmlMapGeneratorConfiguration)));
+                    otherGeneratedFiles.addAll(pluginAggregator.contextGenerateVue3OtherFiles(introspectedTable));
+                }
+
+                generatedKotlinFiles.addAll(pluginAggregator.contextGenerateAdditionalKotlinFiles(introspectedTable));
+                otherGeneratedFiles.addAll(pluginAggregator.contextGenerateAdditionalFiles(introspectedTable));
+            } catch (RuntimeException exception) {
+                throw tableScopedException(introspectedTable, exception);
             }
-
-            generatedKotlinFiles.addAll(pluginAggregator.contextGenerateAdditionalKotlinFiles(introspectedTable));
-            otherGeneratedFiles.addAll(pluginAggregator.contextGenerateAdditionalFiles(introspectedTable));
         }
         generatedJavaFiles.addAll(pluginAggregator.contextGenerateAdditionalJavaFiles());
         generatedXmlFiles.addAll(pluginAggregator.contextGenerateAdditionalXmlFiles());
@@ -507,10 +515,31 @@ public class Context extends PropertyHolder {
         generatedKotlinFiles.addAll(pluginAggregator.contextGenerateAdditionalKotlinFiles());
         otherGeneratedFiles.addAll(pluginAggregator.contextGenerateAdditionalFiles());
         for (var table : introspectedTables) {
-            org.mybatis.generator.codegen.mybatis3.service.DisabledServiceEntries.validateFinal(table, generatedJavaFiles);
+            try {
+                org.mybatis.generator.codegen.mybatis3.service.DisabledServiceEntries.validateFinal(table, generatedJavaFiles);
+            } catch (RuntimeException exception) {
+                throw tableScopedException(table, exception);
+            }
         }
 
 
+    }
+
+    /**
+     * 逐表生成失败时补充表名上下文，便于在 generatorConfig 中定位配置错误的表；
+     * 消息已含表名的异常（如各 GenerationValidator）原样抛出。
+     */
+    private static RuntimeException tableScopedException(AbstractIntrospectedTable table,
+            RuntimeException exception) {
+        String tableName = table.getTableConfiguration().getTableName();
+        String message = exception.getMessage();
+        if (message != null && message.contains(tableName)) {
+            return exception;
+        }
+        String detail = message == null || message.isBlank()
+                ? exception.getClass().getSimpleName()
+                : message;
+        return new IllegalStateException("表 " + tableName + " 生成失败：" + detail, exception);
     }
 
 
