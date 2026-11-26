@@ -90,8 +90,102 @@ class VueFormItemRuleDescTest {
                 .doesNotContain("type = \"string\"", "max = \"2000\"");
     }
 
+    /**
+     * 数值列非空：required 规则按绑定类型补 type="number"，
+     * 避免 async-validator 默认 string 校验对数字绑定值误报 "is not a string"。
+     */
+    @Test
+    void shouldEmitNumberTypeOnRequiredForNumericColumn() {
+        String annotation = requiredRule(notNullColumn("java.math.BigDecimal"), descriptor("number"));
+
+        assertThat(annotation).contains("required = true", "type = \"number\"");
+    }
+
+    /**
+     * integer/float 等数值派生类型在 required 上归一为 number：
+     * required 只承担非空与数值类型检查，精度语义仍由独立 type 规则承担。
+     */
+    @Test
+    void shouldNormalizeIntegerToNumberOnRequired() {
+        String annotation = requiredRule(notNullColumn("java.lang.Integer"), descriptor("number"));
+
+        assertThat(annotation).contains("required = true", "type = \"number\"")
+                .doesNotContain("type = \"integer\"");
+    }
+
+    /**
+     * 布尔列非空：required 规则补 type="boolean"。
+     */
+    @Test
+    void shouldEmitBooleanTypeOnRequiredForBooleanColumn() {
+        String annotation = requiredRule(notNullColumn("java.lang.Boolean"), descriptor("switch"));
+
+        assertThat(annotation).contains("required = true", "type = \"boolean\"");
+    }
+
+    /**
+     * checkboxGroup 数组取值：required 规则补 type="array"。
+     */
+    @Test
+    void shouldEmitArrayTypeOnRequiredForCheckboxGroup() {
+        String annotation = requiredRule(notNullColumn("java.lang.String"), descriptor("checkboxGroup"));
+
+        assertThat(annotation).contains("required = true", "type = \"array\"");
+    }
+
+    /**
+     * 字符串列：required 规则不补 type（默认 string 语义一致，不制造噪音）。
+     */
+    @Test
+    void shouldNotEmitTypeOnRequiredForStringColumn() {
+        String annotation = requiredRule(notNullColumn("java.lang.String"), descriptor("input"));
+
+        assertThat(annotation).contains("required = true").doesNotContain("type =");
+    }
+
+    /**
+     * 日期列：required 规则不补 type（valueFormat 下绑定值为字符串，
+     * 补 date 反而使字符串日期误报；Date 绑定由运行时兜底推断）。
+     */
+    @Test
+    void shouldNotEmitTypeOnRequiredForDateColumn() {
+        String annotation = requiredRule(notNullColumn("java.time.LocalDate"), descriptor("date"));
+
+        assertThat(annotation).contains("required = true").doesNotContain("type =");
+    }
+
+    /**
+     * 配置命名验证器（money）时其名称不得泄漏为 required 规则的 type
+     * （"money" 不是 async-validator 类型，回落 string 同样误报）。
+     */
+    @Test
+    void shouldNotLeakNamedValidatorIntoRequiredType() {
+        HtmlElementDescriptor descriptor = descriptor("number");
+        HtmlValidatorElementConfiguration config = new HtmlValidatorElementConfiguration();
+        config.setType("money");
+        descriptor.getHtmlValidatorElementConfigurations().add(config);
+
+        String annotation = requiredRule(notNullColumn("java.math.BigDecimal"), descriptor);
+
+        assertThat(annotation).contains("required = true").doesNotContain("type =");
+    }
+
     private String typeRule(IntrospectedColumn column, HtmlElementDescriptor descriptor) {
         return new VueFormItemRuleDesc(ValidatorRuleTypeEnum.TYPE, 1, column, descriptor, null).toAnnotation();
+    }
+
+    private String requiredRule(IntrospectedColumn column, HtmlElementDescriptor descriptor) {
+        return new VueFormItemRuleDesc(ValidatorRuleTypeEnum.REQUIRED, 1, column, descriptor, null).toAnnotation();
+    }
+
+    private IntrospectedColumn notNullColumn(String javaType) {
+        IntrospectedColumn column = new IntrospectedColumn();
+        column.setActualColumnName("delegate_content");
+        column.setJavaProperty("delegateContent");
+        column.setRemarks("授权内容");
+        column.setNullable(false);
+        column.setFullyQualifiedJavaType(new FullyQualifiedJavaType(javaType));
+        return column;
     }
 
     private IntrospectedColumn stringColumn() {

@@ -151,6 +151,12 @@ public class VueFormItemRuleDesc extends AbstractAnnotation {
                     }
                 }
                 if (this.required != null && this.required) {
+                    // required 规则未声明 type 时 async-validator 默认按 string 校验，
+                    // 数字/布尔/数组绑定值会误报 "xxx is not a string"，按绑定类型补 type
+                    String requiredRuleType = resolveRequiredRuleType(validatorType);
+                    if (requiredRuleType != null) {
+                        this.setType(requiredRuleType);
+                    }
                     if (!VStringUtil.stringHasValue(this.getMessage())) {
                         setMessageProps("{0}不能为空");
                     }
@@ -354,6 +360,28 @@ public class VueFormItemRuleDesc extends AbstractAnnotation {
                 .map(column -> column.getRemarks(true))
                 .filter(VStringUtil::stringHasValue)
                 .orElse(configuredField);
+    }
+
+    /**
+     * 推断 required 规则应携带的校验 type。
+     * 仅对绑定值恒为非字符串标量/数组的类型补 type：number/integer/float 归一为
+     * number（required 只承担非空与数值类型检查，精度语义仍由独立 type 规则承担，
+     * 避免"不能为空"文案误作格式提示），boolean、array 按原类型。
+     * date、url/email 等格式类型与命名验证器（money 等）的绑定值为字符串或不可判定，
+     * 返回 null 不补（由运行时按绑定值类型兜底推断）。
+     *
+     * @param validatorType 已推导的校验类型（配置 type 优先，其次组件派生、列 Java 类型映射）
+     */
+    private String resolveRequiredRuleType(String validatorType) {
+        if (!VStringUtil.stringHasValue(validatorType)) {
+            return null;
+        }
+        return switch (validatorType) {
+            case "integer", "float", "number" -> "number";
+            case "boolean" -> "boolean";
+            case "array" -> "array";
+            default -> null;
+        };
     }
 
     /**

@@ -1500,6 +1500,8 @@ DTD 的子内容模型为 `properties*`，而 Parser 只识别 `property`；不�
 
 **兜底与优先级：** 未配置 `validator` 时按列类型与长度推导兜底规则（非空列 → `required`、String 列长 → `max`、数值列 → number/integer 类型、可推导 minLength → `min`）；配置了 `validator` 时，与列类型/长度同维度的验证优先取显式配置值，其余维度继续叠加。`scope` 决定规则生效面：0（通用）同时下发，1 仅表单（el-form）规则，2 仅内嵌 vxe 表格列规则。
 
+**required 规则的 type 派生：** 非空必填规则同时携带按绑定值类型推断的 `type`（数值派生类型 number/integer/float 归一为 `number`、布尔 → `boolean`、checkbox/checkboxGroup 等数组取值控件 → `array`），避免前端 async-validator 对未声明 type 的规则默认按 string 校验而误报 `xxx is not a string`；date、url/email 等字符串绑定类型与命名验证器不补 type，由运行时按绑定值类型兜底推断。required 只承担非空与数值类型检查，精度语义仍由独立 type 规则承担。
+
 **layui `lay-verify` 派生：** 原 `htmlElementDescriptor.verify` 属性已移除，`validator` 是唯一校验配置源。解析器按 `validator` 配置派生 lay-verify token：`required="true"`→required；`type=email/url/mobile` 等→同名 token；`money`→amount、`idCard`→identity、`digits/positiveInteger/integer/float/number`→number；其余命名验证器与 `validator` 自定义名原样透传；`date/time/datetime/number/limit` 仍由列类型与长度自动补充。派生 required 同时汇入 `elementRequired`/`beValidated`，与原 verify 链路等价。`htmlElementInnerList` 的 `verify` 属性不受影响（仅 required 有效）。
 
 | 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
