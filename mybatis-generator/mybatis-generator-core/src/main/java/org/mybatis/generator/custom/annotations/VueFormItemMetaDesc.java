@@ -137,6 +137,13 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
 
     private String designRestBasePath = "";
 
+    private String uploadUrl = "";
+    private String height = "";
+    private String minHeight = "";
+    private String maxHeight = "";
+    private String mode = "";
+    private String cdn = "";
+
     public static VueFormItemMetaDesc create(IntrospectedColumn introspectedColumn) {
         return new VueFormItemMetaDesc(introspectedColumn);
     }
@@ -309,6 +316,24 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
         }
         if (!this.watchFields.isEmpty()) {
             items.add(VStringUtil.format("watchFields = \"{0}\"", String.join(",", this.watchFields)));
+        }
+        if (VStringUtil.isNotBlank(this.uploadUrl)) {
+            items.add(VStringUtil.format("uploadUrl = \"{0}\"", this.uploadUrl));
+        }
+        if (VStringUtil.isNotBlank(this.height)) {
+            items.add(VStringUtil.format("height = \"{0}\"", this.height));
+        }
+        if (VStringUtil.isNotBlank(this.minHeight)) {
+            items.add(VStringUtil.format("minHeight = \"{0}\"", this.minHeight));
+        }
+        if (VStringUtil.isNotBlank(this.maxHeight)) {
+            items.add(VStringUtil.format("maxHeight = \"{0}\"", this.maxHeight));
+        }
+        if (VStringUtil.isNotBlank(this.mode)) {
+            items.add(VStringUtil.format("mode = \"{0}\"", this.mode));
+        }
+        if (VStringUtil.isNotBlank(this.cdn)) {
+            items.add(VStringUtil.format("cdn = \"{0}\"", this.cdn));
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }

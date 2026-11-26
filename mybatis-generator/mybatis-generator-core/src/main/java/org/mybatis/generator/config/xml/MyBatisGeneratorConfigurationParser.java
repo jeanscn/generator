@@ -432,14 +432,17 @@ public class MyBatisGeneratorConfigurationParser {
                 case "htmlElementDescriptor":
                 case "htmlSwitchDescriptor":
                 case "htmlTableSelectDescriptor":
+                case PropertyRegistry.ELEMENT_HTML_MARKDOWN_DESCRIPTOR:
                     HtmlElementDescriptor htmlElementDescriptor = parseHtmlElementDescriptor(childNode);
                     if (htmlElementDescriptor != null) {
-                        // switch/tableSelect 描述元素没有 tagType 属性时按元素类型补默认值
+                        // switch/tableSelect/markDown 描述元素没有 tagType 属性时按元素类型补默认值
                         if (!stringHasValue(htmlElementDescriptor.getTagType())) {
                             if ("htmlSwitchDescriptor".equals(childNode.getNodeName())) {
                                 htmlElementDescriptor.setTagType(HtmlElementTagTypeEnum.SWITCH.codeName());
                             } else if ("htmlTableSelectDescriptor".equals(childNode.getNodeName())) {
                                 htmlElementDescriptor.setTagType(HtmlElementTagTypeEnum.TABLE_SELECT.codeName());
+                            } else if (PropertyRegistry.ELEMENT_HTML_MARKDOWN_DESCRIPTOR.equals(childNode.getNodeName())) {
+                                htmlElementDescriptor.setTagType(HtmlElementTagTypeEnum.MARKDOWN.codeName());
                             }
                         }
                         reusableElementsConfiguration.getHtmlElementDescriptors().add(htmlElementDescriptor);
@@ -1376,6 +1379,17 @@ public class MyBatisGeneratorConfigurationParser {
                         htmlGeneratorConfiguration.getElementDescriptors().add(htmlSwitchDescriptor);
                     }
                     break;
+                case PropertyRegistry.ELEMENT_HTML_MARKDOWN_DESCRIPTOR:
+                    HtmlElementDescriptor htmlMarkDownDescriptor = parseHtmlElementDescriptor(childNode);
+                    htmlMarkDownDescriptor.setTagType(HtmlElementTagTypeEnum.MARKDOWN.codeName());
+                    htmlMarkDownDescriptor.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                    if (HtmlDocumentTypeEnum.PRINT.equals(htmlGeneratorConfiguration.getType())) {
+                        throw new IllegalArgumentException("generateHtml.type=\"print\" 不支持 htmlMarkDownDescriptor");
+                    }
+                    if (stringHasValue(htmlMarkDownDescriptor.getName())) {
+                        htmlGeneratorConfiguration.getElementDescriptors().add(htmlMarkDownDescriptor);
+                    }
+                    break;
                 case PropertyRegistry.ELEMENT_HTML_LAYOUT:
                     parseHtmlLayout(htmlGeneratorConfiguration, childNode);
                     break;
@@ -2168,6 +2182,38 @@ public class MyBatisGeneratorConfigurationParser {
         String tips = attributes.getProperty("tips");
         if (stringHasValue(tips)) {
             htmlElementDescriptor.setTips(tips);
+        }
+        String readonly = attributes.getProperty("readonly");
+        if (stringHasValue(readonly)) {
+            htmlElementDescriptor.setReadonly(Boolean.parseBoolean(readonly));
+        }
+        String uploadUrl = attributes.getProperty("uploadUrl");
+        if (stringHasValue(uploadUrl)) {
+            htmlElementDescriptor.setUploadUrl(uploadUrl);
+        }
+        String height = attributes.getProperty("height");
+        if (stringHasValue(height)) {
+            htmlElementDescriptor.setHeight(height);
+        }
+        String minHeight = attributes.getProperty("minHeight");
+        if (stringHasValue(minHeight)) {
+            htmlElementDescriptor.setMinHeight(minHeight);
+        }
+        String maxHeight = attributes.getProperty("maxHeight");
+        if (stringHasValue(maxHeight)) {
+            htmlElementDescriptor.setMaxHeight(maxHeight);
+        }
+        String mode = attributes.getProperty("mode");
+        if (stringHasValue(mode)) {
+            htmlElementDescriptor.setMode(mode);
+        }
+        String cdn = attributes.getProperty("cdn");
+        if (stringHasValue(cdn)) {
+            htmlElementDescriptor.setCdn(cdn);
+        }
+        String placeholder = attributes.getProperty("placeholder");
+        if (stringHasValue(placeholder)) {
+            htmlElementDescriptor.setPlaceholder(placeholder);
         }
 
         //计算属性及子元素

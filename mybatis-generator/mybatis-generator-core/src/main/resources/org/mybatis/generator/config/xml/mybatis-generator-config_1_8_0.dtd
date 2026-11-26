@@ -190,7 +190,7 @@
             属性信息：
             1、excludedTables 排除的表名称，多个”,“分隔。指定后，当前reusableElements中的元素不会应用到指定的表中。
         -->
-        <!ELEMENT reusableElements (property*, htmlElementDescriptor*, htmlSwitchDescriptor*, htmlTableSelectDescriptor*, overridePropertyValue*, listColumnDescriptor*,fieldOverrides*,filterColumn*)>
+        <!ELEMENT reusableElements (property*, htmlElementDescriptor*, htmlSwitchDescriptor*, htmlTableSelectDescriptor*, htmlMarkDownDescriptor*, overridePropertyValue*, listColumnDescriptor*,fieldOverrides*,filterColumn*)>
         <!ATTLIST reusableElements
                 excludedTables CDATA #IMPLIED>
         <!--
@@ -610,7 +610,7 @@
             3、htmlReadonlyFields 页面文件中只读的列，多个”,“分隔；生成时校验，引用不存在的字段名将中止生成
             4、htmlDisplayOnlyFields 页面文件中只显示的列，多个”,“分隔；生成时校验，引用不存在的字段名将中止生成
         -->
-        <!ELEMENT generateHtml (property*,layout?,htmlElementDescriptor*,htmlFormExtendDescriptor*,htmlSwitchDescriptor*,htmlTableSelectDescriptor*,htmlFileAttachment*,approvalComment*,htmlElementInnerList*,htmlButton*,pageNavigator?)>
+        <!ELEMENT generateHtml (property*,layout?,htmlElementDescriptor*,htmlFormExtendDescriptor*,htmlSwitchDescriptor*,htmlTableSelectDescriptor*,htmlMarkDownDescriptor*,htmlFileAttachment*,approvalComment*,htmlElementInnerList*,htmlButton*,pageNavigator?)>
         <!ATTLIST generateHtml
                 key CDATA #IMPLIED
                 generate (true|false) #REQUIRED
@@ -1044,6 +1044,44 @@
                 disabledExpression CDATA #IMPLIED
                 renderHref (false|true) #IMPLIED
                 hrefDataKeyField CDATA #IMPLIED
+                tips CDATA #IMPLIED>
+
+        <!--
+            为元素指定一个Markdown编辑器（vgoMarkdownEditor/vditor），仅vue3有效（type="print"时校验失败）。
+            解析阶段并入htmlElementDescriptor配置，tagType固定为markdown，列不存在时配置被忽略。
+            属性信息：
+            1、column 列名，必填。对应数据库表中的列，用于唯一标识该列
+            2、hideExpression 隐藏表达式，用于指定隐藏编辑器的条件，表达式中的变量为当前表单数据的属性名
+            3、disabledExpression 禁用表达式，用于指定禁用编辑器的条件
+            4、readonly 是否只读，true-只读（并入表单readonlyFields，前端以只读态渲染），false-可编辑，默认false
+            5、uploadUrl 编辑器内置上传接口地址（对应vditor upload.url）。
+               未指定时前端兜底为附件表view_md_attachment生成的默认上传接口
+            6、height 编辑器高度（vditor原生选项），仅数值（px），默认360；非数值配置不下发
+            7、minHeight 编辑器最小高度（vditor原生选项），仅数值（px），未指定时使用vditor默认值；非数值配置不下发
+            8、maxHeight 编辑器最大高度，非vditor原生选项，由组件以CSS约束实现，支持数值（px）或带单位字符串，未指定则不限制
+            9、mode 编辑器模式（vditor原生选项）：ir-即时渲染（默认），sv-分屏预览，wysiwyg-所见即所得
+            10、cdn vditor静态资源CDN/本地路径（vditor原生选项），默认/vditor
+            11、placeholder 输入占位提示（vditor原生选项），默认为“请输入内容”
+            12、tips 表单项提示信息
+            说明：
+            1、hideExpression/disabledExpression表达式中，可以通过$.属性名的方式引用当前表单数据的属性；
+               也可以使用viewStatus属性引用页面编辑状态：viewStatus == 0表示查看状态，viewStatus == 1表示编辑状态；
+               可以使用currentUser属性引用当前用户数据对象。
+            2、width、colspan、rowspan、exclusive等布局属性不支持，如需独占一行请将该列配置在独立元素组或使用列组扩展属性
+        -->
+        <!ELEMENT htmlMarkDownDescriptor (property*,validator*)>
+        <!ATTLIST htmlMarkDownDescriptor
+                column CDATA #REQUIRED
+                hideExpression CDATA #IMPLIED
+                disabledExpression CDATA #IMPLIED
+                readonly (false|true) #IMPLIED
+                uploadUrl CDATA #IMPLIED
+                height CDATA #IMPLIED
+                minHeight CDATA #IMPLIED
+                maxHeight CDATA #IMPLIED
+                mode (ir|sv|wysiwyg) #IMPLIED
+                cdn CDATA #IMPLIED
+                placeholder CDATA #IMPLIED
                 tips CDATA #IMPLIED>
 
         <!--

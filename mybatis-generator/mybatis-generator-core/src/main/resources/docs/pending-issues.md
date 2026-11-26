@@ -226,3 +226,14 @@
 - 建议后续处理：删除该空方法，或按本轮 `DecimalMin/DecimalMax` 接入模式补全实现；删除前确认无反射/插件调用方。
 - 责任与关联：`mybatis-generator-core` 生成逻辑维护方。
 - 更新与关闭记录：2026-11 首次登记，低/已定位/待处理；本轮只登记，不删除。
+
+### generator-core-ISSUE-0019 VueUiConventionAuditTest 的 pageNavigator 默认值断言与源码漂移
+
+- 发现来源：2026-11-26，htmlMarkDownDescriptor 改造收尾运行 `VueUiConventionAuditTest` 时观察到。
+- 位置与证据：`VueUiConventionAuditTest.pageNavigatorGeneratesMatchingEditAndDetailAnchorsWithComponentDefaults`（约 L89-106）断言默认 `width: 220`、`zIndex: 60`；`PageNavigatorConfiguration` 源码现值为 `width = 150`、`zIndex = 120`，用例稳定失败。
+- 问题现象与触发条件：运行该类时该用例失败，断言缺省导航面板宽度/层级与生成产物不一致；其余 11 个用例（含本次新增 3 个 htmlMarkDownDescriptor 用例）通过。
+- 影响与分级依据：低。仅测试期望值与源码默认值漂移，生成行为本身符合 `PageNavigatorConfiguration` 定义。
+- 与当前任务的关系：与 htmlMarkDownDescriptor/默认上传兜底改造无关，属既有漂移；按规范只登记，不擅自改测试期望或源码默认值（涉及默认产物口径，需负责人确认期望值方向）。
+- 建议后续处理：与负责人确认缺省值口径后同步两侧（测试期望或 `PageNavigatorConfiguration` 默认值）；该用例同文件中 `pageNavigatorMapsConfiguredComponentProperties` 因显式传 width=300/zIndex=80 不受影响。
+- 责任与关联：`mybatis-generator-core` 页面导航生成与测试维护方；关联 commit ca9ebb08「增强锁查询与页面导航生成」引入的默认值调整。
+- 更新与关闭记录：2026-11-26 首次登记，低 / 源码已定位 / 待处理；未修改相关代码与测试。

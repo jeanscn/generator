@@ -117,6 +117,7 @@ public class PropertyRegistry {
     public static final String ELEMENT_HTML_ELEMENT_DESCRIPTOR = "htmlElementDescriptor";
     public static final String ELEMENT_HTML_TABLE_SELECT_DESCRIPTOR = "htmlTableSelectDescriptor";
     public static final String ELEMENT_HTML_SWITCH_DESCRIPTOR = "htmlSwitchDescriptor";
+    public static final String ELEMENT_HTML_MARKDOWN_DESCRIPTOR = "htmlMarkDownDescriptor";
     public static final String HTML_FORM_EXTEND_DESCRIPTOR = "htmlFormExtendDescriptor";
     public static final String ELEMENT_ENABLE_CACHE = "enableCache";
 

@@ -48,3 +48,5 @@
     用途：记录 `tagType="markdown"` 的枚举、DTD、Vue3 输出与 Framework `VgoMarkdownEditor` 的跨仓范围、子任务依赖与验证边界；不表示业务配置已生成或功能已验收。
 22. [组合查询选项化生成支持任务书](..\mybatis-generator-core\src\main\resources\docs\task\query-condition-options-generation-task.md)
     用途：E01 归属任务书；`conditionOption` 配置/DTD/Parser、选项注解输出、Example 分组 Criterion 与 XML 嵌套 OR 装配、list/export 接线的子任务与验证边界；不表示业务配置已生成或功能已验收。
+23. [Markdown 编辑器默认上传接口与 htmlMarkDownDescriptor 任务书](..\mybatis-generator-core\src\main\resources\docs\task\markdown-editor-default-upload-task.md)
+    用途：记录 `view_md_attachment` 附件表/默认上传兜底、`htmlMarkDownDescriptor` 独立描述符（DTD/Parser/readonly 并入/注解透传）与 `VgoMarkdownEditor` 组件改造的跨仓范围、子任务依赖与副作用授权边界；不表示建表与再生成已执行。

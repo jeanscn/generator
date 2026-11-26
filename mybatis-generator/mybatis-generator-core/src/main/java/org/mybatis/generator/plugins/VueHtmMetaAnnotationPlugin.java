@@ -281,6 +281,27 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
                 if (VStringUtil.stringHasValue(elementDescriptor.getTips())) {
                     vueFormItemMetaDesc.setTips(elementDescriptor.getTips());
                 }
+                if (VStringUtil.stringHasValue(elementDescriptor.getUploadUrl())) {
+                    vueFormItemMetaDesc.setUploadUrl(elementDescriptor.getUploadUrl());
+                }
+                if (VStringUtil.stringHasValue(elementDescriptor.getHeight())) {
+                    vueFormItemMetaDesc.setHeight(elementDescriptor.getHeight());
+                }
+                if (VStringUtil.stringHasValue(elementDescriptor.getMinHeight())) {
+                    vueFormItemMetaDesc.setMinHeight(elementDescriptor.getMinHeight());
+                }
+                if (VStringUtil.stringHasValue(elementDescriptor.getMaxHeight())) {
+                    vueFormItemMetaDesc.setMaxHeight(elementDescriptor.getMaxHeight());
+                }
+                if (VStringUtil.stringHasValue(elementDescriptor.getMode())) {
+                    vueFormItemMetaDesc.setMode(elementDescriptor.getMode());
+                }
+                if (VStringUtil.stringHasValue(elementDescriptor.getCdn())) {
+                    vueFormItemMetaDesc.setCdn(elementDescriptor.getCdn());
+                }
+                if (VStringUtil.stringHasValue(elementDescriptor.getPlaceholder())) {
+                    vueFormItemMetaDesc.setPlaceholder(elementDescriptor.getPlaceholder());
+                }
             }else{
                 vueFormItemMetaDesc.setOtherFieldName(introspectedColumn.getJavaProperty());
             }

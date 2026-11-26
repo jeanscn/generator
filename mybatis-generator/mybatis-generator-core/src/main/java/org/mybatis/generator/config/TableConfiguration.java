@@ -1179,7 +1179,16 @@ public class TableConfiguration extends PropertyHolder {
     private void assignHtmlIntrospectedColumn(AbstractIntrospectedTable abstractIntrospectedTable, final List<String> warnings) {
         abstractIntrospectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations()
                 .forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getElementDescriptors()
-                        .forEach(setHtmlElementDescriptorColumn(abstractIntrospectedTable)));
+                        .forEach(elementDescriptor -> {
+                            setHtmlElementDescriptorColumn(abstractIntrospectedTable).accept(elementDescriptor);
+                            //描述符声明readonly的列并入表单只读字段集合
+                            if (elementDescriptor.isReadonly() && elementDescriptor.getColumn() != null) {
+                                String readonlyField = elementDescriptor.getColumn().getJavaProperty();
+                                if (!htmlGeneratorConfiguration.getReadonlyFields().contains(readonlyField)) {
+                                    htmlGeneratorConfiguration.getReadonlyFields().add(readonlyField);
+                                }
+                            }
+                        }));
         if (this.getVoGeneratorConfiguration() != null && this.getVoGeneratorConfiguration().getVoViewConfiguration() != null
                 && this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations() != null
                 && !this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().isEmpty()) {

@@ -245,6 +245,70 @@ public class VueUiConventionAuditTest {
                 .satisfies(error -> assertThat(allExceptionMessages(error)).contains("不支持 tagType=\"markdown\""));
     }
 
+    /**
+     * htmlMarkDownDescriptor 独立描述符：tagType 固定为 markdown，
+     * 专属属性（uploadUrl/height/minHeight/maxHeight/mode/cdn/placeholder）透传注解。
+     */
+    @Test
+    void markDownDescriptorEmitsMarkdownComponentAndProps() throws Exception {
+        var parser = new ConfigurationParser(new ArrayList<>());
+        Configuration config = parser.parseConfiguration(new StringReader(withMarkDownDescriptor(
+                CasConsumerBaselineTest.consumerXml(), "")));
+        parser.customConfig(config);
+        var generator = new MyBatisGenerator(config, new DefaultShellCallback(true), new ArrayList<>());
+        generator.generate(null, null, null, false);
+
+        var markdownFields = generator.getGeneratedJavaFiles().stream()
+                .map(GeneratedFile::getFormattedContent)
+                .filter(content -> content.contains("component = \"markdown\""))
+                .toList();
+        assertThat(markdownFields)
+                .as("htmlMarkDownDescriptor 应输出 @VueFormItemMeta(component = \"markdown\") 并透传专属属性")
+                .isNotEmpty()
+                .allSatisfy(content -> {
+                    assertThat(content).contains("uploadUrl = \"/bizcore/vbiz-manual-attachment-impl/upload\"");
+                    assertThat(content).contains("height = \"300\"");
+                    assertThat(content).contains("minHeight = \"200\"");
+                    assertThat(content).contains("maxHeight = \"600\"");
+                    assertThat(content).contains("mode = \"wysiwyg\"");
+                    assertThat(content).contains("cdn = \"/static/vditor\"");
+                    assertThat(content).contains("placeholder = \"请输入正文\"");
+                    assertThat(content).contains("tips = \"支持Markdown语法\"");
+                });
+    }
+
+    /**
+     * htmlMarkDownDescriptor 声明 readonly 时，对应列的 javaProperty 并入 readonlyFields。
+     */
+    @Test
+    void markDownDescriptorReadonlyMergesIntoReadonlyFields() throws Exception {
+        var parser = new ConfigurationParser(new ArrayList<>());
+        Configuration config = parser.parseConfiguration(new StringReader(withMarkDownDescriptor(
+                CasConsumerBaselineTest.consumerXml(), "readonly=\"true\"")));
+        parser.customConfig(config);
+        var generator = new MyBatisGenerator(config, new DefaultShellCallback(true), new ArrayList<>());
+        generator.generate(null, null, null, false);
+
+        assertThat(generator.getGeneratedJavaFiles().stream()
+                .map(GeneratedFile::getFormattedContent)
+                .anyMatch(content -> content.contains("readonlyFields = \"notes\"")))
+                .as("htmlMarkDownDescriptor readonly=true 应将 notes 并入 @VueFormMeta.readonlyFields")
+                .isTrue();
+    }
+
+    /**
+     * print 页面不支持 htmlMarkDownDescriptor，解析期即明确失败。
+     */
+    @Test
+    void markDownDescriptorRejectedOnPrintPages() throws Exception {
+        String xml = withMarkDownDescriptor(CasConsumerBaselineTest.consumerXml(), "")
+                .replace("type=\"editable\" viewPath=\"sensitive_word\"",
+                        "type=\"print\" viewPath=\"sensitive_word\"");
+        assertThatThrownBy(() -> new ConfigurationParser(new ArrayList<>())
+                .parseConfiguration(new StringReader(xml)))
+                .satisfies(error -> assertThat(allExceptionMessages(error)).contains("不支持 htmlMarkDownDescriptor"));
+    }
+
     private static String withMarkdownField(String xml) {
         int tableStart = xml.indexOf("<table ignore=\"false\" tableName=\"sensitive_word\"");
         int htmlStart = xml.indexOf("<generateHtml", tableStart);
@@ -254,6 +318,21 @@ public class VueUiConventionAuditTest {
         }
         return xml.substring(0, htmlEnd)
                 + "<htmlElementDescriptor column=\"notes_\" tagType=\"markdown\"/>"
+                + xml.substring(htmlEnd);
+    }
+
+    private static String withMarkDownDescriptor(String xml, String attributes) {
+        int tableStart = xml.indexOf("<table ignore=\"false\" tableName=\"sensitive_word\"");
+        int htmlStart = xml.indexOf("<generateHtml", tableStart);
+        int htmlEnd = xml.indexOf("</generateHtml>", htmlStart);
+        if (tableStart < 0 || htmlStart < 0 || htmlEnd < 0) {
+            throw new IllegalStateException("consumer test configuration is missing the sensitive_word HTML page");
+        }
+        return xml.substring(0, htmlEnd)
+                + "<htmlMarkDownDescriptor column=\"notes_\" "
+                + "uploadUrl=\"/bizcore/vbiz-manual-attachment-impl/upload\" height=\"300\" "
+                + "minHeight=\"200\" maxHeight=\"600\" mode=\"wysiwyg\" cdn=\"/static/vditor\" "
+                + "placeholder=\"请输入正文\" tips=\"支持Markdown语法\" " + attributes + "/>"
                 + xml.substring(htmlEnd);
     }
 

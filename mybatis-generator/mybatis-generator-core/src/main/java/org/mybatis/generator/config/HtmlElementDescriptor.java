@@ -89,6 +89,22 @@ public class HtmlElementDescriptor  extends AbstractHtmlElementDescriptor{
 
     private String tips;
 
+    private boolean readonly = false;
+
+    private String uploadUrl;
+
+    private String height;
+
+    private String minHeight;
+
+    private String maxHeight;
+
+    private String mode;
+
+    private String cdn;
+
+    private String placeholder;
+
     private final List<HtmlHrefElementConfiguration> htmlHrefElementConfigurations = new ArrayList<>();
 
     private final List<HtmlValidatorElementConfiguration> htmlValidatorElementConfigurations = new ArrayList<>();

@@ -1492,6 +1492,32 @@ DTD 的子内容模型为 `properties*`，而 Parser 只识别 `property`；不�
 <htmlElementDescriptor column="content_md" tagType="markdown"/>
 ```
 
+#### 7.3.7 `htmlMarkDownDescriptor`：Markdown 编辑器独立描述符
+
+`htmlMarkDownDescriptor` 是 Markdown 表单字段的独立描述节点：`generateHtml` 直接子节点与 `reusableElements` 中均已解析，走普通 descriptor 解析链（`validator` 等子节点同 `htmlElementDescriptor`），解析阶段并入 elementDescriptors 配置，tagType 固定为 `markdown`（节点本身不声明 tagType）。与 §7.3.6 的 `tagType="markdown"` 等价，额外提供编辑器专属属性；`generateHtml type="print"` 配置该节点在解析期即抛出 `generateHtml.type="print" 不支持 htmlMarkDownDescriptor`。
+
+专属属性尽量映射 vditor 原生选项，经 `@VueFormItemMeta` → `FormItem.props` → `VgoMarkdownEditor` 链路消费；`maxHeight` 非 vditor 原生项，由组件以 CSS `max-height` 约束 `.vditor` 实现；`readonly`/`hideExpression`/`disabledExpression`/`tips` 属表单层机制。
+
+| 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
+|---|---|---|---|---|
+| `column` | Markdown 绑定列 | DTD 必填 | vue3 | 列不存在时配置被忽略并告警。 |
+| `readonly` | 是否只读 | `false` | vue3 | `true` 时将列 javaProperty 并入表单 readonlyFields，前端以只读预览态渲染。 |
+| `uploadUrl` | 编辑器内置上传接口 | 未设置 | vue3 | 映射为 `props.upload.url`；未指定时组件兜底为附件表 `view_md_attachment` 生成的默认上传接口 `webcore/view-md-attachment-impl/upload`。 |
+| `height` | 编辑器高度 | 未设置（组件默认 360） | vue3 | vditor 原生选项，仅数值（px）；非数值配置不下发。 |
+| `minHeight` | 编辑器最小高度 | 未设置 | vue3 | vditor 原生选项，仅数值（px）；非数值配置不下发。 |
+| `maxHeight` | 编辑器最大高度 | 未设置 | vue3 | 非 vditor 原生项；组件以 CSS `max-height` 约束 `.vditor` 容器，支持数值或带单位字符串。 |
+| `mode` | 编辑器模式 | 未设置（组件默认 `ir`） | vue3 | vditor 原生选项：`ir`/`sv`/`wysiwyg`。 |
+| `cdn` | vditor 静态资源路径 | 未设置（组件默认 `/vditor`） | vue3 | vditor 原生选项。 |
+| `placeholder` | 输入占位提示 | 未设置（默认“请输入内容”） | vue3 | vditor 原生选项，覆盖普通 descriptor 的默认占位推导。 |
+| `hideExpression` / `disabledExpression` / `tips` | 状态与提示 | 普通描述器逻辑 | vue3 | 语义见 §7.3.2。 |
+
+示例：
+
+```xml
+<htmlMarkDownDescriptor column="content_md" height="420" minHeight="200" maxHeight="800"
+                        mode="ir" uploadUrl="/bizcore/vbiz-manual-attachment-impl/upload"/>
+```
+
 ### 7.4 校验、链接与按钮
 
 #### 7.4.1 `validator`
@@ -1767,7 +1793,7 @@ Framework API/组件契约以 mpmm-ui 的[Framework 能力总览](D:\vscode\mpmm
 | 过滤器 | `viewVo.filterColumns`、`filterColumn` | 明确字段、控件/操作和值域；需要跨表共用时可评估 `reusableElements` |
 | 列表和行操作 | `viewVo.toolbar`、`actionColumn`、`htmlButton` | 确认按钮 ID 对应已生成动作或已实现的业务扩展，不可只配置前端按钮 |
 | 新增/编辑/详情数据模型 | `generateVo` 及 `modelVo`、`createVo`、`updateVo`、`viewVo` | 列表/表单用途不同，分别核对字段白名单、必填项与校验忽略项 |
-| 表单控件和页面组件 | `htmlElementDescriptor`、`htmlTableSelectDescriptor`、`htmlFormExtendDescriptor`、`htmlFileAttachment`、`approvalComment`、`htmlElementInnerList` | 对照 7.3～7.6 的属性传递链与限制；页面直接子节点 `htmlSwitchDescriptor` 已解析为开关简写，与普通 descriptor 的 `tagType="switch"` 等价 |
+| 表单控件和页面组件 | `htmlElementDescriptor`、`htmlTableSelectDescriptor`、`htmlMarkDownDescriptor`、`htmlFormExtendDescriptor`、`htmlFileAttachment`、`approvalComment`、`htmlElementInnerList` | 对照 7.3～7.6 的属性传递链与限制；页面直接子节点 `htmlSwitchDescriptor` 已解析为开关简写，与普通 descriptor 的 `tagType="switch"` 等价；`htmlMarkDownDescriptor` 为 Markdown 编辑器独立描述符，tagType 固定 markdown，见 §7.3.7 |
 | 多表复用 | `reusableElements` 中受支持的字段、控件、列和过滤器描述 | 仅复用指南和当前 DTD/源码实际支持的描述，表级配置保留差异项 |
 | 页面菜单及权限 | `viewVo.parentMenuId`、ViewVo 菜单属性，以及 Context/Table 的模块和菜单数据配置 | 确认初始化 SQL 纳入部署链路、父节点和权限数据正确；具体生成条件见项目菜单规范及生成器菜单配置说明 |
 
@@ -2400,7 +2426,7 @@ SQL 由当前数据库产品名选择 DDL 方言格式，并通过生成使用�
 | 4 列级配置 | `columnOverride`、`ignoreColumn`、`ignoreColumnsByRegex`、`except` |
 | 5 Java 模型/VO | `generateModel`、`generateVo`、`modelVo/createVo/updateVo/viewVo/excelVo/requestVo`、`additionalProperty`、`generateCachePo` |
 | 6 值转换/渲染 | `overridePropertyValue`、`columnRenderFun`、`htmlElementDescriptor` |
-| 7 页面生成 | `generateHtml`、`property`、`layout`、`groupContainer`、`htmlElementDescriptor`、`htmlSwitchDescriptor`、`htmlTableSelectDescriptor`、`htmlFormExtendDescriptor`、`validator`、`hrefElement`、`htmlButton`、`htmlFileAttachment`、`approvalComment`、`htmlElementInnerList`；逐项解析/传递限制见第 7 章 |
+| 7 页面生成 | `generateHtml`、`property`、`layout`、`groupContainer`、`htmlElementDescriptor`、`htmlSwitchDescriptor`、`htmlTableSelectDescriptor`、`htmlMarkDownDescriptor`、`htmlFormExtendDescriptor`、`validator`、`hrefElement`、`htmlButton`、`htmlFileAttachment`、`approvalComment`、`htmlElementInnerList`；逐项解析/传递限制见第 7 章 |
 | 8 查询/关联/统计 | `selectByColumn`、`selectByTable`、`selectBySqlMethod`、`javaModelAssociation`、`javaModelCollection`、`generateTreeViewCate`、`generateOptions`、`generateDateDimStatistics`、`generateCustomStatistics` |
 | 9 其他辅助 | `htmlButton`、`queryColumn`、`filterColumn`、`nameFragment`、`mapstructMapping`、`reusableElements` |
 | 10 常见歧义/纠错 | DTD 注释 + Parser/Generator 源码校准（如 `excludedTables`、`orderByClause` 等） |
