@@ -1331,8 +1331,8 @@ Vue3 的 Edit/Detail 组件只由上述选中的表单配置输出一次；同�
 | `title` | 容器标题 | 未设置不输出 | vue3 | 不改变内嵌列表 label 的配置值。 |
 | `span` | 容器占用栅格 | `24` | vue3 | 24 栅格制。 |
 | `columnNum` | 容器内字段列数 | **`1`**（不是 DTD 注释中的 2） | vue3 | `1,2,3,4,6,12`；不要与 span 混淆。 |
-| `afterColumn` | 放置在指定元素后 | 未设置不输出 | vue3 | 最终定位由运行时布局处理。 |
-| `includeElements` | 容器包含的元素 | 空列表 | vue3 | 逗号分隔列名或组件 elementKey；配置引用应实际存在。 |
+| `afterColumn` | 放置在指定元素后 | 未设置不输出 | vue3 | 最终定位由运行时布局处理；生成时校验，引用不可定位的元素中止生成。 |
+| `includeElements` | 容器包含的元素 | 空列表 | vue3 | 逗号分隔列名或组件 elementKey；生成时校验，引用不存在的元素或多容器重复声明将中止生成。 |
 | `noBorder` | 无边框 | `false` | vue3 | 写入容器元数据。 |
 | `hideExpression` | 隐藏条件 | 未设置不输出 | vue3 | 表单表达式，不是 SQL；见 7.3.2。 |
 | `className` | 容器 CSS 类 | 未设置不输出 | vue3 | 类样式须由宿主提供。 |

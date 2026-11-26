@@ -230,9 +230,9 @@
             2、rootClassTypeArguments 对象的父类的泛型参数，多值”,“分割
             3、processDefinedKey 流程定义的key。当父类指定为流程类抽象类的时候，可以指定本参数，如果不为空，则会生成流程定义数据sql
             3、superInterface 对象实现的接口全类名，多值”,“分割
-            4、htmlHiddenFields 页面文件中隐藏的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
-            5、htmlReadonlyFields 页面文件中只读的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
-            6、htmlDisplayOnlyFields 页面文件中只显示的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
+            4、htmlHiddenFields 页面文件中隐藏的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单；生成时校验，引用不存在的字段名将中止生成
+            5、htmlReadonlyFields 页面文件中只读的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单；生成时校验，引用不存在的字段名将中止生成
+            6、htmlDisplayOnlyFields 页面文件中只显示的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单；生成时校验，引用不存在的字段名将中止生成
             7、atomicIncrementColumns 生成原子递增的字段名，多个字段使用逗号分隔
             属性默认值：
                 isModules 默认值 false
@@ -605,10 +605,10 @@
             9、targetPackage 页面文件的基础包路径，默认使用context的htmlTargetPackage
             10、default 是否为默认页面，如果为true，则当前页面为默认页面。如果所有配置的页面都不是默认页面，则第一个页面为默认页面。
            可能的property配置：
-            1、htmlHiddenFields 页面文件中隐藏的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
-            2、requiredColumns 页面文件中必填的列，多个”,“分隔。
-            3、htmlReadonlyFields 页面文件中只读的列，多个”,“分隔。
-            4、htmlDisplayOnlyFields 页面文件中只显示的列，多个”,“分隔。
+            1、htmlHiddenFields 页面文件中隐藏的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单；生成时校验，引用不存在的字段名将中止生成
+            2、requiredColumns 页面文件中必填的列，多个”,“分隔；生成时校验，引用不存在的列名将中止生成
+            3、htmlReadonlyFields 页面文件中只读的列，多个”,“分隔；生成时校验，引用不存在的字段名将中止生成
+            4、htmlDisplayOnlyFields 页面文件中只显示的列，多个”,“分隔；生成时校验，引用不存在的字段名将中止生成
         -->
         <!ELEMENT generateHtml (property*,layout?,htmlElementDescriptor*,htmlFormExtendDescriptor*,htmlSwitchDescriptor*,htmlTableSelectDescriptor*,htmlFileAttachment*,approvalComment*,htmlElementInnerList*,htmlButton*,pageNavigator?)>
         <!ATTLIST generateHtml
@@ -665,7 +665,7 @@
             2、pageColumnsNum 页面显示元素列数 默认2列,可用值为1|2|3|4|6|12
             3、barPosition 工具条位置，"bottom"\"top" 默认”bottom“
             4、uiFrameType 页面框架名称，layui|zui|elPlus|antd，默认layui(1.6.0版本默认为elPlus)
-            5、exclusiveColumns 独占一行的列名，多个列名用逗号分隔
+            5、exclusiveColumns 独占一行的列名，多个列名用逗号分隔；生成时校验，引用未生成表单项的列名将中止生成
             6、borderWidth 内容边框宽度，默认1px
             7、borderColor 内容边框颜色，默认#eee
             8、labelWidth 标签宽度，默认120px.例如 '50px'。 作为 Form 直接子元素的 form-item 会继承该值。 可以使用 auto。
@@ -697,8 +697,9 @@
            4、title（可选）容器标题（当容器内为innerList是优先使用title，否则使用innerList的label）
            5、span 容器占用列数，默认24列
            6、columnNum 容器内元素列数，默认2列,可用值为1|2|3|4|6|12
-           7、afterColumn 容器前置元素
+           7、afterColumn 容器前置元素（顶层容器为 first 或先行同级容器 elementKey；子容器可为 first、父容器已包含元素或先行同级容器 elementKey）
            8、includeElements 包含的元素，多个元素用逗号分隔（使用列名或elementKey）字段的columnName或者子容器的elementKey
+              生成时校验：includeElements 引用不存在的列/元素键、或在多个容器重复声明、以及 afterColumn 引用不可定位的元素，均会中止生成
            9、noBorder 是否无边框，默认false
            10、hideExpression 隐藏表达式，用于控制元素的显示与隐藏，例如：hideExpression="$.type=='1'"，表示当表单数据的type属性等于1时隐藏元素
            11、className 容器样式类
@@ -1089,7 +1090,7 @@
             7、limit 附件上传组件的限制数量，默认为0-不限制（vue新增）
             8、restBasePath 附件上传组件的基础路径，用于指定附件上传的基础路径。
             9、label 附件上传组件的标题，默认为“附件”
-            10、afterColumn 在指定列的后面添加附件上传组件,如果未指定或指定的字段不存在。则放置在最后一行。
+            10、afterColumn 在指定列的后面添加附件上传组件,如果未指定则放置在最后一行；指定的列名未生成表单项时生成校验失败并中止生成。
             11、exclusive 是否独占一行，默认为true
             12、order 当同时村做个附件上传、内置列表时，order用来调整它们之间的顺序，默认为10
             13、verify 附件上传组件的验证方式，默认为none-不验证，required-必填 （暂时无用）
@@ -1120,7 +1121,7 @@
             属性信息：
             1、generate 是否生成审批意见组件，true-生成，false-不生成。默认为true
             2、elementKey 元素唯一标识，用于引用元素。不能与与数据库的列名或属性名重复。
-            3、afterColumn 在指定列的后面添加审批意见组件,如果未指定或指定的字段不存在。则放置在最后一行。
+            3、afterColumn 在指定列的后面添加审批意见组件,如果未指定则放置在最后一行；指定的列名未生成表单项时生成校验失败并中止生成。
             4、label 审批意见组件的标题，默认为“审批意见”
             5、placeholder 审批意见组件的提示信息，默认为“请输入审批意见”
             6、locationTag 审批意见组件的位置标签，默认为“审批意见”
@@ -1164,7 +1165,7 @@
                     </div>
             11、dataField 数据来源的属性名称，表示数据来源于当前bean的哪个属性（一般为javaModelCollection生成的子查询返回列表的属性），与dataUrl属性互斥
             12、dataUrl 数据来源的url，表示列表数据来源于其他url，与dataField属性互斥
-            13、afterColumn 在指定列的后面添加列表组件,如果未指定或指定的字段不存在。则放置在最后一行。
+            13、afterColumn 在指定列的后面添加列表组件,如果未指定则放置在最后一行；指定的列名未生成表单项时生成校验失败并中止生成。
             14、containerType 容器类型，none-不生成容器，tab-生成容器tab，border-使用border包围，默认none
             15、order 当同时村做个附件上传、内置列表时，order用来调整它们之间的顺序，默认为10
             16、editMode 编辑模式，row-行编辑，cell-单元格编辑，默认row
